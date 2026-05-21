@@ -3,3 +3,4 @@
 /.project
 /.classpath
 .nbattrs
+src/main/resources/META-INF/persistence.xml
