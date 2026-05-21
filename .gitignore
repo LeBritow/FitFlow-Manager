@@ -4,3 +4,19 @@
 /.classpath
 .nbattrs
 src/main/resources/META-INF/persistence.xml
+
+# Pastas de build e compilados
+/target/
+/build/
+
+# IDEs (NetBeans, VS Code, IntelliJ)
+.nb-gradle/
+.nb-jdks/
+.nb-configurations/
+.vscode/
+.idea/
+*.class
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
