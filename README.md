@@ -10,7 +10,7 @@ Sistema de gestão para academias em **Java (JavaFX + JPA)**.
 
 ### O que faz?
 - Gestão de alunos e instrutores.
-- Montagem de treinos (Templates vs. Personalizados).
+- Montagem de treinos (Templates e Personalizados).
 - Gerador automático de fichas (Sorteio inteligente por grupo muscular).
 
 ### Rodando o projeto
