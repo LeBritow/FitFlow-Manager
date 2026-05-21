@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefWidth="420.0" spacing="15.0" style="-fx-background-color: #ffffff; -fx-padding: 20;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.academia.FormExercicioController">
+   <children>
+      <Label fx:id="labelTitulo" text="Cadastrar Exercício">
+         <font><Font name="System Bold" size="20.0" /></font>
+      </Label>
+      
+      <VBox spacing="5.0">
+         <children>
+            <Label text="Nome do Exercício:" />
+            <TextField fx:id="campoNome" promptText="Ex: Supino Reto" />
+         </children>
+      </VBox>
+      
+      <VBox spacing="5.0">
+         <children>
+            <Label text="Grupo Muscular:" />
+            <TextField fx:id="campoGrupo" promptText="Ex: Peitorais" />
+         </children>
+      </VBox>
+      
+      <VBox spacing="5.0">
+         <children>
+            <Label text="Link do GIF / Imagem de Execução:" />
+            <TextField fx:id="campoUrl" promptText="https://linkdaweb.com/exercicio.gif" />
+         </children>
+      </VBox>
+      
+      <VBox spacing="5.0" VBox.vgrow="ALWAYS">
+         <children>
+            <Label text="Orientação Técnica / Descrição:" />
+            <TextArea fx:id="campoDescricao" prefHeight="100.0" promptText="Instruções de postura e execução..." wrapText="true" />
+         </children>
+      </VBox>
+      
+      <HBox alignment="CENTER_RIGHT" spacing="10.0">
+         <children>
+            <Button mnemonicParsing="false" onAction="#clicouCancelar" style="-fx-background-color: #ccc;" text="Cancelar" />
+            <Button mnemonicParsing="false" onAction="#clicouSalvar" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-font-weight: bold;" text="Guardar Exercício" />
+         </children>
+      </HBox>
+   </children>
+</VBox>
