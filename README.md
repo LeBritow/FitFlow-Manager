@@ -16,7 +16,7 @@ Sistema de gestão para academias em **Java (JavaFX + JPA)**.
 ### Rodando o projeto
 ```bash
 # 1. Clone
-git clone [https://github.com/SEU_USUARIO/nome-do-repo.git](https://github.com/SEU_USUARIO/nome-do-repo.git)
+git clone https://github.com/LeBritow/sistema-academia.git
 
 # 2. Build
 mvn clean install
