@@ -13,14 +13,13 @@ public abstract class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id; // [cite: 90]
+    private int id;
 
-    private String nome; // [cite: 92]
-    private String email; // [cite: 93]
-    private String cpf; // [cite: 94]
-    private String senha; // [cite: 95]
+    private String nome;
+    private String email;
+    private String cpf;
+    private String senha;
 
-    // Construtor vazio (obrigatório para o JPA)
     public Usuario() {
     }
 

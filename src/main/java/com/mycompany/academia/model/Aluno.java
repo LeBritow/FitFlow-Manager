@@ -5,9 +5,9 @@ import jakarta.persistence.Entity;
 @Entity
 public class Aluno extends Usuario {
 
-    private float peso; // [cite: 109]
-    private float altura; // [cite: 109]
-    private float imc; // [cite: 110]
+    private float peso;
+    private float altura;
+    private float imc;
 
     public Aluno() {
     }

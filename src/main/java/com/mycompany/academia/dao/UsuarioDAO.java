@@ -13,19 +13,15 @@ public class UsuarioDAO {
         EntityManager em = JPAUtil.getEntityManager();
         
         try {
-            // JPQL: Busca o usuário onde o email ou o cpf seja igual ao login digitado
             String jpql = "SELECT u FROM Usuario u WHERE (u.email = :login OR u.cpf = :login) AND u.senha = :senha";
             TypedQuery<Usuario> query = em.createQuery(jpql, Usuario.class);
             
-            // Substitui os parâmetros da query pelos valores que vieram da tela
             query.setParameter("login", login);
             query.setParameter("senha", senha);
             
-            // Retorna o usuário se encontrar, ou dá erro se não achar nada
             return query.getSingleResult();
             
         } catch (NoResultException e) {
-            // Se não encontrar ninguém com esses dados, retorna null
             return null; 
         } finally {
             em.close();
@@ -41,9 +37,6 @@ public class UsuarioDAO {
             TypedQuery<Usuario> query = em.createQuery(jpql, Usuario.class);
             query.setParameter("email", email);
             
-            // --- A SOLUÇÃO ENTRA AQUI ---
-            // Força o banco a pegar apenas o 1º usuário que encontrar com esse email,
-            // ignorando se houver duplicatas.
             query.setMaxResults(1); 
             
             Usuario usuario = query.getSingleResult();
@@ -70,7 +63,6 @@ public class UsuarioDAO {
     public List<Usuario> listarTodos() {
         EntityManager em = JPAUtil.getEntityManager();
         try {
-            // JPQL simples e direta: "Traga todos os usuários"
             return em.createQuery("SELECT u FROM Usuario u", Usuario.class).getResultList();
         } finally {
             em.close();
@@ -81,7 +73,6 @@ public class UsuarioDAO {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            // O merge garante que o Hibernate reconheça o objeto antes de apagar
             usuario = em.merge(usuario); 
             em.remove(usuario);
             em.getTransaction().commit();
@@ -102,11 +93,9 @@ public class UsuarioDAO {
         try {
             em.getTransaction().begin();
             
-            // Se o ID for 0, significa que é um usuário novo, então criamos (persist)
             if (usuario.getId() == 0) {
                 em.persist(usuario);
             } else {
-                // Se já tem ID, significa que estamos editando, então atualizamos (merge)
                 em.merge(usuario);
             }
             
