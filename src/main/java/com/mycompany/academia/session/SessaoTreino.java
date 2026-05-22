@@ -16,8 +16,8 @@ public class SessaoTreino {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private LocalDateTime data; //
-    private boolean concluido; //
+    private LocalDateTime data;
+    private boolean concluido;
 
     @ManyToOne
     @JoinColumn(name = "programacao_treino_id")

@@ -13,10 +13,9 @@ public class Exercicio {
     private int id;
 
     private String nome;
-    private String grupoMuscular; // Ex: Peito, Costas, Pernas
+    private String grupoMuscular;
     private String descricao;
     
-    // NOVO CAMPO: Guardará o link do GIF ou Vídeo
     private String urlMidia; 
 
     public Exercicio() {

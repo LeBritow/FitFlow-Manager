@@ -34,25 +34,21 @@ public class TrocarSenhaObrigatoriaController {
             return;
         }
 
-        // Pega o usuário logado atualmente (que parou no pedágio)
         Usuario usuarioAtual = SessaoUsuario.getInstancia().getUsuarioLogado();
         
         UsuarioDAO dao = new UsuarioDAO();
         boolean sucesso = dao.atualizarSenhaPorEmail(usuarioAtual.getEmail(), novaSenha);
 
         if (sucesso) {
-            // Atualiza a senha na memória também
             usuarioAtual.setSenha(novaSenha);
             
             try {
-                // Abre o Painel Principal!
                 javafx.scene.Parent raiz = javafx.fxml.FXMLLoader.load(getClass().getResource("/fxml/PainelPrincipal.fxml"));
                 Stage novoPalco = new Stage();
                 novoPalco.setTitle("Sistema de Academia - Dashboard");
                 novoPalco.setScene(new javafx.scene.Scene(raiz));
                 novoPalco.show();
 
-                // Fecha a tela de troca de senha
                 Stage palcoAtual = (Stage) campoNovaSenha.getScene().getWindow();
                 palcoAtual.close();
 

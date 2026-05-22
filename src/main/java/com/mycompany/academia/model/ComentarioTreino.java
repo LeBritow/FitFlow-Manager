@@ -16,10 +16,10 @@ public class ComentarioTreino {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String mensagem; //
-    private LocalDateTime dataHoraEnvio; //
-    private LocalDateTime dataHoraVisu; //
-    private boolean visualizado; //
+    private String mensagem;
+    private LocalDateTime dataHoraEnvio;
+    private LocalDateTime dataHoraVisu;
+    private boolean visualizado;
 
     @ManyToOne
     @JoinColumn(name = "aluno_id")
@@ -32,7 +32,7 @@ public class ComentarioTreino {
     public ComentarioTreino() {
     }
 
-    public void marcarComoLido() { //
+    public void marcarComoLido() {
         this.visualizado = true;
         this.dataHoraVisu = LocalDateTime.now();
     }

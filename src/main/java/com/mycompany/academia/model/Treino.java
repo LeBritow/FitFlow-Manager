@@ -15,7 +15,6 @@ public class Treino {
     private String nome;
     private String objetivo;
     
-    // NOVO: Define se é um Template da Academia (true) ou Treino Personalizado de alguém (false)
     private boolean fichaPadrao; 
 
     public Treino() {

@@ -20,35 +20,27 @@ public class ItemTreino {
 
     private float intervaloDescanso; 
     
-    // Flag para sabermos se o instrutor quis fazer progressão ou se é um treino normal
     private boolean progressaoCarga; 
 
-    // Relacionamento com Treino
     @ManyToOne
     @JoinColumn(name = "treino_id")
     private Treino treino;
 
-    // Relacionamento com Exercicio
     @ManyToOne
     @JoinColumn(name = "exercicio_id")
     private Exercicio exercicio;
 
-    // A MÁGICA ACONTECE AQUI: Uma lista contendo todas as séries deste exercício
-    // CascadeType.ALL significa que se salvar ou apagar o ItemTreino, as Séries vão junto!
     @OneToMany(mappedBy = "itemTreino", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SerieTreino> seriesTreino = new ArrayList<>();
 
     public ItemTreino() {
-        // Construtor vazio obrigatório para o JPA
     }
 
-    // Método utilitário para facilitar adicionar séries
     public void adicionarSerie(SerieTreino serie) {
         seriesTreino.add(serie);
         serie.setItemTreino(this);
     }
 
-    // Getters e Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

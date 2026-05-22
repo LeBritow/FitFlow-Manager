@@ -13,17 +13,16 @@ public class ProgramacaoTreino {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id; //
+    private int id;
 
-    private LocalDateTime dataInicioSemanas; //
-    private LocalDateTime dataFimSemanas; //
-    private String diaDaSemana; //
+    private LocalDateTime dataInicioSemanas;
+    private LocalDateTime dataFimSemanas;
+    private String diaDaSemana;
 
     @ManyToOne
     @JoinColumn(name = "aluno_id")
-    private Aluno aluno; //
+    private Aluno aluno;
 
-    // --- O ELO PERDIDO: Ligação direta ao Treino (A, B, C...) ---
     @ManyToOne
     @JoinColumn(name = "treino_id")
     private Treino treino;
@@ -46,7 +45,6 @@ public class ProgramacaoTreino {
     public Aluno getAluno() { return aluno; }
     public void setAluno(Aluno aluno) { this.aluno = aluno; }
 
-    // Novos Getters e Setters para o Treino
     public Treino getTreino() { return treino; }
     public void setTreino(Treino treino) { this.treino = treino; }
 }

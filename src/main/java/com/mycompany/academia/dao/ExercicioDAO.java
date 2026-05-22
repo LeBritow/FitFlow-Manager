@@ -12,9 +12,9 @@ public class ExercicioDAO {
         try {
             em.getTransaction().begin();
             if (exercicio.getId() == 0) {
-                em.persist(exercicio); // Cria novo
+                em.persist(exercicio);
             } else {
-                em.merge(exercicio); // Atualiza existente
+                em.merge(exercicio);
             }
             em.getTransaction().commit();
             return true;
@@ -57,7 +57,6 @@ public class ExercicioDAO {
         }
     }
     
-    // Este método precisa estar dentro da classe ExercicioDAO
     public List<Exercicio> buscarPorGrupoMuscular(String grupo) {
         EntityManager em = JPAUtil.getEntityManager();
         try {

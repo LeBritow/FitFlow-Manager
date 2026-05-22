@@ -15,8 +15,8 @@ public class ItemRealizado {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private float cargaUtilizada; //
-    private boolean feito; //
+    private float cargaUtilizada;
+    private boolean feito;
 
     @ManyToOne
     @JoinColumn(name = "sessao_treino_id")
@@ -29,7 +29,7 @@ public class ItemRealizado {
     public ItemRealizado() {
     }
 
-    public void marcarComoFeito() { //
+    public void marcarComoFeito() {
         this.feito = true;
     }
 

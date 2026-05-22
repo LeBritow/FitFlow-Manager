@@ -10,7 +10,6 @@ import java.util.List;
 
 public class TreinoDAO {
 
-    // Guarda o cabeçalho do treino (Nome e Objetivo) e devolve o objeto com o ID gerado
     public Treino salvarTreino(Treino treino) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -33,7 +32,6 @@ public class TreinoDAO {
         }
     }
 
-    // Guarda o exercício e, graças ao CascadeType.ALL, guarda as Séries automaticamente!
     public boolean salvarItemTreino(ItemTreino item) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -94,7 +92,6 @@ public class TreinoDAO {
         }
     }
 
-    // AQUI ESTÁ A GRANDE MUDANÇA: Adicionado o "LEFT JOIN FETCH i.seriesTreino" para trazer as linhas das séries junto com o exercício
     public List<ItemTreino> listarItensPorTreino(int treinoId) {
         EntityManager em = JPAUtil.getEntityManager();
         try {

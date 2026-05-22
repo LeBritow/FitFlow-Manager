@@ -21,7 +21,6 @@ public class FormUsuarioController {
     @FXML private ComboBox<String> comboTipoPerfil;
     @FXML private TextField campoNome, campoCpf, campoEmail;
     
-    // Específicos
     @FXML private HBox caixaAluno;
     @FXML private TextField campoPeso, campoAltura;
     @FXML private VBox caixaInstrutor;
@@ -31,11 +30,9 @@ public class FormUsuarioController {
 
     @FXML
     public void initialize() {
-        // Preenche as opções do ComboBox
         comboTipoPerfil.getItems().addAll("Admin", "Instrutor", "Aluno");
         comboTipoPerfil.setValue("Aluno"); // Padrão
         
-        // Listener que escuta quando você muda a opção no ComboBox
         comboTipoPerfil.getSelectionModel().selectedItemProperty().addListener((obs, antigo, novo) -> {
             ajustarCamposDinamicos(novo);
         });
@@ -51,7 +48,6 @@ public class FormUsuarioController {
         caixaInstrutor.setManaged(tipo.equals("Instrutor"));
     }
 
-    // Método chamado pela tela da tabela quando clicamos em "Editar"
     public void preencherParaEdicao(Usuario u) {
         this.usuarioParaEditar = u;
         labelTitulo.setText("Editar Usuário");
@@ -60,7 +56,6 @@ public class FormUsuarioController {
         campoCpf.setText(u.getCpf());
         campoEmail.setText(u.getEmail());
         
-        // Trava o ComboBox para não mudar o perfil de quem já existe
         comboTipoPerfil.setDisable(true); 
         
         if (u instanceof Aluno) {
@@ -77,20 +72,17 @@ public class FormUsuarioController {
 
     @FXML
     void clicouSalvar(ActionEvent event) {
-        // 1. Coleta os dados básicos
         String tipo = comboTipoPerfil.getValue();
         Usuario objSalvar = usuarioParaEditar;
         
-        // Se for novo, cria a instância correta
         if (objSalvar == null) {
             if (tipo.equals("Aluno")) objSalvar = new Aluno();
             else if (tipo.equals("Instrutor")) objSalvar = new Instrutor();
             else objSalvar = new Admin();
             
-            objSalvar.setSenha("123456"); // Senha padrão para novos
+            objSalvar.setSenha("123456");
         }
         
-        // 2. Preenche os dados
         objSalvar.setNome(campoNome.getText());
         objSalvar.setCpf(campoCpf.getText());
         objSalvar.setEmail(campoEmail.getText());
@@ -101,7 +93,7 @@ public class FormUsuarioController {
                 float a = Float.parseFloat(campoAltura.getText());
                 ((Aluno) objSalvar).setPeso(p);
                 ((Aluno) objSalvar).setAltura(a);
-                ((Aluno) objSalvar).setImc(p / (a * a)); // Calcula o IMC na hora!
+                ((Aluno) objSalvar).setImc(p / (a * a));
             } else if (objSalvar instanceof Instrutor) {
                 ((Instrutor) objSalvar).setCref(campoCref.getText());
             }
@@ -111,7 +103,6 @@ public class FormUsuarioController {
             return;
         }
         
-        // 3. Salva no banco
         UsuarioDAO dao = new UsuarioDAO();
         if (dao.salvar(objSalvar)) {
             fecharJanela();

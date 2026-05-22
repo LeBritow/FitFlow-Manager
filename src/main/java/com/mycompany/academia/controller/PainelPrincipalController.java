@@ -28,17 +28,12 @@ public class PainelPrincipalController {
         Usuario usuario = SessaoUsuario.getInstancia().getUsuarioLogado();
         
         if (usuario != null) {
-            // Pega o primeiro nome para não ficar gigante no menu
             labelNomeUser.setText(usuario.getNome().split(" ")[0]);
             
-            // Controle de Acesso inteligente!
             if (usuario instanceof Admin) {
                 labelTipoUser.setText("Administrador");
             } else if (usuario instanceof Instrutor) {
                 labelTipoUser.setText("Instrutor");
-                // Como exemplo, se o Instrutor não puder ver a aba de "Gerenciar Usuários":
-                // btnUsuarios.setVisible(false);
-                // btnUsuarios.setManaged(false);
             } else if (usuario instanceof Aluno) {
                 labelTipoUser.setText("Aluno (Acesso Mobile)");
                 btnUsuarios.setVisible(false);
@@ -47,12 +42,11 @@ public class PainelPrincipalController {
         }
     }
 
-    // --- MÁGICA DA NAVEGAÇÃO DINÂMICA ---
     private void carregarTelaCentro(String arquivoFxml) {
         try {
             Parent novaTela = FXMLLoader.load(getClass().getResource("/fxml/" + arquivoFxml));
-            areaConteudo.getChildren().clear(); // Limpa o meio
-            areaConteudo.getChildren().add(novaTela); // Joga a tela nova lá dentro
+            areaConteudo.getChildren().clear();
+            areaConteudo.getChildren().add(novaTela);
         } catch (IOException e) {
             System.err.println("Erro ao tentar carregar a tela: " + arquivoFxml);
             e.printStackTrace();
@@ -69,7 +63,7 @@ public class PainelPrincipalController {
 
     @FXML
     void abrirUsuarios(ActionEvent event) {
-        carregarTelaCentro("Usuarios.fxml"); // Vai carregar a tela que criaremos no Passo 3
+        carregarTelaCentro("Usuarios.fxml");
     }
 
     @FXML
@@ -84,7 +78,6 @@ public class PainelPrincipalController {
 
     @FXML
     void sairSistema(ActionEvent event) {
-        // Limpa a memória e volta pra tela de login
         SessaoUsuario.getInstancia().encerrarSessao();
         try {
             Parent login = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
@@ -94,7 +87,6 @@ public class PainelPrincipalController {
             palco.setResizable(false);
             palco.show();
             
-            // Fecha o Painel Principal atual
             Stage palcoAtual = (Stage) btnUsuarios.getScene().getWindow();
             palcoAtual.close();
         } catch (IOException e) {

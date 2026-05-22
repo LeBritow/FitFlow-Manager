@@ -51,7 +51,6 @@ public class FichasTreinoController {
     @FXML private TableView<Exercicio> tabelaCatalogo;
     @FXML private TableView<ItemTreino> tabelaFicha;
     
-    // ATENÇÃO: Mudamos Reps e Carga para String para podermos mostrar "12-10-8" e "10kg/12kg"
     @FXML private TableColumn<ItemTreino, String> colunaExercicioFicha;
     @FXML private TableColumn<ItemTreino, Integer> colunaSeries;
     @FXML private TableColumn<ItemTreino, String> colunaReps;
@@ -144,7 +143,6 @@ public class FichasTreinoController {
             checkFichaPadrao.setSelected(false); 
             listaFicha.clear();
             
-            // Clonagem Profunda (Clona o item e todas as séries filhas dele)
             List<ItemTreino> itensTemplate = treinoDAO.listarItensPorTreino(template.getId());
             for (ItemTreino it : itensTemplate) {
                 ItemTreino novoItem = new ItemTreino();
@@ -174,10 +172,6 @@ public class FichasTreinoController {
         }
     }
 
-    // =========================================================================
-    // GERADOR INTELIGENTE (AGORA COM SÉRIES E PROGRESSÃO REAIS)
-    // =========================================================================
-
     @FXML
     void clicouGeradorTreino(ActionEvent event) {
         Dialog<List<String>> dialog = new Dialog<>();
@@ -204,11 +198,9 @@ public class FichasTreinoController {
         CheckBox checkVariar = new CheckBox("Gostaria de séries e repetições alternadas?");
         CheckBox checkProgressao = new CheckBox("Aplicar método de Progressão de Carga (Pirâmide)?");
 
-        // CRIAMOS AS LABELS SEPARADAS PARA PODER MUDAR O TEXTO DELAS DEPOIS
         Label lblSeries = new Label("Séries Base:");
         Label lblReps = new Label("Reps Base:");
 
-        // EVENTO DINÂMICO: Muda o texto se a caixinha for clicada
         checkVariar.setOnAction(e -> {
             if (checkVariar.isSelected()) {
                 lblSeries.setText("Séries Máx:");
@@ -283,7 +275,7 @@ public class FichasTreinoController {
         } else if (foco.equals("Peito e Costas (Antagonista)")) {
             selecionados.addAll(sortearExercicios("Peitoral", qtdMetade));
             selecionados.addAll(sortearExercicios("Costas", qtdOutraMetade));
-        } else { // Braços
+        } else {
             selecionados.addAll(sortearExercicios("Biceps", qtdMetade));
             selecionados.addAll(sortearExercicios("Triceps", qtdOutraMetade));
         }
@@ -300,15 +292,10 @@ public class FichasTreinoController {
             int repsDoExercicio;
             
             if (variar) {
-                // 1. O Java define as séries primeiro (sorteando entre 2 e o Máximo digitado)
                 seriesDoExercicio = Math.max(2, qtdSeries - rand.nextInt(3)); 
                 
-                // 2. MATEMÁTICA INVERSAMENTE PROPORCIONAL:
-                // Se sorteou 4 séries (alto), a penalidade de reps é alta.
-                // Se sorteou 2 séries (baixo), a penalidade é quase zero (mantém as reps altas).
-                int diferencaParaOMinimo = seriesDoExercicio - 2; // Se series=2, dá 0. Se series=4, dá 2.
+                int diferencaParaOMinimo = seriesDoExercicio - 2;
                 
-                // Retira aproximadamente 2 repetições para cada série extra adicionada, com um leve fator aleatório
                 int penalidadeReps = (diferencaParaOMinimo * 2) + rand.nextInt(2); 
                 
                 repsDoExercicio = Math.max(6, qtdReps - penalidadeReps);
@@ -322,7 +309,6 @@ public class FichasTreinoController {
                 serie.setNumeroDaSerie(i);
                 
                 if (progredir) {
-                    // Na pirâmide, as reps continuam caindo a cada série individual
                     serie.setRepeticoes(Math.max(6, repsDoExercicio - ((i - 1) * 2)));
                     serie.setCarga(baseCarga + ((i - 1) * 2.0f));
                 } else {
@@ -350,14 +336,11 @@ public class FichasTreinoController {
         return doGrupo.subList(0, Math.min(quantidade, doGrupo.size()));
     } 
     
-    // =========================================================================
-
     private void configurarColunasDaFicha() {
         colunaExercicioFicha.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getExercicio().getNome()));
         
         colunaSeries.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getSeriesTreino().size()).asObject());
         
-        // --- EDIÇÃO INTELIGENTE DE REPETIÇÕES ---
         colunaReps.setCellValueFactory(cellData -> {
             ItemTreino item = cellData.getValue();
             if (item.getSeriesTreino().isEmpty()) return new SimpleStringProperty("-");
@@ -373,7 +356,6 @@ public class FichasTreinoController {
             ItemTreino item = event.getRowValue();
             String[] parts = event.getNewValue().split("-");
             
-            // Se o cara digitou só "15", aplica em todas as séries. Se digitou "15-12-10", aplica uma em cada.
             if (parts.length == 1) {
                 try {
                     int rep = Integer.parseInt(parts[0].trim());
@@ -389,7 +371,6 @@ public class FichasTreinoController {
             tabelaFicha.refresh();
         });
 
-        // --- EDIÇÃO INTELIGENTE DE CARGAS ---
         colunaCarga.setCellValueFactory(cellData -> {
             ItemTreino item = cellData.getValue();
             if (item.getSeriesTreino().isEmpty()) return new SimpleStringProperty("-");
@@ -403,7 +384,7 @@ public class FichasTreinoController {
         colunaCarga.setCellFactory(TextFieldTableCell.forTableColumn());
         colunaCarga.setOnEditCommit(event -> {
             ItemTreino item = event.getRowValue();
-            String limpo = event.getNewValue().replace("kg", "").trim(); // Tira o "kg" pra não dar erro de conversão
+            String limpo = event.getNewValue().replace("kg", "").trim();
             String[] parts = limpo.split("/");
             
             if (parts.length == 1) {
@@ -445,7 +426,6 @@ public class FichasTreinoController {
         novoItem.setIntervaloDescanso(60.0f);
         novoItem.setProgressaoCarga(false);
         
-        // Cria 3 séries padrão automaticamente para não dar erro
         for(int i = 1; i <= 3; i++){
             SerieTreino serie = new SerieTreino();
             serie.setNumeroDaSerie(i);
@@ -483,7 +463,7 @@ public class FichasTreinoController {
             for (ItemTreino item : listaFicha) {
                 if (treinoEmEdicao == null) item.setId(0); 
                 item.setTreino(treinoSalvo);
-                treinoDAO.salvarItemTreino(item); // O Cascade vai salvar as séries automaticamente aqui!
+                treinoDAO.salvarItemTreino(item);
             }
             if (!isTemplate && treinoEmEdicao == null) {
                 ProgramacaoTreino prog = new ProgramacaoTreino();

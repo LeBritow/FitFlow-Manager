@@ -8,7 +8,6 @@ public class Instrutor extends Usuario {
     private String cref; // 
 
     public Instrutor() {
-        // Construtor vazio obrigatório para o JPA
     }
 
     public String getCref() {

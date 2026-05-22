@@ -14,17 +14,15 @@ public class SerieTreino {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private int numeroDaSerie; // Ex: 1, 2, 3
-    private int repeticoes;    // Ex: 12 (na primeira), 10 (na segunda)
-    private float carga;       // Ex: 10.0 (na primeira), 12.0 (na segunda)
+    private int numeroDaSerie;
+    private int repeticoes;
+    private float carga;
 
-    // Relacionamento com a tabela ItemTreino (Mãe)
     @ManyToOne
     @JoinColumn(name = "item_treino_id")
     private ItemTreino itemTreino;
 
     public SerieTreino() {
-        // Construtor vazio para o JPA
     }
 
     // Getters e Setters

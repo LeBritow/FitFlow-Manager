@@ -10,14 +10,13 @@ public class Academia extends Application {
 
     @Override
     public void start(Stage palcoPrincipal) throws Exception {
-        // Carrega o arquivo XML da tela de Login
         Parent raiz = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
         
         Scene cena = new Scene(raiz);
         
         palcoPrincipal.setTitle("Sistema de Academias - Login");
         palcoPrincipal.setScene(cena);
-        palcoPrincipal.setResizable(false); // Impede de redimensionar a tela
+        palcoPrincipal.setResizable(false);
         palcoPrincipal.show();
     }
 

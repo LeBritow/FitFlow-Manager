@@ -24,19 +24,16 @@ public class UsuariosController {
     }
 
     private void carregarDadosTabela() {
-        // 1. Busca os dados no PostgreSQL
         List<Usuario> usuariosBanco = dao.listarTodos();
         
-        // 2. Transforma a lista normal do Java na lista inteligente do JavaFX
         listaUsuariosOb = FXCollections.observableArrayList(usuariosBanco);
         
-        // 3. Joga a lista dentro da tabela
         tabelaUsuarios.setItems(listaUsuariosOb);
     }
 
     @FXML
     void clicouNovo(ActionEvent event) {
-        abrirFormulario(null); // Passa null porque é um usuário novo
+        abrirFormulario(null);
     }
 
     @FXML
@@ -46,16 +43,14 @@ public class UsuariosController {
             mostrarAlerta(Alert.AlertType.WARNING, "Atenção", "Selecione um usuário para editar.");
             return;
         }
-        abrirFormulario(selecionado); // Passa o usuário clicado
+        abrirFormulario(selecionado);
     }
 
-    // Método Mágico para abrir a janela modal
     private void abrirFormulario(Usuario usuario) {
         try {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/FormUsuario.fxml"));
             javafx.scene.Parent raiz = loader.load();
             
-            // Se for edição, injeta os dados na tela antes de abrir
             if (usuario != null) {
                 FormUsuarioController controller = loader.getController();
                 controller.preencherParaEdicao(usuario);
@@ -65,11 +60,9 @@ public class UsuariosController {
             palcoModal.setTitle(usuario == null ? "Novo Usuário" : "Editar Usuário");
             palcoModal.setScene(new javafx.scene.Scene(raiz));
             
-            // Bloqueia a tela de trás enquanto este formulário estiver aberto
             palcoModal.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            palcoModal.showAndWait(); // Pausa o código aqui até a janela ser fechada
+            palcoModal.showAndWait();
             
-            // Quando a janela fechar, atualiza a tabela automaticamente!
             carregarDadosTabela();
             
         } catch (Exception e) {
@@ -87,18 +80,16 @@ public class UsuariosController {
             return;
         }
         
-        // Pop-up de confirmação para evitar cliques acidentais
         Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacao.setTitle("Confirmação de Exclusão");
         confirmacao.setHeaderText("Você está prestes a deletar: " + selecionado.getNome());
         confirmacao.setContentText("Tem certeza disso? Essa ação não pode ser desfeita.");
         
-        // Se o admin clicar em "OK"
         if (confirmacao.showAndWait().get() == javafx.scene.control.ButtonType.OK) {
             boolean sucesso = dao.excluir(selecionado);
             if (sucesso) {
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Usuário excluído com sucesso!");
-                carregarDadosTabela(); // Atualiza a tabela na tela automaticamente!
+                carregarDadosTabela();
             } else {
                 mostrarAlerta(Alert.AlertType.ERROR, "Erro", "Não foi possível excluir o usuário. Ele pode estar vinculado a outros dados (ex: Fichas de Treino).");
             }
@@ -120,7 +111,6 @@ public class UsuariosController {
         confirmacao.setContentText("A senha será alterada para o padrão '123456'. O usuário deverá trocá-la depois.");
 
         if (confirmacao.showAndWait().get() == javafx.scene.control.ButtonType.OK) {
-            // Reutilizamos aquele método do DAO que criamos pra tela de "Esqueci a Senha"!
             boolean sucesso = dao.atualizarSenhaPorEmail(selecionado.getEmail(), "123456");
             
             if (sucesso) {

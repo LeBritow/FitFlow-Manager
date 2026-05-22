@@ -27,7 +27,6 @@ public class ExerciciosController {
     public void initialize() {
         carregarDadosTabela();
 
-        // Listener: deteta quando o utilizador clica numa linha da tabela
         tabelaExercicios.getSelectionModel().selectedItemProperty().addListener((obs, antigo, novo) -> {
             mostrarDetalhesExercicio(novo);
         });
@@ -44,14 +43,12 @@ public class ExerciciosController {
             lblNomeExercicio.setText(e.getNome() + " (" + e.getGrupoMuscular() + ")");
             lblDescricao.setText(e.getDescricao() != null ? e.getDescricao() : "Sem descrição técnica.");
 
-            // Carrega o GIF/Vídeo dinamicamente pela URL
             if (e.getUrlMidia() != null && !e.getUrlMidia().isEmpty()) {
                 try {
-                    // O parâmetro 'true' ativa o carregamento em background para não travar a aplicação
                     Image imagemGif = new Image(e.getUrlMidia(), true);
                     imgPreview.setImage(imagemGif);
                 } catch (Exception ex) {
-                    imgPreview.setImage(null); // Limpa se a URL for inválida
+                    imgPreview.setImage(null);
                 }
             } else {
                 imgPreview.setImage(null);
