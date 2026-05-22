@@ -34,11 +34,6 @@ FitFlow-Manager/
 └── src/main/resources/fxml/ # Telas da interface (FXML)
 ```
 
-### Rodando o projeto
-```bash
-# 1. Clone
-git clone https://github.com/LeBritow/sistema-academia.git
-
 # 2. Build
 mvn clean install
 
