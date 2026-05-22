@@ -9,7 +9,7 @@ Para rodar este projeto localmente, você precisará de:
 * **Java 21** (ou superior).
 * **Maven** instalado e configurado.
 * **PostgreSQL** instalado.
-* 
+
 ###  Fluxo de Trabalho
 1. **Fork o projeto:** Crie sua própria versão do repositório.
 2. **Crie uma Branch:** Nunca envie mudanças direto para a `main`.
@@ -31,12 +31,8 @@ classes (`DAO`, `Controller`, etc).
 `feat: adiciona gerador de treino` ou `fix: corrige erro no login`).
 
 ###  Boas Práticas
-* **Segurança em primeiro lugar:** Jamais inclua senhas ou chaves de
-acesso no seu código. O arquivo `persistence.xml` é ignorado pelo
-Git propositalmente.
 * **Código limpo:** Mantenha o padrão de identação e nomeie
 variáveis de forma clara para facilitar a leitura.
-
 * **Documentação:** Se adicionar uma funcionalidade nova, atualize o
 `README.md` para incluir instruções de uso.
 
