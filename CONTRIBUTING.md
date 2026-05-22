@@ -1,7 +1,7 @@
-Como Contribuir
+###  Como Contribuir
 
 Fico muito feliz que você tenha interesse em contribuir com o
-**FitFlow Manager**! Para que o projeto se mantenha organizado e
+**FitFlow**! Para que o projeto se mantenha organizado e
 funcional, siga estas diretrizes simples.
 
 ### ️ Requisitos de Ambiente
@@ -38,7 +38,6 @@ variáveis de forma clara para facilitar a leitura.
 
 ###  Dúvidas ou Sugestões?
 Se tiver qualquer problema ao rodar o projeto ou quiser propor uma
-
 mudança grande, abra uma **Issue** aqui no GitHub descrevendo o que
 você pretende fazer.
 ---
