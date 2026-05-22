@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,6 +27,7 @@ import javafx.util.converter.FloatStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.StringConverter;
 import javafx.application.Platform;
+
 
 public class FichasTreinoController {
 
@@ -150,70 +152,74 @@ public class FichasTreinoController {
     }
 
     // =========================================================================
-    // INÍCIO DA MÁGICA: GERADOR DE TREINOS
+    // GERADOR INTELIGENTE DE TREINOS
     // =========================================================================
 
     @FXML
-    void clicouGeradorMagico(ActionEvent event) {
-        List<String> focos = Arrays.asList("Peito e Tríceps", "Costas e Bíceps", "Pernas e Abdômen", "Corpo Todo (Full Body)");
+    void clicouGeradorTreino(ActionEvent event) {
+        // Novas variações de foco muscular
+        List<String> focos = Arrays.asList(
+            "Peito e Tríceps", 
+            "Costas e Bíceps", 
+            "Pernas Completo", 
+            "Ombros e Abdômen", 
+            "Peito e Costas (Antagonista)", 
+            "Braços (Bíceps e Tríceps)"
+        );
+        
         ChoiceDialog<String> dialogFoco = new ChoiceDialog<>(focos.get(0), focos);
-        dialogFoco.setTitle("✨ Gerador Mágico");
-        dialogFoco.setHeaderText("Criação Rápida de Treino");
-        dialogFoco.setContentText("Qual o foco muscular principal?");
+        dialogFoco.setTitle("Gerador de Treinos");
+        dialogFoco.setHeaderText("Criação de Treino (Descanso Máximo: 60s)");
+        dialogFoco.setContentText("Escolha o foco do treino:");
         
         Optional<String> resultadoFoco = dialogFoco.showAndWait();
         if (resultadoFoco.isPresent()) {
-            List<String> niveis = Arrays.asList("Iniciante (3 séries leves)", "Avançado (4 séries intensas)");
-            ChoiceDialog<String> dialogNivel = new ChoiceDialog<>(niveis.get(0), niveis);
-            dialogNivel.setTitle("✨ Gerador Mágico");
-            dialogNivel.setHeaderText("Definição de Intensidade");
-            dialogNivel.setContentText("Qual o nível do aluno?");
-            
-            Optional<String> resultadoNivel = dialogNivel.showAndWait();
-            if (resultadoNivel.isPresent()) {
-                montarFichaAutomatica(resultadoFoco.get(), resultadoNivel.get());
-            }
+            montarFichaAutomatica(resultadoFoco.get());
         }
     }
 
-    private void montarFichaAutomatica(String foco, String nivel) {
-        listaFicha.clear(); 
-        int series = nivel.contains("Iniciante") ? 3 : 4;
-        int reps = nivel.contains("Iniciante") ? 15 : 10;
-        float carga = nivel.contains("Iniciante") ? 5.0f : 15.0f;
-        float descanso = nivel.contains("Iniciante") ? 60.0f : 90.0f;
+    private void montarFichaAutomatica(String foco) {
+        listaFicha.clear();
+        Random rand = new Random();
         
         List<Exercicio> selecionados = new ArrayList<>();
         
+        // Distribuição para garantir volume de treino (10 a 12 exercícios)
         if (foco.equals("Peito e Tríceps")) {
-            selecionados.addAll(sortearExercicios("Peitoral", 3));
-            selecionados.addAll(sortearExercicios("Triceps", 2));
+            selecionados.addAll(sortearExercicios("Peitoral", 6));
+            selecionados.addAll(sortearExercicios("Triceps", 5));
         } else if (foco.equals("Costas e Bíceps")) {
-             selecionados.addAll(sortearExercicios("Costas", 3));
-             selecionados.addAll(sortearExercicios("Biceps", 2));
-        } else if (foco.equals("Pernas e Abdômen")) {
-             selecionados.addAll(sortearExercicios("Pernas", 4));
-             selecionados.addAll(sortearExercicios("Abdomen", 2));
-        } else {
-             selecionados.addAll(sortearExercicios("Peitoral", 1));
-             selecionados.addAll(sortearExercicios("Costas", 1));
-             selecionados.addAll(sortearExercicios("Pernas", 2));
-             selecionados.addAll(sortearExercicios("Ombros", 1));
-             selecionados.addAll(sortearExercicios("Biceps", 1));
+            selecionados.addAll(sortearExercicios("Costas", 6));
+            selecionados.addAll(sortearExercicios("Biceps", 5));
+        } else if (foco.equals("Pernas Completo")) {
+            selecionados.addAll(sortearExercicios("Pernas", 11));
+        } else if (foco.equals("Ombros e Abdômen")) {
+            selecionados.addAll(sortearExercicios("Ombros", 5));
+            selecionados.addAll(sortearExercicios("Abdomen", 6));
+        } else if (foco.equals("Peito e Costas (Antagonista)")) {
+            selecionados.addAll(sortearExercicios("Peitoral", 5));
+            selecionados.addAll(sortearExercicios("Costas", 5));
+        } else { // Braços
+            selecionados.addAll(sortearExercicios("Biceps", 5));
+            selecionados.addAll(sortearExercicios("Triceps", 5));
         }
         
         for (Exercicio ex : selecionados) {
             ItemTreino item = new ItemTreino();
             item.setExercicio(ex);
-            item.setSeries(series);
-            item.setRepeticoes(reps);
-            item.setCargaSugerida(carga);
-            item.setIntervaloDescanso(descanso);
+            // Randomização de volume para evitar estagnação
+            item.setSeries(3 + rand.nextInt(2)); // Varia entre 3 e 4 séries
+            item.setRepeticoes(8 + rand.nextInt(8)); // Varia entre 8 e 15 reps
+            item.setCargaSugerida(10.0f + (rand.nextFloat() * 20.0f)); // Carga base
+            
+            // Descanso estrito: de 45s a 60s
+            item.setIntervaloDescanso(45.0f + (rand.nextFloat() * 15.0f)); 
+            
             listaFicha.add(item);
         }
         
-        campoNomeTreino.setText("Treino " + foco.split(" ")[0] + " (Auto-Gerado)");
-        campoObjetivo.setText(nivel.contains("Iniciante") ? "Adaptação" : "Hipertrofia Intensa");
+        campoNomeTreino.setText("Treino " + foco + " [Gerado]");
+        campoObjetivo.setText("Variação de carga e volume dinâmico");
     }
 
     private List<Exercicio> sortearExercicios(String grupo, int quantidade) {
