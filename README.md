@@ -33,9 +33,3 @@ FitFlow-Manager/
 │   └── session/     # Gerenciamento de sessão
 └── src/main/resources/fxml/ # Telas da interface (FXML)
 ```
-
-# 2. Build
-mvn clean install
-
-# 3. Start
-mvn exec:java -Dexec.mainClass="com.mycompany.academia.Launcher"
