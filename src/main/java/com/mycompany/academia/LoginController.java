@@ -1,21 +1,29 @@
 package com.mycompany.academia;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 
 public class LoginController {
 
-    // A anotação @FXML liga a variável do Java ao componente da tela visual
-    @FXML
-    private TextField campoLogin;
+    @FXML private TextField campoLogin;
+    @FXML private PasswordField campoSenha;
+    
+    // Novos componentes injetados da tela
+    @FXML private Button btnEntrar;
+    @FXML private Hyperlink linkEsqueciSenha;
+    @FXML private VBox vboxLoading;
+    @FXML private ProgressIndicator progressCarregando;
+    @FXML private Label labelStatus;
 
-    @FXML
-    private PasswordField campoSenha;
-
-    // Método disparado quando o botão "Entrar" é clicado
     @FXML
     void clicouEntrar(ActionEvent event) {
         String login = campoLogin.getText();
@@ -26,45 +34,90 @@ public class LoginController {
             return;
         }
 
-        UsuarioDAO dao = new UsuarioDAO();
-        Usuario usuarioLogado = dao.autenticar(login, senha);
+        // 1. Esconde os botões e mostra a animação de carregamento
+        btnEntrar.setVisible(false);
+        btnEntrar.setManaged(false);
+        linkEsqueciSenha.setVisible(false);
+        linkEsqueciSenha.setManaged(false);
+        
+        vboxLoading.setVisible(true);
+        vboxLoading.setManaged(true);
+        labelStatus.setText("Conectando ao banco de dados...");
 
-        if (usuarioLogado != null) {
+        // 2. Abre uma esteira paralela (Thread) para o banco não travar a tela
+        new Thread(() -> {
             try {
-                // Guarda o usuário autenticado na sessão global
-                SessaoUsuario.getInstancia().setUsuarioLogado(usuarioLogado);
+                Platform.runLater(() -> labelStatus.setText("Verificando credenciais..."));
 
-                // --- INÍCIO DA INTERCEPTAÇÃO ---
-                String telaParaAbrir = "/fxml/PainelPrincipal.fxml";
-                String tituloJanela = "Sistema de Academia - Dashboard";
+                UsuarioDAO dao = new UsuarioDAO();
+                Usuario usuarioLogado = dao.autenticar(login, senha);
 
-                // Se a senha for a padrão, desviamos a rota!
-                if (usuarioLogado.getSenha().equals("123456")) {
-                    telaParaAbrir = "/fxml/TrocarSenhaObrigatoria.fxml";
-                    tituloJanela = "Troca de Senha Obrigatória";
-                }
-                // --- FIM DA INTERCEPTAÇÃO ---
-
-                // Carrega o FXML (vai ser o Painel ou o Pedágio, dependendo do IF acima)
-                javafx.scene.Parent raiz = javafx.fxml.FXMLLoader.load(getClass().getResource(telaParaAbrir));
-                
-                javafx.stage.Stage novoPalco = new javafx.stage.Stage();
-                novoPalco.setTitle(tituloJanela);
-                novoPalco.setScene(new javafx.scene.Scene(raiz));
-                novoPalco.show();
-
-                javafx.stage.Stage palcoLogin = (javafx.stage.Stage) campoLogin.getScene().getWindow();
-                palcoLogin.close();
+                // 3. Devolve a resposta para a Interface Gráfica
+                Platform.runLater(() -> {
+                    if (usuarioLogado != null) {
+                        labelStatus.setText("Acesso liberado! Iniciando...");
+                        abrirTelaPrincipal(usuarioLogado);
+                    } else {
+                        restaurarTelaLogin();
+                        mostrarAlerta("Erro de Autenticação", "CPF/Email ou senha incorretos.");
+                    }
+                });
 
             } catch (Exception e) {
-                mostrarAlerta("Erro", "Não foi possível carregar o sistema.");
-                e.printStackTrace();
+                Platform.runLater(() -> {
+                    restaurarTelaLogin();
+                    mostrarAlerta("Erro", "Não foi possível conectar ao servidor.");
+                    e.printStackTrace();
+                });
             }
-        } else {
-            mostrarAlerta("Erro de Autenticação", "CPF/Email ou senha incorretos.");
+        }).start();
+    }
+
+    // Método extraído para manter o código organizado
+    private void abrirTelaPrincipal(Usuario usuarioLogado) {
+        try {
+            // Guarda o usuário autenticado na sessão global
+            SessaoUsuario.getInstancia().setUsuarioLogado(usuarioLogado);
+
+            // --- INÍCIO DA INTERCEPTAÇÃO ---
+            String telaParaAbrir = "/fxml/PainelPrincipal.fxml";
+            String tituloJanela = "Sistema de Academia - Dashboard";
+
+            // Se a senha for a padrão, desviamos a rota!
+            if (usuarioLogado.getSenha().equals("123456")) {
+                telaParaAbrir = "/fxml/TrocarSenhaObrigatoria.fxml";
+                tituloJanela = "Troca de Senha Obrigatória";
+            }
+            // --- FIM DA INTERCEPTAÇÃO ---
+
+            javafx.scene.Parent raiz = javafx.fxml.FXMLLoader.load(getClass().getResource(telaParaAbrir));
+            
+            javafx.stage.Stage novoPalco = new javafx.stage.Stage();
+            novoPalco.setTitle(tituloJanela);
+            novoPalco.setScene(new javafx.scene.Scene(raiz));
+            novoPalco.show();
+
+            javafx.stage.Stage palcoLogin = (javafx.stage.Stage) campoLogin.getScene().getWindow();
+            palcoLogin.close();
+
+        } catch (Exception e) {
+            restaurarTelaLogin();
+            mostrarAlerta("Erro", "Não foi possível carregar o sistema.");
+            e.printStackTrace();
         }
     }
-    
+
+    // Traz o botão e o link de volta se o usuário errar a senha
+    private void restaurarTelaLogin() {
+        vboxLoading.setVisible(false);
+        vboxLoading.setManaged(false);
+        
+        btnEntrar.setVisible(true);
+        btnEntrar.setManaged(true);
+        linkEsqueciSenha.setVisible(true);
+        linkEsqueciSenha.setManaged(true);
+    }
+
     @FXML
     void clicouEsqueciSenha(ActionEvent event) {
         String emailDigitado = campoLogin.getText();
