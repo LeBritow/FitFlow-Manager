@@ -1,4 +1,4 @@
-package com.mycompany.academia;
+package com.mycompany.academia.config;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;

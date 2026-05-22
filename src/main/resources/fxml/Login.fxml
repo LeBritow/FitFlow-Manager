@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
@@ -10,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="400.0" prefWidth="600.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.academia.LoginController">
+<VBox alignment="CENTER" prefHeight="400.0" prefWidth="600.0" spacing="15.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.academia.controller.LoginController">
    <children>
       <Label text="Acesso ao Sistema">
          <font>
@@ -34,13 +35,15 @@
             <PasswordField fx:id="campoSenha" promptText="Digite sua senha" />
          </children>
       </VBox>
+
+      <CheckBox fx:id="checkManterLogin" mnemonicParsing="false" text="Manter conectado?" />
       
       <Button fx:id="btnEntrar" defaultButton="true" mnemonicParsing="false" onAction="#clicouEntrar" prefHeight="35.0" prefWidth="250.0" text="Entrar">
          <VBox.margin>
             <Insets top="15.0" />
          </VBox.margin>
       </Button>
-      
+            
       <Hyperlink fx:id="linkEsqueciSenha" onAction="#clicouEsqueciSenha" text="Esqueci a senha">
          <VBox.margin>
             <Insets top="5.0" />

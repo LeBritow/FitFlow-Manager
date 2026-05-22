@@ -1,5 +1,10 @@
-package com.mycompany.academia;
+package com.mycompany.academia.dao;
 
+import com.mycompany.academia.model.Aluno;
+import com.mycompany.academia.model.ItemTreino;
+import com.mycompany.academia.config.JPAUtil;
+import com.mycompany.academia.model.ProgramacaoTreino;
+import com.mycompany.academia.model.Treino;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 
@@ -16,7 +21,7 @@ public class TreinoDAO {
                 treino = em.merge(treino);
             }
             em.getTransaction().commit();
-            return treino; // Devolvemos o treino para usar o ID dele nos Itens
+            return treino; 
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -28,7 +33,7 @@ public class TreinoDAO {
         }
     }
 
-    // Guarda cada exercício que foi adicionado à ficha
+    // Guarda o exercício e, graças ao CascadeType.ALL, guarda as Séries automaticamente!
     public boolean salvarItemTreino(ItemTreino item) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -51,7 +56,6 @@ public class TreinoDAO {
         }
     }
 
-    // Procura exclusivamente os utilizadores que são Alunos para o menu pendente
     public List<Aluno> listarAlunos() {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -61,7 +65,6 @@ public class TreinoDAO {
         }
     }
     
-    // Guarda a ligação entre o Aluno e o Treino
     public boolean salvarProgramacao(ProgramacaoTreino programacao) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -80,7 +83,6 @@ public class TreinoDAO {
         }
     }
     
-    // Busca todas as programações (fichas) que pertencem a um aluno específico
     public List<ProgramacaoTreino> listarProgramacoesPorAluno(int alunoId) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -92,10 +94,11 @@ public class TreinoDAO {
         }
     }
 
+    // AQUI ESTÁ A GRANDE MUDANÇA: Adicionado o "LEFT JOIN FETCH i.seriesTreino" para trazer as linhas das séries junto com o exercício
     public List<ItemTreino> listarItensPorTreino(int treinoId) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
-            return em.createQuery("SELECT i FROM ItemTreino i JOIN FETCH i.exercicio WHERE i.treino.id = :treinoId", ItemTreino.class)
+            return em.createQuery("SELECT DISTINCT i FROM ItemTreino i JOIN FETCH i.exercicio LEFT JOIN FETCH i.seriesTreino WHERE i.treino.id = :treinoId", ItemTreino.class)
                      .setParameter("treinoId", treinoId)
                      .getResultList();
         } finally {
@@ -103,7 +106,6 @@ public class TreinoDAO {
         }
     }
     
-    // Busca todos os treinos que foram marcados como Templates (Fichas Padrão)
     public List<Treino> listarFichasPadrao() {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -113,6 +115,4 @@ public class TreinoDAO {
             em.close();
         }
     }
-    
-    
 }

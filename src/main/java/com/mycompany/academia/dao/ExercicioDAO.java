@@ -1,5 +1,7 @@
-package com.mycompany.academia;
+package com.mycompany.academia.dao;
 
+import com.mycompany.academia.model.Exercicio;
+import com.mycompany.academia.config.JPAUtil;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 

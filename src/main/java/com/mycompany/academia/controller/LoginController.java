@@ -1,16 +1,24 @@
-package com.mycompany.academia;
+package com.mycompany.academia.controller;
 
+import com.mycompany.academia.model.Usuario;
+import com.mycompany.academia.session.SessaoUsuario;
+import com.mycompany.academia.dao.UsuarioDAO;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+
+// Imports necessários para salvar as credenciais
+import java.util.Base64;
+import java.util.prefs.Preferences;
 
 public class LoginController {
 
@@ -23,6 +31,33 @@ public class LoginController {
     @FXML private VBox vboxLoading;
     @FXML private ProgressIndicator progressCarregando;
     @FXML private Label labelStatus;
+    
+    // Caixinha de manter login
+    @FXML private CheckBox checkManterLogin;
+
+    // Esse método roda automaticamente quando a tela abre
+    @FXML
+    public void initialize() {
+        // Acessa o "registro" do sistema operacional guardado para esta classe
+        Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
+        String usuarioSalvo = prefs.get("usuario", null);
+        String senhaSalvaBase64 = prefs.get("senha", null);
+
+        // Se encontrou dados salvos, apenas preenche os campos e marca a caixinha
+        if (usuarioSalvo != null && senhaSalvaBase64 != null) {
+            campoLogin.setText(usuarioSalvo);
+            try {
+                // Decodifica a senha do Base64
+                byte[] decodedBytes = Base64.getDecoder().decode(senhaSalvaBase64);
+                campoSenha.setText(new String(decodedBytes));
+                
+                // Marca a caixinha de "Manter conectado" para o usuário saber que está salvo
+                checkManterLogin.setSelected(true);
+            } catch (Exception e) {
+                // Se der erro ao decodificar, apenas ignora e deixa o usuário digitar
+            }
+        }
+    }
 
     @FXML
     void clicouEntrar(ActionEvent event) {
@@ -39,6 +74,8 @@ public class LoginController {
         btnEntrar.setManaged(false);
         linkEsqueciSenha.setVisible(false);
         linkEsqueciSenha.setManaged(false);
+        checkManterLogin.setVisible(false);
+        checkManterLogin.setManaged(false);
         
         vboxLoading.setVisible(true);
         vboxLoading.setManaged(true);
@@ -55,6 +92,21 @@ public class LoginController {
                 // 3. Devolve a resposta para a Interface Gráfica
                 Platform.runLater(() -> {
                     if (usuarioLogado != null) {
+                        
+                        // --- LÓGICA DE SALVAR/REMOVER PREFERÊNCIAS ---
+                        Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
+                        if (checkManterLogin.isSelected()) {
+                            prefs.put("usuario", login);
+                            // Esconde a senha em Base64 antes de salvar no sistema
+                            String senhaBase64 = Base64.getEncoder().encodeToString(senha.getBytes());
+                            prefs.put("senha", senhaBase64);
+                        } else {
+                            // Se ele desmarcou a caixa, limpamos os dados salvos
+                            prefs.remove("usuario");
+                            prefs.remove("senha");
+                        }
+                        // ---------------------------------------------
+
                         labelStatus.setText("Acesso liberado! Iniciando...");
                         abrirTelaPrincipal(usuarioLogado);
                     } else {
@@ -116,6 +168,8 @@ public class LoginController {
         btnEntrar.setManaged(true);
         linkEsqueciSenha.setVisible(true);
         linkEsqueciSenha.setManaged(true);
+        checkManterLogin.setVisible(true);
+        checkManterLogin.setManaged(true);
     }
 
     @FXML

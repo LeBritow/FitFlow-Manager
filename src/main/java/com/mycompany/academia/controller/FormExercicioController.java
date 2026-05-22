@@ -1,5 +1,7 @@
-package com.mycompany.academia;
+package com.mycompany.academia.controller;
 
+import com.mycompany.academia.dao.ExercicioDAO;
+import com.mycompany.academia.model.Exercicio;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

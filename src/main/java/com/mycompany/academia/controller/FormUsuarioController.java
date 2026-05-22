@@ -1,5 +1,10 @@
-package com.mycompany.academia;
+package com.mycompany.academia.controller;
 
+import com.mycompany.academia.dao.UsuarioDAO;
+import com.mycompany.academia.model.Admin;
+import com.mycompany.academia.model.Aluno;
+import com.mycompany.academia.model.Instrutor;
+import com.mycompany.academia.model.Usuario;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;

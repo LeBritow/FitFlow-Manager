@@ -1,5 +1,6 @@
-package com.mycompany.academia;
+package com.mycompany.academia.session;
 
+import com.mycompany.academia.model.ProgramacaoTreino;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

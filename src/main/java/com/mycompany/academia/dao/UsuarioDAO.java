@@ -1,5 +1,7 @@
-package com.mycompany.academia;
+package com.mycompany.academia.dao;
 
+import com.mycompany.academia.config.JPAUtil;
+import com.mycompany.academia.model.Usuario;
 import java.util.List;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;

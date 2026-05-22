@@ -1,5 +1,7 @@
-package com.mycompany.academia;
+package com.mycompany.academia.controller;
 
+import com.mycompany.academia.dao.ExercicioDAO;
+import com.mycompany.academia.model.Exercicio;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

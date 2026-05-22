@@ -1,5 +1,7 @@
-package com.mycompany.academia;
+package com.mycompany.academia.config;
 
+import com.mycompany.academia.model.Admin;
+import com.mycompany.academia.model.Aluno;
 import jakarta.persistence.EntityManager;
 
 public class SetupBanco {

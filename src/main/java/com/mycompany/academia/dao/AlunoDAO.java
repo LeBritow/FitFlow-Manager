@@ -1,5 +1,7 @@
-package com.mycompany.academia;
+package com.mycompany.academia.dao;
 
+import com.mycompany.academia.model.Aluno;
+import com.mycompany.academia.config.JPAUtil;
 import jakarta.persistence.EntityManager;
 
 public class AlunoDAO {

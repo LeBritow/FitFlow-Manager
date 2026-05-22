@@ -1,4 +1,6 @@
-package com.mycompany.academia;
+package com.mycompany.academia.session;
+
+import com.mycompany.academia.model.Usuario;
 
 public class SessaoUsuario {
 
