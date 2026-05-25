@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="450.0" prefWidth="600.0" spacing="15.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.academia.aluno.ui.DetalhesTreinoRealizadoController">
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+   <children>
+      <VBox spacing="5.0">
+         <children>
+            <Label fx:id="labelTituloTreino" text="Treino A - Peito e Tríceps" textFill="#2c3e50">
+               <font>
+                  <Font name="System Bold" size="20.0" />
+               </font>
+            </Label>
+            <Label fx:id="labelDataFinalizacao" text="Finalizado em: 25/05/2026 às 19:30" textFill="#7f8c8d" />
+         </children>
+      </VBox>
+      
+      <TableView fx:id="tabelaExecucao" prefHeight="200.0" VBox.vgrow="ALWAYS">
+        <columns>
+          <TableColumn fx:id="colExercicio" prefWidth="200.0" text="Exercício" />
+          <TableColumn fx:id="colPlanejado" prefWidth="170.0" text="Planejado (Instrutor)" />
+          <TableColumn fx:id="colRealizado" prefWidth="180.0" text="Realizado (Aluno)" />
+        </columns>
+      </TableView>
+      
+      <VBox spacing="10.0" style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-border-color: #e9ecef; -fx-border-radius: 5; -fx-background-radius: 5;">
+         <children>
+            <Label text="Feedback Geral do Aluno:" textFill="#444444">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <HBox spacing="10.0">
+               <children>
+                  <Label text="Percepção de Esforço:" textFill="#7f8c8d" />
+                  <Label fx:id="labelNotaGeral" text="Muito Pesado (8/10)" textFill="#d35400">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            <Label fx:id="labelComentarioAluno" text="&quot;Consegui aumentar a carga no supino, mas o tríceps falhou na última série. Precisei diminuir o peso.&quot;" wrapText="true">
+               <font>
+                  <Font name="System Italic" size="13.0" />
+               </font>
+            </Label>
+         </children>
+      </VBox>
+   </children>
+</VBox>

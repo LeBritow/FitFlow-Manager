@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="650.0" prefWidth="950.0" spacing="15.0" style="-fx-background-color: #f4f6f7;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.academia.aluno.ui.AnaliseAlunoController">
+   <padding>
+      <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+   </padding>
+   <children>
+      
+      <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #ffffff; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #dddddd; -fx-border-radius: 5;">
+         <children>
+            <Label text="Análise de Desempenho:" textFill="#2c3e50">
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+            </Label>
+            <ComboBox fx:id="comboBuscaAluno" maxWidth="1.7976931348623157E308" promptText="Digite o nome do aluno para buscar..." HBox.hgrow="ALWAYS" style="-fx-background-color: #f8f9fa; -fx-border-color: #cccccc; -fx-border-radius: 3;" />
+         </children>
+      </HBox>
+      
+      <VBox fx:id="painelDireito" disable="true" spacing="12.0" VBox.vgrow="ALWAYS">
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="20.0">
+               <children>
+                  <VBox>
+                     <children>
+                        <Label fx:id="labelNomeAluno" text="Nenhum aluno selecionado" textFill="#2c3e50">
+                           <font><Font name="System Bold" size="24.0" /></font>
+                        </Label>
+                        <Label fx:id="labelImcAluno" text="Peso: -- kg | Altura: -- m | IMC: --" textFill="#7f8c8d">
+                           <font><Font size="14.0" /></font>
+                        </Label>
+                     </children>
+                  </VBox>
+                  <HBox HBox.hgrow="ALWAYS" />
+                  <Button mnemonicParsing="false" onAction="#clicouAtualizarMedidas" style="-fx-background-color: #00c3ff; -fx-text-fill: white;" text="Atualizar Medidas">
+                     <font><Font name="System Bold" size="12.0" /></font>
+                  </Button>
+               </children>
+            </HBox>
+            
+            <HBox spacing="15.0">
+               <children>
+                  <VBox alignment="CENTER" prefWidth="200.0" style="-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-radius: 5; -fx-background-radius: 5;" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Ficha Ativa" textFill="#7f8c8d" />
+                        <Label fx:id="labelFichaAtiva" text="Nenhuma" textFill="#2c3e50">
+                           <font><Font name="System Bold" size="16.0" /></font>
+                        </Label>
+                     </children>
+                     <padding><Insets bottom="10.0" top="10.0" /></padding>
+                  </VBox>
+                  <VBox alignment="CENTER" prefWidth="200.0" style="-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-radius: 5; -fx-background-radius: 5;" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Último Treino" textFill="#7f8c8d" />
+                        <Label fx:id="labelUltimoTreino" text="--/--/----" textFill="#2c3e50">
+                           <font><Font name="System Bold" size="16.0" /></font>
+                        </Label>
+                     </children>
+                     <padding><Insets bottom="10.0" top="10.0" /></padding>
+                  </VBox>
+                  <VBox alignment="CENTER" prefWidth="200.0" style="-fx-background-color: #ffffff; -fx-border-color: #dddddd; -fx-border-radius: 5; -fx-background-radius: 5;" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Treinos no Mês" textFill="#7f8c8d" />
+                        <Label fx:id="labelTreinosMes" text="0" textFill="#2c3e50">
+                           <font><Font name="System Bold" size="16.0" /></font>
+                        </Label>
+                     </children>
+                     <padding><Insets bottom="10.0" top="10.0" /></padding>
+                  </VBox>
+               </children>
+            </HBox>
+
+            <VBox fx:id="caixaAlertas" spacing="5.0" />
+            
+            <TabPane prefHeight="250.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+              <tabs>
+                <Tab text="Evolução de Peso Corporal e IMC">
+                     <content>
+                        <LineChart fx:id="graficoEvolucao">
+                          <xAxis><CategoryAxis side="BOTTOM" /></xAxis>
+                          <yAxis><NumberAxis forceZeroInRange="false" side="LEFT" /></yAxis>
+                        </LineChart>
+                     </content>
+                </Tab>
+                <Tab text="Progressão de Carga por Exercício">
+                     <content>
+                        <VBox spacing="10.0">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                 <children>
+                                    <Label text="Selecionar Exercício:" textFill="#555555" />
+                                    <ComboBox fx:id="comboExercicioGrafico" promptText="Escolha o exercício..." prefWidth="250.0" />
+                                 </children>
+                                 <padding><Insets left="10.0" top="10.0" /></padding>
+                              </HBox>
+                              <LineChart fx:id="graficoCargas" VBox.vgrow="ALWAYS">
+                                <xAxis><CategoryAxis side="BOTTOM" /></xAxis>
+                                <yAxis><NumberAxis forceZeroInRange="false" side="LEFT" /></yAxis>
+                              </LineChart>
+                           </children>
+                        </VBox>
+                     </content>
+                </Tab>
+              </tabs>
+            </TabPane>
+            
+            <Label text="Histórico de Treinos e Feedbacks">
+               <font><Font name="System Bold" size="14.0" /></font>
+            </Label>
+            <ListView fx:id="listaComentarios" prefHeight="100.0" VBox.vgrow="ALWAYS" />
+         </children>
+      </VBox>
+   </children>
+</VBox>

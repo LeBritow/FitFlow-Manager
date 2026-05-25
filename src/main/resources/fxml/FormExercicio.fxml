@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefWidth="420.0" spacing="15.0" style="-fx-background-color: #ffffff; -fx-padding: 20;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.academia.controller.FormExercicioController">
+<VBox prefWidth="420.0" spacing="15.0" style="-fx-background-color: #ffffff; -fx-padding: 20;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.academia.treino.ui.FormExercicioController">
    <children>
       <Label fx:id="labelTitulo" text="Cadastrar Exercício">
          <font><Font name="System Bold" size="20.0" /></font>

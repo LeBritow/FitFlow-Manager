@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.academia.controller.PainelPrincipalController">
+<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.academia.core.ui.PainelPrincipalController">
    
    <left>
       <VBox prefWidth="220.0" spacing="10.0" style="-fx-background-color: #2b2b2b;" BorderPane.alignment="CENTER">
@@ -27,6 +27,9 @@
             
             <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#abrirInicio" prefHeight="35.0" text="Início" />
             <Button fx:id="btnUsuarios" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#abrirUsuarios" prefHeight="35.0" text="Gerenciar Usuários" />
+            
+            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#abrirAnaliseAluno" prefHeight="35.0" text="Análise do Aluno" />
+            
             <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#abrirExercicios" prefHeight="35.0" text="Banco de Exercícios" />
             <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#abrirFichas" prefHeight="35.0" text="Fichas de Treino" />
             
