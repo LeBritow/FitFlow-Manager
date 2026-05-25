@@ -109,6 +109,7 @@
                      <children>
                         <Button mnemonicParsing="false" onAction="#clicouNovoTreino" style="-fx-background-color: #8c8c8c; -fx-text-fill: white;" text="Limpar Tela" />
                         <Button mnemonicParsing="false" onAction="#clicouDuplicar" style="-fx-background-color: #f0ad4e; -fx-text-fill: white;" text="Copiar Treino" />
+                        <Button mnemonicParsing="false" onAction="#clicouExcluirTreino" style="-fx-background-color: #a94442; -fx-text-fill: white;" text="Excluir Ficha do Aluno" />
                         <Button mnemonicParsing="false" onAction="#removerDaFicha" style="-fx-background-color: #d9534f; -fx-text-fill: white;" text="Remover Item" />
                         
                         <HBox alignment="CENTER" spacing="5.0" style="-fx-background-color: #e6f2ff; -fx-padding: 5; -fx-border-color: #b3d9ff; -fx-border-radius: 3;">
