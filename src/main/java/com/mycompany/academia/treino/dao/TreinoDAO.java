@@ -221,4 +221,36 @@ public class TreinoDAO {
             em.close();
         }
     }
+    
+    // Método para excluir uma ProgramacaoTreino (Ficha do Aluno)
+    public boolean excluirProgramacao(ProgramacaoTreino prog) {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            prog = em.merge(prog);
+            
+            Treino treino = prog.getTreino();
+            boolean isFichaExclusiva = !treino.isFichaPadrao();
+            
+            // 1. Remove a atribuição da ficha ao aluno
+            em.remove(prog); 
+            
+            // 2. Se for uma ficha feita só para ele, apaga os itens e o treino base também
+            if (isFichaExclusiva) {
+                em.createQuery("DELETE FROM ItemTreino i WHERE i.treino.id = :tId")
+                  .setParameter("tId", treino.getId())
+                  .executeUpdate();
+                em.remove(treino);
+            }
+            
+            em.getTransaction().commit();
+            return true;
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            e.printStackTrace();
+            return false;
+        } finally {
+            em.close();
+        }
+    }
 }

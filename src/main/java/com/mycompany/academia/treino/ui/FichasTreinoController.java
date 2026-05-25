@@ -417,6 +417,36 @@ public class FichasTreinoController {
         campoNomeTreino.setText(campoNomeTreino.getText() + " (Cópia)");
     }
     
+    @FXML 
+    void clicouExcluirTreino(ActionEvent event) {
+        ProgramacaoTreino progSelecionada = comboTreinosExistentes.getSelectionModel().getSelectedItem();
+        
+        if (progSelecionada == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Aviso", "Selecione uma Ficha Pessoal do Aluno no topo para poder excluí-la.");
+            return;
+        }
+        
+        Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacao.setTitle("Excluir Ficha");
+        confirmacao.setHeaderText("Atenção: Você está prestes a apagar a ficha '" + progSelecionada.getTreino().getNome() + "'");
+        confirmacao.setContentText("Tem certeza? O aluno não verá mais esse treino no aplicativo.");
+        
+        if (confirmacao.showAndWait().get() == ButtonType.OK) {
+            if (treinoDAO.excluirProgramacao(progSelecionada)) {
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Ficha excluída com sucesso!");
+                limparEcra();
+                
+                // Atualiza a listagem de treinos do aluno selecionado
+                Aluno alunoAtual = comboAlunos.getValue();
+                if (alunoAtual != null) {
+                    atualizarComboTreinosDoAluno(alunoAtual);
+                }
+            } else {
+                mostrarAlerta(Alert.AlertType.ERROR, "Erro", "Não foi possível excluir a ficha do banco de dados.");
+            }
+        }
+    }
+    
     @FXML void adicionarNaFicha(ActionEvent event) {
         Exercicio selecionado = tabelaCatalogo.getSelectionModel().getSelectedItem();
         if (selecionado == null) return;
