@@ -33,14 +33,3 @@ FitFlow-Manager/
 │   └── session/     # Gerenciamento de sessão
 └── src/main/resources/fxml/ # Telas da interface (FXML)
 ```
-
-### Rodando o projeto
-```bash
-# 1. Clone
-git clone https://github.com/LeBritow/sistema-academia.git
-
-# 2. Build
-mvn clean install
-
-# 3. Start
-mvn exec:java -Dexec.mainClass="com.mycompany.academia.Launcher"
