@@ -40,6 +40,9 @@ public class PainelPrincipalController {
                 btnUsuarios.setManaged(false);
             }
         }
+        new Thread(() -> {
+            com.mycompany.academia.core.config.ServidorMobile.iniciar();
+        }).start();
     }
 
     private void carregarTelaCentro(String arquivoFxml) {

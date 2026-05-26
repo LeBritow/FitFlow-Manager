@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitFlow - Login</title>
+    <style>
+        /* CSS EMBUTIDO PARA FACILITAR O TESTE */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #121212; color: #ffffff; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-container { background-color: #1e1e1e; padding: 40px; border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); text-align: center; }
+        .logo { font-size: 28px; font-weight: bold; color: #00d2ff; margin-bottom: 30px; }
+        .logo span { color: #ffffff; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 8px; font-size: 14px; color: #aaaaaa; }
+        .input-group input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #333; background-color: #2a2a2a; color: #fff; font-size: 16px; transition: 0.3s; }
+        .input-group input:focus { border-color: #00d2ff; outline: none; }
+        .btn-login { width: 100%; padding: 14px; background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); border: none; border-radius: 6px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-login:hover { opacity: 0.9; transform: translateY(-2px); }
+        .erro-msg { color: #ff4c4c; font-size: 14px; margin-top: 15px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="logo">FitFlow<span> App</span></div>
+        
+        <div class="input-group">
+            <label for="email">E-mail ou CPF</label>
+            <input type="text" id="email" placeholder="Digite seu acesso">
+        </div>
+        
+        <div class="input-group">
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" placeholder="Digite sua senha">
+        </div>
+
+        <button class="btn-login" onclick="fazerLogin()">Entrar no Treino</button>
+        <div id="mensagem-erro" class="erro-msg">Credenciais inválidas!</div>
+    </div>
+
+    <script>
+        // JAVASCRIPT: A MÁGICA DE COMUNICAÇÃO COM SEU JAVAFX
+        function fazerLogin() {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const msgErro = document.getElementById('mensagem-erro');
+            const botao = document.querySelector('.btn-login');
+
+            if(!email || !senha) {
+                msgErro.textContent = "Preencha todos os campos!";
+                msgErro.style.display = "block";
+                return;
+            }
+
+            botao.textContent = "Carregando...";
+            msgErro.style.display = "none";
+
+            // ATENÇÃO: Quando for testar no celular, trocaremos localhost pelo IP da sua máquina
+            fetch('http://localhost:8081/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ login: email, senha: senha })
+            })
+            .then(resposta => resposta.json())
+            .then(dados => {
+                if (dados.status === "sucesso") {
+                    // Guarda o ID do aluno no armazenamento do navegador/celular para usar depois
+                    localStorage.setItem('fitflow_aluno_id', dados.id);
+                    localStorage.setItem('fitflow_aluno_nome', dados.nome);
+                    
+                    alert("Login aprovado! Bem-vindo(a), " + dados.nome);
+                    // Aqui faremos o redirecionamento para a tela da ficha:
+                    window.location.href = "treino.html"; 
+                    
+                    botao.textContent = "Entrar no Treino";
+                } else {
+                    msgErro.textContent = dados.mensagem;
+                    msgErro.style.display = "block";
+                    botao.textContent = "Entrar no Treino";
+                }
+            })
+            .catch(erro => {
+                msgErro.textContent = "Erro de conexão com o servidor. Verifique se o sistema Desktop está aberto.";
+                msgErro.style.display = "block";
+                botao.textContent = "Entrar no Treino";
+                console.error(erro);
+            });
+        }
+    </script>
+</body>
+</html>
