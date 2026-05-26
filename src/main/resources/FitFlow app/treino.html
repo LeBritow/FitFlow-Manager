@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitFlow - Treino</title>
+    <style>
+        body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 20px; }
+        h1 { color: #00d2ff; margin-bottom: 10px; }
+        .card { background: #1e1e1e; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .exercicio-nome { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+        .serie-box { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #333; }
+        .btn-finalizar { width: 100%; padding: 15px; background: #00d2ff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1 id="tituloTreino">Carregando Treino...</h1>
+    <div id="listaExercicios"></div>
+    <div class="card" style="margin-top: 20px;">
+        <label style="color: #aaa; font-size: 14px;">Como foi o treino de hoje?</label>
+        <textarea id="comentarioAluno" style="width: 100%; height: 80px; background: #2a2a2a; border: 1px solid #333; color: #fff; border-radius: 6px; margin-top: 10px; padding: 10px;" placeholder="Ex: Aumentei a carga na rosca martelo!"></textarea>
+    </div>
+    <button class="btn-finalizar" onclick="finalizarTreino()">Finalizar Treino</button>
+
+    <script>
+        const alunoId = localStorage.getItem('fitflow_aluno_id');
+        const comentario = document.getElementById('comentarioAluno').value;
+        
+        // Aqui você garante que o campo está sendo enviado
+        const dados = {
+            alunoId: parseInt(alunoId),
+            treinoId: 1, // Certifique-se de pegar o ID do treino dinamicamente
+            comentario: comentario || "Treino concluído."
+        };
+
+        // Carrega o treino assim que a página abre
+        fetch(`http://localhost:8081/api/ficha?alunoId=${alunoId}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('tituloTreino').textContent = data.nomeTreino;
+                const lista = document.getElementById('listaExercicios');
+                
+                data.exercicios.forEach(ex => {
+                    let seriesHtml = ex.series.map(s => 
+                        `<div class="serie-box">
+                            <span>Série ${s.serie}</span>
+                            <span>${s.reps} reps - ${s.carga}kg</span>
+                        </div>`
+                    ).join('');
+
+                    lista.innerHTML += `
+                        <div class="card">
+                            <div class="exercicio-nome">${ex.nomeExercicio}</div>
+                            ${seriesHtml}
+                            <div style="font-size: 12px; color: #888; margin-top: 10px;">Descanso: ${ex.descanso}s</div>
+                        </div>
+                    `;
+                });
+            });
+
+        async function finalizarTreino() {
+            const alunoId = localStorage.getItem('fitflow_aluno_id');
+            // Nota: Precisamos passar o ID do treino. 
+            // Dica: Adicione um atributo 'data-treino-id' na sua h1 ou guarde no localStorage quando carregar a ficha
+            const treinoId = 1; // Substitua pelo ID real do treino vindo do seu JSON
+
+            const dados = {
+                alunoId: parseInt(alunoId),
+                treinoId: treinoId,
+                comentario: "Treino concluído com sucesso pelo app!"
+            };
+
+            const btn = document.querySelector('.btn-finalizar');
+            btn.textContent = "Salvando...";
+
+            try {
+                const resposta = await fetch('http://localhost:8081/api/treino/finalizar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                if (resposta.ok) {
+                    alert("Parabéns! Treino registrado no sistema.");
+                    window.location.href = "index.html"; // Volta pro login
+                } else {
+                    alert("Erro ao salvar treino.");
+                }
+            } catch (error) {
+                alert("Erro de conexão!");
+            }
+        }
+    </script>
+</body>
+</html>
