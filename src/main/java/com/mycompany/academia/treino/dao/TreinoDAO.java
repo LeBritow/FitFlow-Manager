@@ -139,11 +139,11 @@ public class TreinoDAO {
     public List<String> buscarComentariosPorAluno(int alunoId) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
+            // Muito mais direto: Busca todos os comentários feitos por este aluno e ordena do mais novo para o mais velho
             String jpql = "SELECT CONCAT('[', t.nome, '] ', c.texto) FROM ComentarioTreino c " +
                           "JOIN c.treino t " +
-                          "WHERE t IN (" +
-                          "    SELECT pt.treino FROM ProgramacaoTreino pt WHERE pt.aluno.id = :alunoId" +
-                          ")";
+                          "WHERE c.aluno.id = :alunoId " +
+                          "ORDER BY c.dataCriacao DESC";
                           
             jakarta.persistence.TypedQuery<String> query = em.createQuery(jpql, String.class);
             query.setParameter("alunoId", alunoId);
