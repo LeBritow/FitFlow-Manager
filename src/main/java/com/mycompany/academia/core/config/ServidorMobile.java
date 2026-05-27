@@ -6,7 +6,10 @@ import com.google.gson.JsonParser;
 import com.mycompany.academia.admin.dao.UsuarioDAO;
 import com.mycompany.academia.admin.model.Usuario;
 import com.mycompany.academia.aluno.model.Aluno;
+import com.mycompany.academia.treino.dao.ExercicioDAO;
 import com.mycompany.academia.treino.dao.TreinoDAO;
+import com.mycompany.academia.treino.model.ComentarioTreino;
+import com.mycompany.academia.treino.model.Exercicio;
 import com.mycompany.academia.treino.model.ItemTreino;
 import com.mycompany.academia.treino.model.ProgramacaoTreino;
 import com.mycompany.academia.treino.model.SerieTreino;
@@ -15,34 +18,47 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import jakarta.persistence.EntityManager;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class ServidorMobile {
 
+    // A variável que guarda o nosso servidor para podermos "matá-lo" quando o JavaFX fechar
+    private static HttpServer servidorAtual;
+
     public static void iniciar() {
         try {
-            InetSocketAddress address = new InetSocketAddress(8081);
-            HttpServer server = HttpServer.create(address, 0);
+            servidorAtual = HttpServer.create(new InetSocketAddress(8081), 0);
             
-            server.createContext("/api/teste", new TesteHandler());
-            server.createContext("/api/login", new LoginHandler());
-            server.createContext("/api/ficha", new BuscarFichaHandler());
-            server.createContext("/api/treino/finalizar", new FinalizarTreinoHandler());
-            server.createContext("/api/exercicios", new ListarExerciciosHandler());
+            // Registrando as 5 rotas da nossa API
+            servidorAtual.createContext("/api/teste", new TesteHandler());
+            servidorAtual.createContext("/api/login", new LoginHandler());
+            servidorAtual.createContext("/api/ficha", new BuscarFichaHandler());
+            servidorAtual.createContext("/api/treino/finalizar", new FinalizarTreinoHandler());
+            servidorAtual.createContext("/api/exercicios", new ListarExerciciosHandler());
             
-            server.setExecutor(null); 
-            server.start();
+            servidorAtual.setExecutor(null); 
+            servidorAtual.start();
             System.out.println("🚀 Servidor Mobile (API) rodando na porta 8081...");
 
         } catch (IOException e) {
-            System.err.println("Erro ao iniciar o servidor: " + e.getMessage());
-            // Se der erro de porta ocupada, vamos tentar matar o processo que está nela
-            System.out.println("Tentando forçar liberação da porta...");
+            System.err.println("Erro ao iniciar o servidor mobile: " + e.getMessage());
+        }
+    }
+
+    // ========================================================================
+    // MÉTODO DE DESLIGAMENTO (Chamado lá no seu App.java)
+    // ========================================================================
+    public static void parar() {
+        if (servidorAtual != null) {
+            System.out.println("🛑 Forçando a parada do Servidor Mobile e liberando a porta 8081...");
+            servidorAtual.stop(0); // O zero significa desligamento imediato
         }
     }
 
@@ -115,7 +131,7 @@ public class ServidorMobile {
     }
 
     // ========================================================================
-    // ROTA 3: BUSCAR A FICHA DE TREINO DO ALUNO (ROTA NOVA)
+    // ROTA 3: BUSCAR A FICHA DE TREINO DO ALUNO
     // ========================================================================
     static class BuscarFichaHandler implements HttpHandler {
         @Override
@@ -146,7 +162,7 @@ public class ServidorMobile {
                     List<ItemTreino> itens = dao.listarItensPorTreino(treino.getId());
                     
                     JsonObject respostaJson = new JsonObject();
-                    respostaJson.addProperty("idFicha", fichaAtual.getId());
+                    respostaJson.addProperty("idFicha", treino.getId()); // Envia o ID real do Treino
                     respostaJson.addProperty("nomeTreino", treino.getNome());
                     respostaJson.addProperty("objetivo", treino.getObjetivo());
                     
@@ -180,7 +196,7 @@ public class ServidorMobile {
             }
         }
     }
-    
+
     // ========================================================================
     // ROTA 4: FINALIZAR TREINO E SALVAR COMENTÁRIO
     // ========================================================================
@@ -198,7 +214,7 @@ public class ServidorMobile {
             }
 
             if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-                jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+                EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
                 try {
                     InputStreamReader isr = new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8);
                     JsonObject corpoRequisicao = JsonParser.parseReader(isr).getAsJsonObject();
@@ -207,7 +223,6 @@ public class ServidorMobile {
                     int treinoId = corpoRequisicao.get("treinoId").getAsInt();
                     String textoComentario = corpoRequisicao.has("comentario") ? corpoRequisicao.get("comentario").getAsString() : "Treino concluído sem comentários.";
 
-                    // Busca as entidades no banco
                     Aluno aluno = em.find(Aluno.class, alunoId);
                     Treino treino = em.find(Treino.class, treinoId);
 
@@ -216,13 +231,13 @@ public class ServidorMobile {
                         return;
                     }
 
-                    // Cria e salva o comentário (que serve como registro de conclusão)
-                    com.mycompany.academia.treino.model.ComentarioTreino novoComentario = new com.mycompany.academia.treino.model.ComentarioTreino();
+                    ComentarioTreino novoComentario = new ComentarioTreino();
                     novoComentario.setAluno(aluno);
                     novoComentario.setTreino(treino);
                     novoComentario.setTexto(textoComentario);
-                    novoComentario.setDataCriacao(java.time.LocalDateTime.now());
-                    novoComentario.setLido(false);
+                    novoComentario.setDataCriacao(LocalDateTime.now());
+                    novoComentario.setLido(false); 
+                    // Se o banco forçar 'visualizado', descomente: novoComentario.setVisualizado(false);
 
                     em.getTransaction().begin();
                     em.persist(novoComentario);
@@ -244,7 +259,10 @@ public class ServidorMobile {
             }
         }
     }
-    
+
+    // ========================================================================
+    // ROTA 5: LISTAR TODOS OS EXERCÍCIOS
+    // ========================================================================
     static class ListarExerciciosHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
@@ -253,12 +271,11 @@ public class ServidorMobile {
 
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 try {
-                    // Instancia o DAO de exercícios (assumindo que você tem o ExercicioDAO)
-                    com.mycompany.academia.treino.dao.ExercicioDAO dao = new com.mycompany.academia.treino.dao.ExercicioDAO();
-                    List<com.mycompany.academia.treino.model.Exercicio> lista = dao.listarTodos(); // Certifique-se que este método existe no seu DAO
+                    ExercicioDAO dao = new ExercicioDAO();
+                    List<Exercicio> lista = dao.listarTodos(); 
                     
                     JsonArray jsonArray = new JsonArray();
-                    for (com.mycompany.academia.treino.model.Exercicio e : lista) {
+                    for (Exercicio e : lista) {
                         JsonObject obj = new JsonObject();
                         obj.addProperty("id", e.getId());
                         obj.addProperty("nome", e.getNome());
@@ -270,6 +287,8 @@ public class ServidorMobile {
                 } catch (Exception e) {
                     enviarResposta(exchange, 500, "{\"erro\":\"Erro ao buscar exercícios.\"}");
                 }
+            } else {
+                enviarResposta(exchange, 405, "{\"erro\":\"Esta rota aceita apenas GET.\"}");
             }
         }
     }

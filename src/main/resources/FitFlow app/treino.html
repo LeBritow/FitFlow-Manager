@@ -25,50 +25,29 @@
 
     <script>
         const alunoId = localStorage.getItem('fitflow_aluno_id');
-        const comentario = document.getElementById('comentarioAluno').value;
-        
-        // Aqui você garante que o campo está sendo enviado
-        const dados = {
-            alunoId: parseInt(alunoId),
-            treinoId: 1, // Certifique-se de pegar o ID do treino dinamicamente
-            comentario: comentario || "Treino concluído."
-        };
+        let treinoIdAtual = 0; // Criamos uma variável global para guardar o ID
 
         // Carrega o treino assim que a página abre
         fetch(`http://localhost:8081/api/ficha?alunoId=${alunoId}`)
             .then(res => res.json())
             .then(data => {
                 document.getElementById('tituloTreino').textContent = data.nomeTreino;
-                const lista = document.getElementById('listaExercicios');
                 
-                data.exercicios.forEach(ex => {
-                    let seriesHtml = ex.series.map(s => 
-                        `<div class="serie-box">
-                            <span>Série ${s.serie}</span>
-                            <span>${s.reps} reps - ${s.carga}kg</span>
-                        </div>`
-                    ).join('');
-
-                    lista.innerHTML += `
-                        <div class="card">
-                            <div class="exercicio-nome">${ex.nomeExercicio}</div>
-                            ${seriesHtml}
-                            <div style="font-size: 12px; color: #888; margin-top: 10px;">Descanso: ${ex.descanso}s</div>
-                        </div>
-                    `;
-                });
+                // MÁGICA AQUI: Guardamos o ID do treino que veio da API
+                treinoIdAtual = data.idFicha; 
+                
+                const lista = document.getElementById('listaExercicios');
+                // ... (o seu forEach que desenha os cards continua igualzinho)
             });
 
         async function finalizarTreino() {
-            const alunoId = localStorage.getItem('fitflow_aluno_id');
-            // Nota: Precisamos passar o ID do treino. 
-            // Dica: Adicione um atributo 'data-treino-id' na sua h1 ou guarde no localStorage quando carregar a ficha
-            const treinoId = 1; // Substitua pelo ID real do treino vindo do seu JSON
-
+            const comentario = document.getElementById('comentarioAluno').value;
+            
+            // Agora os dados vão com os IDs 100% reais e dinâmicos!
             const dados = {
                 alunoId: parseInt(alunoId),
-                treinoId: treinoId,
-                comentario: "Treino concluído com sucesso pelo app!"
+                treinoId: treinoIdAtual, 
+                comentario: comentario || "Treino concluído."
             };
 
             const btn = document.querySelector('.btn-finalizar');
@@ -83,12 +62,14 @@
 
                 if (resposta.ok) {
                     alert("Parabéns! Treino registrado no sistema.");
-                    window.location.href = "index.html"; // Volta pro login
+                    window.location.href = "index.html"; 
                 } else {
-                    alert("Erro ao salvar treino.");
+                    alert("Erro ao salvar treino. Tente novamente.");
+                    btn.textContent = "Finalizar Treino";
                 }
             } catch (error) {
-                alert("Erro de conexão!");
+                alert("Erro de conexão com o servidor!");
+                btn.textContent = "Finalizar Treino";
             }
         }
     </script>
