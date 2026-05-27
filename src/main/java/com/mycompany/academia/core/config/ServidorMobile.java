@@ -198,7 +198,7 @@ public class ServidorMobile {
     }
 
     // ========================================================================
-    // ROTA 4: FINALIZAR TREINO E SALVAR COMENTÁRIO
+    // ROTA 4: FINALIZAR TREINO (SALVANDO SESSÃO, CARGAS E COMENTÁRIO)
     // ========================================================================
     static class FinalizarTreinoHandler implements HttpHandler {
         @Override
@@ -231,26 +231,76 @@ public class ServidorMobile {
                         return;
                     }
 
+                    em.getTransaction().begin();
+
+                    // 1. Encontrar a ProgramacaoTreino atual do aluno
+                    String jpqlProg = "SELECT p FROM ProgramacaoTreino p WHERE p.aluno.id = :aId AND p.treino.id = :tId";
+                    List<ProgramacaoTreino> progs = em.createQuery(jpqlProg, ProgramacaoTreino.class)
+                                                      .setParameter("aId", alunoId)
+                                                      .setParameter("tId", treinoId)
+                                                      .getResultList();
+
+                    if (!progs.isEmpty()) {
+                        ProgramacaoTreino prog = progs.get(0);
+                        
+                        // 2. Salvar a Sessão de Treino
+                        com.mycompany.academia.core.session.SessaoTreino sessao = new com.mycompany.academia.core.session.SessaoTreino();
+                        sessao.setProgramacaoTreino(prog);
+                        sessao.setData(LocalDateTime.now());
+                        sessao.setConcluido(true);
+                        em.persist(sessao);
+
+                        // 3. Varrer o JSON para salvar os Itens Realizados (Cargas)
+                        if (corpoRequisicao.has("itensRealizados")) {
+                            JsonArray itensArray = corpoRequisicao.get("itensRealizados").getAsJsonArray();
+                            for (int i = 0; i < itensArray.size(); i++) {
+                                JsonObject objItem = itensArray.get(i).getAsJsonObject();
+                                int idItemTreino = objItem.get("itemTreinoId").getAsInt();
+                                float cargaReal = objItem.get("carga").getAsFloat();
+                                boolean feito = objItem.get("feito").getAsBoolean();
+                                
+                                int tempoExec = objItem.has("tempoExecucao") ? objItem.get("tempoExecucao").getAsInt() : 0;
+                                int tempoDesc = objItem.has("tempoDescanso") ? objItem.get("tempoDescanso").getAsInt() : 0;
+                                String statusCg = objItem.has("statusCarga") ? objItem.get("statusCarga").getAsString() : "MANTEVE";
+
+                                ItemTreino itemTreinoDB = em.find(ItemTreino.class, idItemTreino);
+                                if (itemTreinoDB != null) {
+                                    com.mycompany.academia.treino.model.ItemRealizado itemRealizado = new com.mycompany.academia.treino.model.ItemRealizado();
+                                    itemRealizado.setSessaoTreino(sessao);
+                                    itemRealizado.setItemTreino(itemTreinoDB);
+                                    itemRealizado.setCargaUtilizada(cargaReal);
+                                    itemRealizado.setFeito(feito);
+
+                                    itemRealizado.setTempoExecucaoSegundos(tempoExec);
+                                    itemRealizado.setTempoDescansoSegundos(tempoDesc);
+                                    itemRealizado.setStatusCarga(statusCg);
+
+                                    em.persist(itemRealizado);
+                                }
+                            }
+                        }
+                    }
+
+                    // 4. Salvar o Feedback/Comentário
                     ComentarioTreino novoComentario = new ComentarioTreino();
                     novoComentario.setAluno(aluno);
                     novoComentario.setTreino(treino);
                     novoComentario.setTexto(textoComentario);
                     novoComentario.setDataCriacao(LocalDateTime.now());
                     novoComentario.setLido(false); 
-                    // Se o banco forçar 'visualizado', descomente: novoComentario.setVisualizado(false);
-
-                    em.getTransaction().begin();
                     em.persist(novoComentario);
+
                     em.getTransaction().commit();
 
                     JsonObject respostaJson = new JsonObject();
                     respostaJson.addProperty("status", "sucesso");
-                    respostaJson.addProperty("mensagem", "Treino finalizado e salvo com sucesso!");
+                    respostaJson.addProperty("mensagem", "Treino finalizado com histórico de cargas salvo!");
                     enviarResposta(exchange, 200, respostaJson.toString());
 
                 } catch (Exception e) {
                     if (em.getTransaction().isActive()) em.getTransaction().rollback();
                     enviarResposta(exchange, 500, "{\"status\":\"erro\",\"mensagem\":\"Erro ao salvar o treino: " + e.getMessage() + "\"}");
+                    e.printStackTrace(); // Bom manter aqui no log do NetBeans se der erro
                 } finally {
                     em.close();
                 }

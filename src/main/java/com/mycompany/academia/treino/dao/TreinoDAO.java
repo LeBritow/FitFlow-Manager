@@ -136,16 +136,16 @@ public class TreinoDAO {
         }
     }
     
-    public List<String> buscarComentariosPorAluno(int alunoId) {
+    // CORREÇÃO: Agora retorna a lista de entidades para preservar os metadados relacionais
+    public List<com.mycompany.academia.treino.model.ComentarioTreino> buscarComentariosPorAluno(int alunoId) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
-            // Muito mais direto: Busca todos os comentários feitos por este aluno e ordena do mais novo para o mais velho
-            String jpql = "SELECT CONCAT('[', t.nome, '] ', c.texto) FROM ComentarioTreino c " +
-                          "JOIN c.treino t " +
+            String jpql = "SELECT c FROM ComentarioTreino c " +
+                          "JOIN FETCH c.treino t " +
                           "WHERE c.aluno.id = :alunoId " +
                           "ORDER BY c.dataCriacao DESC";
                           
-            jakarta.persistence.TypedQuery<String> query = em.createQuery(jpql, String.class);
+            jakarta.persistence.TypedQuery<com.mycompany.academia.treino.model.ComentarioTreino> query = em.createQuery(jpql, com.mycompany.academia.treino.model.ComentarioTreino.class);
             query.setParameter("alunoId", alunoId);
             return query.getResultList();
         } catch (Exception e) {
@@ -155,9 +155,68 @@ public class TreinoDAO {
         } finally {
             em.close();
         }
+    }   
+
+    // NOVO MÉTODO: Localiza a SessaoTreino correspondente ao clique e traz as cargas reais
+    public List<com.mycompany.academia.treino.model.ItemRealizado> buscarItensRealizados(int alunoId, int treinoId, java.time.LocalDateTime dataComentario) {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            String jpqlSessao = "SELECT s FROM SessaoTreino s " +
+                                "WHERE s.programacaoTreino.aluno.id = :alunoId " +
+                                "AND s.programacaoTreino.treino.id = :treinoId " +
+                                "AND (SELECT COUNT(ir) FROM ItemRealizado ir WHERE ir.sessaoTreino = s) > 0 " + 
+                                "ORDER BY s.data DESC";
+            List<com.mycompany.academia.core.session.SessaoTreino> sessoes = em.createQuery(jpqlSessao, com.mycompany.academia.core.session.SessaoTreino.class)
+                                           .setParameter("alunoId", alunoId)
+                                           .setParameter("treinoId", treinoId)
+                                           .getResultList();
+            if (sessoes.isEmpty()) return java.util.Collections.emptyList();
+
+            // Encontra a SessaoTreino cuja gravação mais se aproxima do timestamp do comentário
+            com.mycompany.academia.core.session.SessaoTreino melhorSessao = sessoes.get(0);
+            long menorDiferenca = Math.abs(java.time.temporal.ChronoUnit.SECONDS.between(melhorSessao.getData(), dataComentario));
+            for (com.mycompany.academia.core.session.SessaoTreino s : sessoes) {
+            long diferenca = Math.abs(java.time.temporal.ChronoUnit.SECONDS.between(s.getData(), dataComentario));
+                if (diferenca < menorDiferenca) {
+                    menorDiferenca = diferenca;
+                    melhorSessao = s;
+                }
+            }
+
+            // Traz todos os itens e exercícios realizados nesta execução
+            String jpqlItens = "SELECT DISTINCT ir FROM ItemRealizado ir " +
+                               "JOIN FETCH ir.itemTreino it " +
+                               "JOIN FETCH it.exercicio e " +
+                               "LEFT JOIN FETCH it.seriesTreino " + 
+                               "WHERE ir.sessaoTreino.id = :sessaoId";
+                               
+            return em.createQuery(jpqlItens, com.mycompany.academia.treino.model.ItemRealizado.class)
+                     .setParameter("sessaoId", melhorSessao.getId())
+                     .getResultList();
+        } finally {
+            em.close();
+        }
     }
 
-    // 1. CARD: Ficha Ativa (Busca o nome do treino planejado para o período atual)
+    // NOVO MÉTODO: Coleta a evolução cronológica das cargas para o gráfico
+    public List<com.mycompany.academia.treino.model.ItemRealizado> buscarHistoricoCargas(int alunoId, String nomeExercicio) {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            String jpql = "SELECT ir FROM ItemRealizado ir " +
+                          "JOIN FETCH ir.sessaoTreino s " +
+                          "WHERE s.programacaoTreino.aluno.id = :alunoId " +
+                          "AND ir.itemTreino.exercicio.nome = :nomeExercicio " +
+                          "AND ir.feito = true " +
+                          "ORDER BY s.data ASC";
+            return em.createQuery(jpql, com.mycompany.academia.treino.model.ItemRealizado.class)
+                     .setParameter("alunoId", alunoId)
+                     .setParameter("nomeExercicio", nomeExercicio)
+                     .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
     public String buscarNomeFichaAtiva(int alunoId) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
@@ -178,7 +237,6 @@ public class TreinoDAO {
         }
     }
 
-    // 2. CARD: Último Treino (Busca a data do último feedback enviado pelo app mobile)
     public String buscarDataUltimoTreino(int alunoId) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
@@ -201,7 +259,6 @@ public class TreinoDAO {
         }
     }
 
-    // 3. CARD: Treinos no Mês (Conta quantos treinos foram concluídos no mês atual)
     public long buscarQuantidadeTreinosMes(int alunoId) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
@@ -222,7 +279,6 @@ public class TreinoDAO {
         }
     }
     
-    // Método para excluir uma ProgramacaoTreino (Ficha do Aluno)
     public boolean excluirProgramacao(ProgramacaoTreino prog) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
@@ -249,6 +305,23 @@ public class TreinoDAO {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
             e.printStackTrace();
             return false;
+        } finally {
+            em.close();
+        }
+    }
+    
+    public void marcarComentariosComoLidos(int alunoId) {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            // Executa um update em massa para tirar o status de pendente de todos os feedbacks deste aluno
+            em.createQuery("UPDATE ComentarioTreino c SET c.lido = true WHERE c.aluno.id = :alunoId AND c.lido = false")
+              .setParameter("alunoId", alunoId)
+              .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            System.err.println("Erro ao atualizar status dos comentários: " + e.getMessage());
         } finally {
             em.close();
         }

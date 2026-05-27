@@ -20,6 +20,21 @@ public class Academia extends Application {
         palcoPrincipal.show();
     }
 
+    // ========================================================================
+    // GATILHO DE FECHAMENTO COMPLETO
+    // Acionado no exato milissegundo em que o usuário clica no "X" da janela
+    // ========================================================================
+    @Override
+    public void stop() throws Exception {
+        System.out.println("👋 Janela principal fechada. Encerrando processos...");
+        
+        // 1. Desliga o servidor HTTP nativo
+        com.mycompany.academia.core.config.ServidorMobile.parar();
+        
+        // 2. Garante o encerramento do processo java.exe no Windows/Linux
+        System.exit(0);
+    }
+
     public static void main(String[] args) {
         launch(args);
     }

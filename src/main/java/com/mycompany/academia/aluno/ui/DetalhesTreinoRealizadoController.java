@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import java.util.List;
 
 public class DetalhesTreinoRealizadoController {
 
@@ -18,41 +19,101 @@ public class DetalhesTreinoRealizadoController {
     @FXML private TableColumn<LinhaExecucao, String> colPlanejado;
     @FXML private TableColumn<LinhaExecucao, String> colRealizado;
     
+    // NOVAS COLUNAS ANALÍTICAS PARA O INSTRUTOR:
+    @FXML private TableColumn<LinhaExecucao, String> colTempoExecucao;
+    @FXML private TableColumn<LinhaExecucao, String> colTempoDescanso;
+    @FXML private TableColumn<LinhaExecucao, String> colTendenciaCarga;
+    
     @FXML private Label labelNotaGeral;
     @FXML private Label labelComentarioAluno;
 
+    private com.mycompany.academia.treino.dao.TreinoDAO treinoDAO = new com.mycompany.academia.treino.dao.TreinoDAO();
+
     @FXML
     public void initialize() {
-        // Configura as colunas da tabela para ler as propriedades da nossa classe interna
         colExercicio.setCellValueFactory(cellData -> cellData.getValue().exercicio);
         colPlanejado.setCellValueFactory(cellData -> cellData.getValue().planejado);
         colRealizado.setCellValueFactory(cellData -> cellData.getValue().realizado);
+        
+        // Vinculando as novas colunas analíticas
+        colTempoExecucao.setCellValueFactory(cellData -> cellData.getValue().tempoExecucao);
+        colTempoDescanso.setCellValueFactory(cellData -> cellData.getValue().tempoDescanso);
+        colTendenciaCarga.setCellValueFactory(cellData -> cellData.getValue().tendenciaCarga);
     }
 
-    // Método que a tela principal vai chamar para "injetar" os dados na janelinha
-    public void carregarDadosMockados(String tituloDinamico) {
-        labelTituloTreino.setText(tituloDinamico);
+    public void carregarDadosReais(com.mycompany.academia.treino.model.ComentarioTreino comentario) {
+        labelTituloTreino.setText(comentario.getTreino().getNome() + " (" + comentario.getTreino().getObjetivo() + ")");
         
-        // Simulando a diferença entre o que o app mandou fazer e o que o aluno anotou
-        ObservableList<LinhaExecucao> dados = FXCollections.observableArrayList(
-            new LinhaExecucao("Supino Reto com Barra", "4x10 - 20kg", "4x (10,10,8,8) - 22kg"),
-            new LinhaExecucao("Crucifixo Inclinado", "3x12 - 12kg", "3x12 - 12kg (OK)"),
-            new LinhaExecucao("Tríceps Pulley", "4x12 - 40kg", "4x (12,12,10,8) - 40kg")
+        java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
+        labelDataFinalizacao.setText("Finalizado em: " + comentario.getDataCriacao().format(formatador));
+        labelComentarioAluno.setText("\"" + comentario.getTexto() + "\"");
+        labelNotaGeral.setText("Análise de Ritmo e Carga Ativa");
+
+        List<com.mycompany.academia.treino.model.ItemRealizado> realizados = treinoDAO.buscarItensRealizados(
+            comentario.getAluno().getId(), 
+            comentario.getTreino().getId(), 
+            comentario.getDataCriacao()
         );
+
+        ObservableList<LinhaExecucao> dados = FXCollections.observableArrayList();
+        
+        for (com.mycompany.academia.treino.model.ItemRealizado ir : realizados) {
+            // 1. O que o instrutor havia planejado
+            int totalSeries = ir.getItemTreino().getSeriesTreino().size();
+            String planejado = totalSeries + "x ";
+            if (!ir.getItemTreino().getSeriesTreino().isEmpty()) {
+                planejado += ir.getItemTreino().getSeriesTreino().get(0).getRepeticoes() + " reps / " + 
+                             ir.getItemTreino().getSeriesTreino().get(0).getCarga() + "kg";
+            }
+
+            // 2. O que o aluno realmente executou
+            String realizado = ir.isFeito() ? String.format("%.1f kg", ir.getCargaUtilizada()) : "Não realizado";
+
+            // 3. Formatação dos tempos cronometrados (Segundos -> MM:SS)
+            String tempoExecFmt = ir.isFeito() ? formatarTempo(ir.getTempoExecucaoSegundos() != null ? ir.getTempoExecucaoSegundos() : 0) : "--:--";
+            String tempoDescFmt = ir.isFeito() ? formatarTempo(ir.getTempoDescansoSegundos() != null ? ir.getTempoDescansoSegundos() : 0) : "--:--";
+
+            // 4. Indicador visual inteligente da tendência de carga para facilitar a leitura do instrutor
+            String tendencia = "➡️ Manteve";
+            if ("SUBIU".equalsIgnoreCase(ir.getStatusCarga())) tendencia = "🔺 Aumentou";
+            if ("DIMINUIU".equalsIgnoreCase(ir.getStatusCarga())) tendencia = "🔻 Diminuiu";
+            if (!ir.isFeito()) tendencia = "❌ Pulado";
+
+            dados.add(new LinhaExecucao(
+                ir.getItemTreino().getExercicio().getNome(), 
+                planejado, 
+                realizado, 
+                tempoExecFmt, 
+                tempoDescFmt, 
+                tendencia
+            ));
+        }
         
         tabelaExecucao.setItems(dados);
     }
 
-    // Classe auxiliar interna apenas para popular a Tabela facilmente
+    private String formatarTempo(int totalSegundos) {
+        int minutos = totalSegundos / 60;
+        int segundos = totalSegundos % 60;
+        return String.format("%02d:%02d", minutos, segundos);
+    }
+
+    // Estrutura de dados interna estendida para suportar as novas colunas da GUI
     public static class LinhaExecucao {
         private final SimpleStringProperty exercicio;
         private final SimpleStringProperty planejado;
         private final SimpleStringProperty realizado;
+        private final SimpleStringProperty tempoExecucao;
+        private final SimpleStringProperty tempoDescanso;
+        private final SimpleStringProperty tendenciaCarga;
 
-        public LinhaExecucao(String exercicio, String planejado, String realizado) {
+        public LinhaExecucao(String exercicio, String planejado, String realizado, String tempoExec, String tempoDesc, String tendencia) {
             this.exercicio = new SimpleStringProperty(exercicio);
             this.planejado = new SimpleStringProperty(planejado);
             this.realizado = new SimpleStringProperty(realizado);
+            this.tempoExecucao = new SimpleStringProperty(tempoExec);
+            this.tempoDescanso = new SimpleStringProperty(tempoDesc);
+            this.tendenciaCarga = new SimpleStringProperty(tendencia);
         }
     }
 }

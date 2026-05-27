@@ -42,8 +42,8 @@ public class AnaliseAlunoController {
     @FXML private VBox caixaAlertas;
     @FXML private LineChart<String, Number> graficoEvolucao;
     @FXML private LineChart<String, Number> graficoCargas;
-    @FXML private ListView<String> listaComentarios;
     @FXML private ComboBox<String> comboExercicioGrafico;
+    @FXML private ListView<com.mycompany.academia.treino.model.ComentarioTreino> listaComentarios;
 
     private AlunoDAO alunoDAO = new AlunoDAO();
     private com.mycompany.academia.treino.dao.TreinoDAO treinoDAO = new com.mycompany.academia.treino.dao.TreinoDAO(); 
@@ -56,7 +56,11 @@ public class AnaliseAlunoController {
         graficoCargas.setAnimated(false);
         configurarFiltroBusca();
         
-        // Ouvinte para a seleção do ComboBox superior de Alunos
+        // Configura um aviso nativo elegante para listas vazias
+        Label placeholder = new Label("Nenhum feedback registrado para este aluno ainda.");
+        placeholder.setStyle("-fx-text-fill: #7f8c8d;");
+        listaComentarios.setPlaceholder(placeholder);
+
         comboBuscaAluno.getSelectionModel().selectedItemProperty().addListener((obs, antigo, novo) -> {
             if (novo != null) {
                 alunoSelecionado = novo;
@@ -65,17 +69,37 @@ public class AnaliseAlunoController {
             }
         });
 
-        // NOVO: Ouvinte que redesenha o gráfico de carga quando o instrutor muda o exercício
         comboExercicioGrafico.getSelectionModel().selectedItemProperty().addListener((obs, antigo, novo) -> {
             if (novo != null && alunoSelecionado != null) {
                 renderizarGraficoCargaExercicios(alunoSelecionado, novo);
             }
         });
 
-        // Ouvinte de duplo clique no histórico de feedbacks
+        // CELL FACTORY: Converte o objeto do banco em texto estruturado na interface gráfica
+        listaComentarios.setCellFactory(lv -> new ListCell<com.mycompany.academia.treino.model.ComentarioTreino>() {
+            @Override
+            protected void updateItem(com.mycompany.academia.treino.model.ComentarioTreino item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+                    setText(String.format("[%s] [%s] %s", item.getDataCriacao().format(formatador), item.getTreino().getNome(), item.getTexto()));
+                    
+                    if (!item.isLido()) {
+                        setStyle("-fx-text-fill: #e67e22; -fx-font-weight: bold;"); // Feedback laranja se não lido
+                    } else {
+                        setStyle("");
+                    }
+                }
+            }
+        });
+
+        // Ouvinte de duplo clique atualizado para coletar o objeto relacional íntegro
         listaComentarios.setOnMouseClicked((MouseEvent event) -> {
             if (event.getClickCount() == 2) { 
-                String itemSelecionado = listaComentarios.getSelectionModel().getSelectedItem();
+                com.mycompany.academia.treino.model.ComentarioTreino itemSelecionado = listaComentarios.getSelectionModel().getSelectedItem();
                 if (itemSelecionado != null) {
                     abrirModalDetalhesTreino(itemSelecionado);
                 }
@@ -120,13 +144,9 @@ public class AnaliseAlunoController {
         labelNomeAluno.setText(aluno.getNome());
         atualizarLabelsMedidas(aluno);
         
-        // ====================================================================
-        // CARDS REAIS: Substituindo os dados fakes pelas consultas do DAO
-        // ====================================================================
         labelFichaAtiva.setText(treinoDAO.buscarNomeFichaAtiva(aluno.getId()));
         labelUltimoTreino.setText(treinoDAO.buscarDataUltimoTreino(aluno.getId()));
         labelTreinosMes.setText(String.valueOf(treinoDAO.buscarQuantidadeTreinosMes(aluno.getId())));
-        // ====================================================================
         
         List<String> exerciciosDoAluno = treinoDAO.buscarNomesExerciciosPorAluno(aluno.getId());
         if (exerciciosDoAluno.isEmpty()) {
@@ -140,13 +160,15 @@ public class AnaliseAlunoController {
         renderizarGraficoPesoImcReal(aluno);
         gerarAlertas(aluno);
         
+        // ====================================================================
+        // ATUALIZAÇÃO DO STATUS DE LEITURA
+        // ====================================================================
+        treinoDAO.marcarComentariosComoLidos(aluno.getId()); // Zera as pendências no banco
+        
         listaComentarios.getItems().clear();
-        List<String> feedbacksReais = treinoDAO.buscarComentariosPorAluno(aluno.getId());
-        if (feedbacksReais.isEmpty()) {
-            listaComentarios.getItems().add("Nenhum feedback registrado para este aluno ainda.");
-        } else {
-            listaComentarios.setItems(FXCollections.observableArrayList(feedbacksReais));
-        }
+        listaComentarios.getItems().clear();
+        List<com.mycompany.academia.treino.model.ComentarioTreino> feedbacksReais = treinoDAO.buscarComentariosPorAluno(aluno.getId());
+        listaComentarios.setItems(FXCollections.observableArrayList(feedbacksReais));
     }
 
     private void atualizarLabelsMedidas(Aluno aluno) {
@@ -228,24 +250,19 @@ public class AnaliseAlunoController {
         XYChart.Series<String, Number> seriesCarga = new XYChart.Series<>();
         seriesCarga.setName("Carga Máxima (kg) - " + nomeExercicio);
 
-        // Simulação inteligente que será trocada pelo SELECT do ItemRealizado no futuro
-        if (nomeExercicio.contains("Supino")) {
-            seriesCarga.getData().add(new XYChart.Data<>("05/05", 50));
-            seriesCarga.getData().add(new XYChart.Data<>("12/05", 50));
-            seriesCarga.getData().add(new XYChart.Data<>("19/05", 54));
-            seriesCarga.getData().add(new XYChart.Data<>("26/05", 54));
-        } else if (nomeExercicio.contains("Leg Press")) {
-            seriesCarga.getData().add(new XYChart.Data<>("05/05", 160));
-            seriesCarga.getData().add(new XYChart.Data<>("12/05", 180));
-            seriesCarga.getData().add(new XYChart.Data<>("19/05", 180));
-            seriesCarga.getData().add(new XYChart.Data<>("26/05", 200));
-        } else {
-            seriesCarga.getData().add(new XYChart.Data<>("05/05", 30));
-            seriesCarga.getData().add(new XYChart.Data<>("26/05", 35));
+        // Busca o histórico real extraído das submissões mobile
+        List<com.mycompany.academia.treino.model.ItemRealizado> historico = treinoDAO.buscarHistoricoCargas(aluno.getId(), nomeExercicio);
+        java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM");
+
+        for (com.mycompany.academia.treino.model.ItemRealizado ir : historico) {
+            String dataEixoX = ir.getSessaoTreino().getData().format(formatador);
+            seriesCarga.getData().add(new XYChart.Data<>(dataEixoX, ir.getCargaUtilizada()));
         }
 
-        graficoCargas.getData().add(seriesCarga);
-        configurarTooltips(seriesCarga, " kg");
+        if (!historico.isEmpty()) {
+            graficoCargas.getData().add(seriesCarga);
+            configurarTooltips(seriesCarga, " kg");
+        }
     }
 
     private void configurarTooltips(XYChart.Series<String, Number> series, String sufixo) {
@@ -407,14 +424,14 @@ public class AnaliseAlunoController {
         });
     }
 
-    private void abrirModalDetalhesTreino(String itemSelecionado) {
+    private void abrirModalDetalhesTreino(com.mycompany.academia.treino.model.ComentarioTreino comentario) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DetalhesTreinoRealizado.fxml"));
             Parent root = loader.load();
 
             DetalhesTreinoRealizadoController controller = loader.getController();
-            String tituloDinamico = itemSelecionado.split("-")[0].trim();
-            controller.carregarDadosMockados(tituloDinamico);
+            // É nesta linha abaixo que o sistema processa os cálculos de carga e histórico
+            controller.carregarDadosReais(comentario); 
 
             Stage modal = new Stage();
             modal.setTitle("Detalhes da Execução do Treino");
@@ -422,9 +439,26 @@ public class AnaliseAlunoController {
             modal.setResizable(false);
             modal.initModality(Modality.APPLICATION_MODAL); 
             modal.showAndWait();
-        } catch (IOException e) {
-            System.err.println("Erro ao abrir a tela de Detalhes do Treino.");
-            e.printStackTrace();
+            
+            // Força a atualização da lista após fechar a janela
+            if (alunoSelecionado != null) {
+                mostrarDetalhesAluno(alunoSelecionado);
+            }
+        } catch (Exception e) {
+            // =================================================================
+            // MODO INVESTIGAÇÃO: Força o erro oculto a aparecer na tela!
+            // =================================================================
+            System.err.println("Erro crítico capturado ao tentar abrir o modal:");
+            e.printStackTrace(); // Imprime o rastro no console do NetBeans
+            
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Modo Investigação - Bug Capturado");
+            alert.setHeaderText("Um erro oculto impediu a tela de abrir!");
+            
+            // Pega a mensagem exata de erro que o Java tentou esconder
+            String causa = e.getCause() != null ? e.getCause().toString() : e.toString();
+            alert.setContentText("Motivo da falha:\n" + causa + "\n\nOlhe o console (Output) do NetBeans para ver a linha exata do código onde isso quebrou.");
+            alert.showAndWait();
         }
     }
 

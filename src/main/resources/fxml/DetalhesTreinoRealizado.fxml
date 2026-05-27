@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="450.0" prefWidth="600.0" spacing="15.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.academia.aluno.ui.DetalhesTreinoRealizadoController">
+<VBox prefHeight="450.0" prefWidth="850.0" spacing="15.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.academia.aluno.ui.DetalhesTreinoRealizadoController">
    <padding>
       <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
    </padding>
@@ -26,10 +26,16 @@
       
       <TableView fx:id="tabelaExecucao" prefHeight="200.0" VBox.vgrow="ALWAYS">
         <columns>
-          <TableColumn fx:id="colExercicio" prefWidth="200.0" text="Exercício" />
-          <TableColumn fx:id="colPlanejado" prefWidth="170.0" text="Planejado (Instrutor)" />
-          <TableColumn fx:id="colRealizado" prefWidth="180.0" text="Realizado (Aluno)" />
+          <TableColumn fx:id="colExercicio" prefWidth="180.0" text="Exercício" />
+          <TableColumn fx:id="colPlanejado" prefWidth="140.0" text="Planejado" />
+          <TableColumn fx:id="colRealizado" prefWidth="110.0" text="Realizado" />
+          <TableColumn fx:id="colTempoExecucao" prefWidth="100.0" text="T. Execução" />
+          <TableColumn fx:id="colTempoDescanso" prefWidth="100.0" text="T. Descanso" />
+          <TableColumn fx:id="colTendenciaCarga" prefWidth="120.0" text="Tendência" />
         </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+        </columnResizePolicy>
       </TableView>
       
       <VBox spacing="10.0" style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-border-color: #e9ecef; -fx-border-radius: 5; -fx-background-radius: 5;">
