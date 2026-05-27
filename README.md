@@ -33,3 +33,5 @@ FitFlow-Manager/
 │   └── session/     # Gerenciamento de sessão
 └── src/main/resources/fxml/ # Telas da interface (FXML)
 ```
+
+Esse projeto foi feito 100% em vibe coding, então não espere um projeto gigante.
