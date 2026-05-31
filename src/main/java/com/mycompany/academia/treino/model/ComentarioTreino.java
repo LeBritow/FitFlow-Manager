@@ -19,8 +19,6 @@ public class ComentarioTreino {
     private String texto;
     private LocalDateTime dataCriacao;
     private boolean lido;
-
-    // AQUI É O PULO DO GATO: VOCÊ PRECISA TER OS MÉTODOS ABAIXO!
     
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

@@ -116,8 +116,6 @@ public class TreinoDAO {
     public List<String> buscarNomesExerciciosPorAluno(int alunoId) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
-            // A mágica: Uma subquery (SELECT pt.treino...) descobre quais são os treinos do aluno,
-            // e a query principal pega os itens (exercícios) que pertencem a esses treinos.
             String jpql = "SELECT DISTINCT e.nome FROM ItemTreino it " +
                           "JOIN it.exercicio e " +
                           "WHERE it.treino IN (" +
@@ -130,13 +128,12 @@ public class TreinoDAO {
         } catch (Exception e) {
             System.err.println("Erro ao buscar exercícios do aluno: " + e.getMessage());
             e.printStackTrace();
-            return java.util.Collections.emptyList(); // Retorna lista vazia para não quebrar a tela
+            return java.util.Collections.emptyList();
         } finally {
             em.close();
         }
     }
     
-    // CORREÇÃO: Agora retorna a lista de entidades para preservar os metadados relacionais
     public List<com.mycompany.academia.treino.model.ComentarioTreino> buscarComentariosPorAluno(int alunoId) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
@@ -157,7 +154,6 @@ public class TreinoDAO {
         }
     }   
 
-    // NOVO MÉTODO: Localiza a SessaoTreino correspondente ao clique e traz as cargas reais
     public List<com.mycompany.academia.treino.model.ItemRealizado> buscarItensRealizados(int alunoId, int treinoId, java.time.LocalDateTime dataComentario) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
@@ -172,7 +168,6 @@ public class TreinoDAO {
                                            .getResultList();
             if (sessoes.isEmpty()) return java.util.Collections.emptyList();
 
-            // Encontra a SessaoTreino cuja gravação mais se aproxima do timestamp do comentário
             com.mycompany.academia.core.session.SessaoTreino melhorSessao = sessoes.get(0);
             long menorDiferenca = Math.abs(java.time.temporal.ChronoUnit.SECONDS.between(melhorSessao.getData(), dataComentario));
             for (com.mycompany.academia.core.session.SessaoTreino s : sessoes) {
@@ -183,7 +178,6 @@ public class TreinoDAO {
                 }
             }
 
-            // Traz todos os itens e exercícios realizados nesta execução
             String jpqlItens = "SELECT DISTINCT ir FROM ItemRealizado ir " +
                                "JOIN FETCH ir.itemTreino it " +
                                "JOIN FETCH it.exercicio e " +
@@ -198,7 +192,6 @@ public class TreinoDAO {
         }
     }
 
-    // NOVO MÉTODO: Coleta a evolução cronológica das cargas para o gráfico
     public List<com.mycompany.academia.treino.model.ItemRealizado> buscarHistoricoCargas(int alunoId, String nomeExercicio) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
@@ -288,10 +281,8 @@ public class TreinoDAO {
             Treino treino = prog.getTreino();
             boolean isFichaExclusiva = !treino.isFichaPadrao();
             
-            // 1. Remove a atribuição da ficha ao aluno
             em.remove(prog); 
             
-            // 2. Se for uma ficha feita só para ele, apaga os itens e o treino base também
             if (isFichaExclusiva) {
                 em.createQuery("DELETE FROM ItemTreino i WHERE i.treino.id = :tId")
                   .setParameter("tId", treino.getId())
@@ -314,7 +305,6 @@ public class TreinoDAO {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            // Executa um update em massa para tirar o status de pendente de todos os feedbacks deste aluno
             em.createQuery("UPDATE ComentarioTreino c SET c.lido = true WHERE c.aluno.id = :alunoId AND c.lido = false")
               .setParameter("alunoId", alunoId)
               .executeUpdate();
