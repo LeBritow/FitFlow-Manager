@@ -1,37 +1,64 @@
 # FitFlow Manager
 
-Sistema de gestão para academias em **Java (JavaFX + JPA)**.
+Sistema de gestão para academias em **Java (JavaFX + JPA + Hibernate)**.
 
 ### Stack
-* **Java 21**
-* **JavaFX** (UI)
-* **PostgreSQL** + **Hibernate** (Persistência)
+* **Java 25**
+* **JavaFX 21** com **FXML** (UI Desktop)
+* **PostgreSQL** + **Hibernate 6** (Persistência JPA)
+* **Gson** (JSON)
 * **Maven** (Build)
+* **Servidor HTTP embutido** (Interface mobile)
 
-### O que faz?
-- Gestão de alunos e instrutores.
-- Montagem de treinos (Templates e Personalizados).
-- Gerador automático de fichas (Sorteio inteligente por grupo muscular).
+### Funcionalidades
+- Gestão de usuários (Admin, Instrutores, Alunos) com autenticação e controle de senhas.
+- Cadastro de alunos com avaliação física.
+- Montagem de treinos com exercícios, séries, repetições e programação.
+- Acompanhamento de treinos realizados com detalhamento por item.
+- Interface mobile acessível via servidor HTTP embutido.
 
 ### Arquitetura do Projeto
-O projeto foi estruturado para ser escalável e de fácil manutenção, seguindo o padrão de separação de responsabilidades:
+Organização em pacotes por domínio (DDD leve), cada um com suas próprias camadas:
 
-* **config**: Configurações de infraestrutura (conexão com banco, persistência com JPA).
-* **controller**: Lógica de controle das telas e interação com o usuário (JavaFX).
-* **dao**: Data Access Objects, gerenciando a persistência com JPA/Hibernate.
-* **model**: Contém as entidades do banco de dados (ex: Aluno, Treino).
-* **session**: Gerenciamento de estado da sessão do usuário.
+| Pacote | Responsabilidade |
+|---|---|
+| **core** | Infraestrutura: configuração JPA, sessão, servidor mobile, classes principais e UI de login |
+| **admin** | Gestão de administradores e instrutores (DAO, Model, UI) |
+| **aluno** | Gestão de alunos e avaliações físicas (DAO, Model, UI) |
+| **treino** | Gestão de treinos, exercícios e séries (DAO, Enums, Model, UI) |
 
 ### Estrutura de Pastas
 ```text
-FitFlow-Manager/
-├── src/main/java/com/mycompany/academia/
-│   ├── config/      # Configurações do JPA
-│   ├── controller/  # Controladores JavaFX
-│   ├── dao/         # Data Access Objects
-│   ├── model/       # Entidades @Entity
-│   └── session/     # Gerenciamento de sessão
-└── src/main/resources/fxml/ # Telas da interface (FXML)
+src/
+├── main/java/com/mycompany/academia/
+│   ├── core/
+│   │   ├── config/     # JPAUtil, ServidorMobile, SetupBanco
+│   │   ├── session/    # SessaoUsuario, SessaoTreino
+│   │   ├── ui/         # Login, PainelPrincipal, RecuperarSenha, TrocarSenha
+│   │   ├── Academia.java   # Entry point JavaFX
+│   │   └── Launcher.java   # Wrapper alternativo
+│   ├── admin/
+│   │   ├── dao/        # UsuarioDAO
+│   │   ├── model/      # Admin, Instrutor, Usuario
+│   │   └── ui/         # FormUsuarioController
+│   ├── aluno/
+│   │   ├── dao/        # AlunoDAO
+│   │   ├── model/      # Aluno, AvaliacaoFisica
+│   │   └── ui/         # UsuariosController, AnaliseAluno, DetalhesTreino
+│   └── treino/
+│       ├── dao/        # ExercicioDAO, TreinoDAO
+│       ├── enums/      # ObjetivoTreino
+│       ├── model/      # Treino, Exercicio, SerieTreino, ItemTreino, etc.
+│       └── ui/         # ExerciciosController, FichasTreino, FormExercicio
+└── main/resources/
+    ├── fxml/           # 11 telas JavaFX (Login, PainelPrincipal, etc.)
+    ├── META-INF/       # persistence.xml
+    └── FitFlow app/    # Interface mobile (HTML)
 ```
 
-Esse projeto foi feito 100% em vibe coding, então não espere um projeto gigante.
+### Executando o projeto
+```bash
+mvn clean compile exec:java
+```
+
+O servidor mobile será iniciado automaticamente junto com a interface desktop.
