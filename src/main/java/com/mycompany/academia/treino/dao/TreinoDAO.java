@@ -203,7 +203,9 @@ public class TreinoDAO {
         try {
             String jpql = "SELECT ir FROM ItemRealizado ir " +
                           "JOIN FETCH ir.sessaoTreino s " +
-                          "WHERE s.programacaoTreino.aluno.id = :alunoId " +
+                          "JOIN FETCH s.programacaoTreino pt " +
+                          "JOIN FETCH pt.treino t " +
+                          "WHERE pt.aluno.id = :alunoId " +
                           "AND ir.itemTreino.exercicio.nome = :nomeExercicio " +
                           "AND ir.feito = true " +
                           "ORDER BY s.data ASC";
@@ -307,6 +309,26 @@ public class TreinoDAO {
         }
     }
     
+    public List<com.mycompany.academia.core.session.SessaoTreino> buscarSessoesPorAluno(int alunoId) {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            String jpql = "SELECT DISTINCT s FROM SessaoTreino s " +
+                          "JOIN FETCH s.programacaoTreino pt " +
+                          "JOIN FETCH pt.treino t " +
+                          "WHERE pt.aluno.id = :alunoId " +
+                          "AND s.concluido = true " +
+                          "ORDER BY s.data DESC";
+            return em.createQuery(jpql, com.mycompany.academia.core.session.SessaoTreino.class)
+                     .setParameter("alunoId", alunoId)
+                     .getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return java.util.Collections.emptyList();
+        } finally {
+            em.close();
+        }
+    }
+
     public void marcarComentariosComoLidos(int alunoId) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {

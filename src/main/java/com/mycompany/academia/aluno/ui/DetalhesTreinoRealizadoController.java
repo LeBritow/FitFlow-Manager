@@ -41,6 +41,53 @@ public class DetalhesTreinoRealizadoController {
         colTendenciaCarga.setCellValueFactory(cellData -> cellData.getValue().tendenciaCarga);
     }
 
+    public void carregarDadosReais(com.mycompany.academia.aluno.model.Aluno aluno, com.mycompany.academia.treino.model.Treino treino, java.time.LocalDateTime dataSessao, String comentarioTexto) {
+        labelTituloTreino.setText(treino.getNome() + " (" + treino.getObjetivo() + ")");
+
+        java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
+        labelDataFinalizacao.setText("Finalizado em: " + dataSessao.format(formatador));
+        labelComentarioAluno.setText(comentarioTexto != null && !comentarioTexto.isEmpty() ? "\"" + comentarioTexto + "\"" : "Sem feedback do aluno");
+        labelNotaGeral.setText("Análise de Ritmo e Carga Ativa");
+
+        List<com.mycompany.academia.treino.model.ItemRealizado> realizados = treinoDAO.buscarItensRealizados(
+            aluno.getId(),
+            treino.getId(),
+            dataSessao
+        );
+
+        ObservableList<LinhaExecucao> dados = FXCollections.observableArrayList();
+
+        for (com.mycompany.academia.treino.model.ItemRealizado ir : realizados) {
+            int totalSeries = ir.getItemTreino().getSeriesTreino().size();
+            String planejado = totalSeries + "x ";
+            if (!ir.getItemTreino().getSeriesTreino().isEmpty()) {
+                planejado += ir.getItemTreino().getSeriesTreino().get(0).getRepeticoes() + " reps / " +
+                             ir.getItemTreino().getSeriesTreino().get(0).getCarga() + "kg";
+            }
+
+            String realizado = ir.isFeito() ? String.format("%.1f kg", ir.getCargaUtilizada()) : "Não realizado";
+
+            String tempoExecFmt = ir.isFeito() ? formatarTempo(ir.getTempoExecucaoSegundos() != null ? ir.getTempoExecucaoSegundos() : 0) : "--:--";
+            String tempoDescFmt = ir.isFeito() ? formatarTempo(ir.getTempoDescansoSegundos() != null ? ir.getTempoDescansoSegundos() : 0) : "--:--";
+
+            String tendencia = "➡️ Manteve";
+            if ("SUBIU".equalsIgnoreCase(ir.getStatusCarga())) tendencia = "🔺 Aumentou";
+            if ("DIMINUIU".equalsIgnoreCase(ir.getStatusCarga())) tendencia = "🔻 Diminuiu";
+            if (!ir.isFeito()) tendencia = "❌ Pulado";
+
+            dados.add(new LinhaExecucao(
+                ir.getItemTreino().getExercicio().getNome(),
+                planejado,
+                realizado,
+                tempoExecFmt,
+                tempoDescFmt,
+                tendencia
+            ));
+        }
+
+        tabelaExecucao.setItems(dados);
+    }
+
     public void carregarDadosReais(com.mycompany.academia.treino.model.ComentarioTreino comentario) {
         labelTituloTreino.setText(comentario.getTreino().getNome() + " (" + comentario.getTreino().getObjetivo() + ")");
         

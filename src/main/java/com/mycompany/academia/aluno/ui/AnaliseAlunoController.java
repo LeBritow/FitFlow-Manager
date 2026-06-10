@@ -20,7 +20,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import java.util.List;
+import java.util.*;
 import java.time.LocalDateTime;
 import javafx.geometry.Insets;
 import java.time.LocalDate;
@@ -43,7 +43,7 @@ public class AnaliseAlunoController {
     @FXML private LineChart<String, Number> graficoEvolucao;
     @FXML private LineChart<String, Number> graficoCargas;
     @FXML private ComboBox<String> comboExercicioGrafico;
-    @FXML private ListView<com.mycompany.academia.treino.model.ComentarioTreino> listaComentarios;
+    @FXML private ListView<ItemHistorico> listaComentarios;
 
     private AlunoDAO alunoDAO = new AlunoDAO();
     private com.mycompany.academia.treino.dao.TreinoDAO treinoDAO = new com.mycompany.academia.treino.dao.TreinoDAO(); 
@@ -57,7 +57,7 @@ public class AnaliseAlunoController {
         configurarFiltroBusca();
         
         // Configura um aviso nativo elegante para listas vazias
-        Label placeholder = new Label("Nenhum feedback registrado para este aluno ainda.");
+        Label placeholder = new Label("Nenhum treino ou feedback registrado para este aluno ainda.");
         placeholder.setStyle("-fx-text-fill: #7f8c8d;");
         listaComentarios.setPlaceholder(placeholder);
 
@@ -75,20 +75,20 @@ public class AnaliseAlunoController {
             }
         });
 
-        // CELL FACTORY: Converte o objeto do banco em texto estruturado na interface gráfica
-        listaComentarios.setCellFactory(lv -> new ListCell<com.mycompany.academia.treino.model.ComentarioTreino>() {
+        // CELL FACTORY: Converte ItemHistorico em texto estruturado
+        listaComentarios.setCellFactory(lv -> new ListCell<ItemHistorico>() {
             @Override
-            protected void updateItem(com.mycompany.academia.treino.model.ComentarioTreino item, boolean empty) {
+            protected void updateItem(ItemHistorico item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
                     setStyle("");
                 } else {
                     java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                    setText(String.format("[%s] [%s] %s", item.getDataCriacao().format(formatador), item.getTreino().getNome(), item.getTexto()));
-                    
-                    if (!item.isLido()) {
-                        setStyle("-fx-text-fill: #e67e22; -fx-font-weight: bold;"); // Feedback laranja se não lido
+                    setText(String.format("[%s] [%s] %s", item.data.format(formatador), item.treinoNome, item.descricao));
+
+                    if ("feedback".equals(item.tipo) && !item.lido) {
+                        setStyle("-fx-text-fill: #e67e22; -fx-font-weight: bold;");
                     } else {
                         setStyle("");
                     }
@@ -96,12 +96,16 @@ public class AnaliseAlunoController {
             }
         });
 
-        // Ouvinte de duplo clique atualizado para coletar o objeto relacional íntegro
+        // Ouvinte de duplo clique para abrir detalhes do treino
         listaComentarios.setOnMouseClicked((MouseEvent event) -> {
-            if (event.getClickCount() == 2) { 
-                com.mycompany.academia.treino.model.ComentarioTreino itemSelecionado = listaComentarios.getSelectionModel().getSelectedItem();
-                if (itemSelecionado != null) {
-                    abrirModalDetalhesTreino(itemSelecionado);
+            if (event.getClickCount() == 2) {
+                ItemHistorico item = listaComentarios.getSelectionModel().getSelectedItem();
+                if (item != null) {
+                    if (item.comentario != null) {
+                        abrirModalDetalhesTreino(item.comentario);
+                    } else if (item.sessao != null) {
+                        abrirModalDetalhesTreino(item.sessao);
+                    }
                 }
             }
         });
@@ -161,13 +165,38 @@ public class AnaliseAlunoController {
         gerarAlertas(aluno);
         
         // ====================================================================
-        // ATUALIZAÇÃO DO STATUS DE LEITURA
+        // HISTÓRICO: mescla treinos realizados + feedbacks
         // ====================================================================
         treinoDAO.marcarComentariosComoLidos(aluno.getId());
-        
+
+        List<ItemHistorico> historico = new ArrayList<>();
+
+        for (com.mycompany.academia.treino.model.ComentarioTreino c : treinoDAO.buscarComentariosPorAluno(aluno.getId())) {
+            historico.add(new ItemHistorico(
+                c.getDataCriacao(), "feedback", c.getTreino().getNome(),
+                c.getTexto(), c.isLido(), c, null, c.getAluno(), c.getTreino()
+            ));
+        }
+
+        for (com.mycompany.academia.core.session.SessaoTreino s : treinoDAO.buscarSessoesPorAluno(aluno.getId())) {
+            com.mycompany.academia.treino.model.Treino t = s.getProgramacaoTreino().getTreino();
+            String desc = "Treino realizado";
+            if (s.getData() != null) {
+                long dias = java.time.temporal.ChronoUnit.DAYS.between(s.getData().toLocalDate(), LocalDate.now());
+                if (dias == 0) desc = "Treino realizado hoje";
+                else if (dias == 1) desc = "Treino realizado ontem";
+                else desc = "Treino realizado";
+            }
+            historico.add(new ItemHistorico(
+                s.getData(), "treino", t.getNome(),
+                desc, true, null, s, aluno, t
+            ));
+        }
+
+        historico.sort((a, b) -> b.data.compareTo(a.data));
+
         listaComentarios.getItems().clear();
-        List<com.mycompany.academia.treino.model.ComentarioTreino> feedbacksReais = treinoDAO.buscarComentariosPorAluno(aluno.getId());
-        listaComentarios.setItems(FXCollections.observableArrayList(feedbacksReais));
+        listaComentarios.setItems(FXCollections.observableArrayList(historico));
     }
 
     private void atualizarLabelsMedidas(Aluno aluno) {
@@ -249,18 +278,32 @@ public class AnaliseAlunoController {
         XYChart.Series<String, Number> seriesCarga = new XYChart.Series<>();
         seriesCarga.setName("Carga Máxima (kg) - " + nomeExercicio);
 
-        // Busca o histórico real extraído das submissões mobile
         List<com.mycompany.academia.treino.model.ItemRealizado> historico = treinoDAO.buscarHistoricoCargas(aluno.getId(), nomeExercicio);
         java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM");
 
+        Map<String, com.mycompany.academia.core.session.SessaoTreino> mapaSessoes = new HashMap<>();
+
         for (com.mycompany.academia.treino.model.ItemRealizado ir : historico) {
             String dataEixoX = ir.getSessaoTreino().getData().format(formatador);
-            seriesCarga.getData().add(new XYChart.Data<>(dataEixoX, ir.getCargaUtilizada()));
+            mapaSessoes.putIfAbsent(dataEixoX, ir.getSessaoTreino());
+            XYChart.Data<String, Number> ponto = new XYChart.Data<>(dataEixoX, ir.getCargaUtilizada());
+            seriesCarga.getData().add(ponto);
         }
 
         if (!historico.isEmpty()) {
             graficoCargas.getData().add(seriesCarga);
-            configurarTooltips(seriesCarga, " kg");
+
+            for (XYChart.Data<String, Number> data : seriesCarga.getData()) {
+                Tooltip tooltip = new Tooltip(data.getYValue() + " kg");
+                tooltip.setShowDelay(Duration.ZERO);
+                Tooltip.install(data.getNode(), tooltip);
+                data.getNode().setOnMouseEntered(e -> data.getNode().setStyle("-fx-scale-x: 1.4; -fx-scale-y: 1.4;"));
+                data.getNode().setOnMouseExited(e -> data.getNode().setStyle("-fx-scale-x: 1; -fx-scale-y: 1;"));
+                com.mycompany.academia.core.session.SessaoTreino sessao = mapaSessoes.get(data.getXValue());
+                if (sessao != null) {
+                    data.getNode().setOnMouseClicked(e -> abrirModalDetalhesTreino(sessao));
+                }
+            }
         }
     }
 
@@ -423,6 +466,37 @@ public class AnaliseAlunoController {
         });
     }
 
+    private void abrirModalDetalhesTreino(com.mycompany.academia.core.session.SessaoTreino sessao) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DetalhesTreinoRealizado.fxml"));
+            Parent root = loader.load();
+
+            DetalhesTreinoRealizadoController controller = loader.getController();
+            com.mycompany.academia.treino.model.Treino treino = sessao.getProgramacaoTreino().getTreino();
+            controller.carregarDadosReais(
+                alunoSelecionado,
+                treino,
+                sessao.getData(),
+                null
+            );
+
+            Stage modal = new Stage();
+            modal.setTitle("Detalhes da Execução do Treino - " + treino.getNome());
+            modal.setScene(new Scene(root));
+            modal.setResizable(false);
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.showAndWait();
+        } catch (Exception e) {
+            System.err.println("Erro crítico ao abrir modal:");
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erro");
+            alert.setHeaderText("Não foi possível abrir os detalhes do treino.");
+            alert.setContentText(e.getCause() != null ? e.getCause().toString() : e.toString());
+            alert.showAndWait();
+        }
+    }
+
     private void abrirModalDetalhesTreino(com.mycompany.academia.treino.model.ComentarioTreino comentario) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DetalhesTreinoRealizado.fxml"));
@@ -548,6 +622,33 @@ public class AnaliseAlunoController {
         etiqueta.setMaxWidth(Double.MAX_VALUE);
         return etiqueta;
     }
-    
 
+    // Wrapper para mesclar sessões e feedbacks no histórico
+    public static class ItemHistorico {
+        public final LocalDateTime data;
+        public final String tipo;
+        public final String treinoNome;
+        public final String descricao;
+        public final boolean lido;
+        public final com.mycompany.academia.treino.model.ComentarioTreino comentario;
+        public final com.mycompany.academia.core.session.SessaoTreino sessao;
+        public final com.mycompany.academia.aluno.model.Aluno aluno;
+        public final com.mycompany.academia.treino.model.Treino treino;
+
+        public ItemHistorico(LocalDateTime data, String tipo, String treinoNome, String descricao,
+                             boolean lido, com.mycompany.academia.treino.model.ComentarioTreino comentario,
+                             com.mycompany.academia.core.session.SessaoTreino sessao,
+                             com.mycompany.academia.aluno.model.Aluno aluno,
+                             com.mycompany.academia.treino.model.Treino treino) {
+            this.data = data;
+            this.tipo = tipo;
+            this.treinoNome = treinoNome;
+            this.descricao = descricao;
+            this.lido = lido;
+            this.comentario = comentario;
+            this.sessao = sessao;
+            this.aluno = aluno;
+            this.treino = treino;
+        }
+    }
 }
