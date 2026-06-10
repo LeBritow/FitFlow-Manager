@@ -25,7 +25,7 @@
                </VBox.margin>
             </VBox>
             
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#abrirInicio" prefHeight="35.0" text="Início" />
+            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#abrirInicio" prefHeight="35.0" text="Visão Geral" />
             <Button fx:id="btnUsuarios" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#abrirUsuarios" prefHeight="35.0" text="Gerenciar Usuários" />
             
             <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#abrirAnaliseAluno" prefHeight="35.0" text="Análise do Aluno" />

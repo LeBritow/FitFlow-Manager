@@ -12,13 +12,14 @@ import javafx.stage.Stage;
 
 public class RecuperarSenhaController {
 
-    @FXML private Label labelEmailAlvo;
+    @FXML private Label labelEmailAlvo, labelCodigoGerado;
     @FXML private VBox caixaPasso1, caixaPasso2, caixaPasso3;
     @FXML private PasswordField campoNovaSenha;
     
     @FXML private TextField txtD1, txtD2, txtD3, txtD4, txtD5, txtD6;
 
     private String emailUsuario;
+    private String codigoReal; // código gerado aleatoriamente
 
     @FXML
     public void initialize() {
@@ -38,7 +39,12 @@ public class RecuperarSenhaController {
 
     @FXML
     void enviarCodigo(ActionEvent event) {
-        System.out.println("Simulando envio de e-mail para: " + emailUsuario);
+        codigoReal = String.format("%06d", new java.util.Random().nextInt(999999));
+        System.out.println("Código de recuperação para " + emailUsuario + ": " + codigoReal);
+        if (labelCodigoGerado != null) {
+            labelCodigoGerado.setText("Código gerado: " + codigoReal);
+            labelCodigoGerado.setVisible(true);
+        }
         caixaPasso1.setVisible(false); caixaPasso1.setManaged(false);
         caixaPasso2.setVisible(true); caixaPasso2.setManaged(true);
     }
@@ -48,11 +54,11 @@ public class RecuperarSenhaController {
         String codigoDigitado = txtD1.getText() + txtD2.getText() + txtD3.getText() + 
                                 txtD4.getText() + txtD5.getText() + txtD6.getText();
         
-        if (codigoDigitado.equals("123456")) {
+        if (codigoDigitado.equals(codigoReal)) {
             caixaPasso2.setVisible(false); caixaPasso2.setManaged(false);
             caixaPasso3.setVisible(true); caixaPasso3.setManaged(true);
         } else {
-            mostrarAlerta(Alert.AlertType.ERROR, "Erro", "Código inválido! Tente 123456.");
+            mostrarAlerta(Alert.AlertType.ERROR, "Erro", "Código inválido! Verifique o código enviado.");
         }
     }
 

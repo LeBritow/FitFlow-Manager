@@ -2,7 +2,9 @@ package com.mycompany.academia.aluno.ui;
 
 import com.mycompany.academia.admin.ui.FormUsuarioController;
 import com.mycompany.academia.admin.dao.UsuarioDAO;
+import com.mycompany.academia.admin.model.Admin;
 import com.mycompany.academia.admin.model.Usuario;
+import com.mycompany.academia.core.session.SessaoUsuario;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,9 +20,12 @@ public class UsuariosController {
 
     private UsuarioDAO dao = new UsuarioDAO();
     private ObservableList<Usuario> listaUsuariosOb;
+    private boolean usuarioLogadoEhAdmin;
 
     @FXML
     public void initialize() {
+        Usuario atual = SessaoUsuario.getInstancia().getUsuarioLogado();
+        usuarioLogadoEhAdmin = atual instanceof Admin;
         carregarDadosTabela();
     }
 
@@ -42,6 +47,10 @@ public class UsuariosController {
         Usuario selecionado = tabelaUsuarios.getSelectionModel().getSelectedItem();
         if (selecionado == null) {
             mostrarAlerta(Alert.AlertType.WARNING, "Atenção", "Selecione um usuário para editar.");
+            return;
+        }
+        if (!usuarioLogadoEhAdmin && selecionado instanceof Admin) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Acesso Negado", "Apenas administradores podem editar outros administradores.");
             return;
         }
         abrirFormulario(selecionado);
@@ -81,6 +90,11 @@ public class UsuariosController {
             return;
         }
         
+        if (!usuarioLogadoEhAdmin && selecionado instanceof Admin) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Acesso Negado", "Apenas administradores podem excluir outros administradores.");
+            return;
+        }
+        
         Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacao.setTitle("Confirmação de Exclusão");
         confirmacao.setHeaderText("Você está prestes a deletar: " + selecionado.getNome());
@@ -103,6 +117,11 @@ public class UsuariosController {
         
         if (selecionado == null) {
             mostrarAlerta(Alert.AlertType.WARNING, "Atenção", "Você precisa clicar em um usuário na tabela para resetar a senha.");
+            return;
+        }
+        
+        if (!usuarioLogadoEhAdmin && selecionado instanceof Admin) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Acesso Negado", "Apenas administradores podem resetar a senha de outros administradores.");
             return;
         }
 

@@ -5,6 +5,7 @@ import com.mycompany.academia.admin.model.Admin;
 import com.mycompany.academia.aluno.model.Aluno;
 import com.mycompany.academia.admin.model.Instrutor;
 import com.mycompany.academia.admin.model.Usuario;
+import com.mycompany.academia.core.session.SessaoUsuario;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -30,7 +31,12 @@ public class FormUsuarioController {
 
     @FXML
     public void initialize() {
-        comboTipoPerfil.getItems().addAll("Admin", "Instrutor", "Aluno");
+        Usuario atual = SessaoUsuario.getInstancia().getUsuarioLogado();
+        if (atual instanceof Admin) {
+            comboTipoPerfil.getItems().addAll("Admin", "Instrutor", "Aluno");
+        } else {
+            comboTipoPerfil.getItems().addAll("Instrutor", "Aluno");
+        }
         comboTipoPerfil.setValue("Aluno"); // Padrão
         
         comboTipoPerfil.getSelectionModel().selectedItemProperty().addListener((obs, antigo, novo) -> {

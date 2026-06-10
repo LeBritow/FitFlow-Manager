@@ -329,6 +329,70 @@ public class TreinoDAO {
         }
     }
 
+    public long contarFichas() {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            return em.createQuery("SELECT COUNT(t) FROM Treino t WHERE t.fichaPadrao = true", Long.class).getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
+    public long contarFeedbacksNaoLidos() {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            return em.createQuery("SELECT COUNT(c) FROM ComentarioTreino c WHERE c.lido = false", Long.class).getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
+    public long contarTreinosHoje() {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            java.time.LocalDateTime inicio = java.time.LocalDate.now().atStartOfDay();
+            java.time.LocalDateTime fim = inicio.plusDays(1);
+            return em.createQuery("SELECT COUNT(s) FROM SessaoTreino s WHERE s.concluido = true AND s.data >= :inicio AND s.data < :fim", Long.class)
+                     .setParameter("inicio", inicio)
+                     .setParameter("fim", fim)
+                     .getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
+    public long contarAlunosAtivosMes() {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            java.time.LocalDateTime inicio = java.time.LocalDate.now().withDayOfMonth(1).atStartOfDay();
+            java.time.LocalDateTime fim = inicio.plusMonths(1);
+            return em.createQuery("SELECT COUNT(DISTINCT s.programacaoTreino.aluno.id) FROM SessaoTreino s WHERE s.concluido = true AND s.data >= :inicio AND s.data < :fim", Long.class)
+                     .setParameter("inicio", inicio)
+                     .setParameter("fim", fim)
+                     .getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<com.mycompany.academia.treino.model.ComentarioTreino> buscarFeedbacksRecentes(int limite) {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            String jpql = "SELECT c FROM ComentarioTreino c " +
+                          "JOIN FETCH c.treino t " +
+                          "JOIN FETCH c.aluno a " +
+                          "ORDER BY c.lido ASC, c.dataCriacao DESC";
+            return em.createQuery(jpql, com.mycompany.academia.treino.model.ComentarioTreino.class)
+                     .setMaxResults(limite)
+                     .getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return java.util.Collections.emptyList();
+        } finally {
+            em.close();
+        }
+    }
+
     public void marcarComentariosComoLidos(int alunoId) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {

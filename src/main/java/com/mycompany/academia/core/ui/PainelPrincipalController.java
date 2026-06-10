@@ -6,6 +6,7 @@ import com.mycompany.academia.admin.model.Instrutor;
 import com.mycompany.academia.admin.model.Usuario;
 import com.mycompany.academia.core.session.SessaoUsuario;
 import java.io.IOException;
+import java.util.function.Consumer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -58,10 +59,23 @@ public class PainelPrincipalController {
 
     @FXML
     void abrirInicio(ActionEvent event) {
-        areaConteudo.getChildren().clear();
-        Label lbl = new Label("Bem-vindo ao Backoffice da Academia!");
-        lbl.setStyle("-fx-font-size: 24px; -fx-text-fill: #797979;");
-        areaConteudo.getChildren().add(lbl);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DashboardInicio.fxml"));
+            Parent dashboard = loader.load();
+            DashboardInicioController controller = loader.getController();
+            controller.setOnNavegar((String destino) -> {
+                switch (destino) {
+                    case "usuarios" -> abrirUsuarios(event);
+                    case "exercicios" -> abrirExercicios(event);
+                    case "fichas" -> abrirFichas(event);
+                    case "analise" -> abrirAnaliseAluno(event);
+                }
+            });
+            areaConteudo.getChildren().clear();
+            areaConteudo.getChildren().add(dashboard);
+        } catch (IOException e) {
+            System.err.println("Erro ao carregar dashboard: " + e.getMessage());
+        }
     }
 
     @FXML

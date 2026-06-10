@@ -57,6 +57,15 @@ public class ExercicioDAO {
         }
     }
     
+    public long contarExercicios() {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            return em.createQuery("SELECT COUNT(e) FROM Exercicio e", Long.class).getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
     public List<Exercicio> buscarPorGrupoMuscular(String grupo) {
         EntityManager em = JPAUtil.getEntityManager();
         try {

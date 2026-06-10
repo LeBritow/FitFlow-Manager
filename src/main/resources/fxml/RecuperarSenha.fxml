@@ -34,6 +34,11 @@
 
       <VBox fx:id="caixaPasso2" alignment="CENTER" managed="false" spacing="15.0" visible="false">
          <children>
+            <Label fx:id="labelCodigoGerado" managed="false" textFill="#888888" visible="false">
+               <font>
+                  <Font size="11.0" />
+               </font>
+            </Label>
             <Label text="Digite os 6 dígitos enviados para o seu e-mail:" />
             <HBox alignment="CENTER" spacing="8.0">
                <children>

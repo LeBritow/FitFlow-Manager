@@ -1,5 +1,8 @@
 package com.mycompany.academia.core.ui;
 
+import com.mycompany.academia.admin.model.Admin;
+import com.mycompany.academia.admin.model.Instrutor;
+import com.mycompany.academia.aluno.model.Aluno;
 import com.mycompany.academia.admin.model.Usuario;
 import com.mycompany.academia.core.session.SessaoUsuario;
 import com.mycompany.academia.admin.dao.UsuarioDAO;
@@ -80,7 +83,12 @@ public class LoginController {
 
                 Platform.runLater(() -> {
                     if (usuarioLogado != null) {
-                        
+                        if (usuarioLogado instanceof Aluno) {
+                            restaurarTelaLogin();
+                            mostrarAlerta("Acesso Negado", "Alunos devem acessar pelo aplicativo mobile. O sistema web não está disponível para este perfil.");
+                            return;
+                        }
+
                         Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
                         if (checkManterLogin.isSelected()) {
                             prefs.put("usuario", login);

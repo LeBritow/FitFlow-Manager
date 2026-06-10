@@ -120,6 +120,15 @@ public class AlunoDAO {
         }
     }
     
+    public long contarAlunos() {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            return em.createQuery("SELECT COUNT(a) FROM Aluno a", Long.class).getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
     public void deletarAvaliacaoFisica(com.mycompany.academia.aluno.model.AvaliacaoFisica avaliacao) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
