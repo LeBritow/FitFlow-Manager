@@ -5,6 +5,7 @@ import com.mycompany.academia.admin.dao.UsuarioDAO;
 import com.mycompany.academia.admin.model.Admin;
 import com.mycompany.academia.admin.model.Usuario;
 import com.mycompany.academia.core.session.SessaoUsuario;
+import com.mycompany.academia.core.util.TableUtils;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,6 +36,7 @@ public class UsuariosController {
         listaUsuariosOb = FXCollections.observableArrayList(usuariosBanco);
         
         tabelaUsuarios.setItems(listaUsuariosOb);
+        TableUtils.autoFitColumns(tabelaUsuarios);
     }
 
     @FXML

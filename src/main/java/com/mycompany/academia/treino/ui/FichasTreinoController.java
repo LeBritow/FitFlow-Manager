@@ -1,5 +1,6 @@
 package com.mycompany.academia.treino.ui;
 
+import com.mycompany.academia.core.util.TableUtils;
 import com.mycompany.academia.treino.dao.ExercicioDAO;
 import com.mycompany.academia.treino.dao.TreinoDAO;
 import com.mycompany.academia.aluno.model.Aluno;
@@ -78,9 +79,11 @@ public class FichasTreinoController {
         
         listaCatalogo = FXCollections.observableArrayList(exercicioDAO.listarTodos());
         tabelaCatalogo.setItems(listaCatalogo);
+        TableUtils.autoFitColumns(tabelaCatalogo);
         
         listaFicha = FXCollections.observableArrayList();
         tabelaFicha.setItems(listaFicha);
+        TableUtils.autoFitColumns(tabelaFicha);
         
         tabelaFicha.setEditable(true);
         configurarColunasDaFicha();

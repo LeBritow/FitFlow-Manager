@@ -1,6 +1,7 @@
 package com.mycompany.academia.treino.ui;
 
 import com.mycompany.academia.core.config.GifSearchService;
+import com.mycompany.academia.core.util.TableUtils;
 import com.mycompany.academia.treino.dao.ExercicioDAO;
 import com.mycompany.academia.treino.model.Exercicio;
 import java.util.List;
@@ -43,6 +44,7 @@ public class ExerciciosController {
         List<Exercicio> exercicios = dao.listarTodos();
         listaExerciciosOb = FXCollections.observableArrayList(exercicios);
         tabelaExercicios.setItems(listaExerciciosOb);
+        TableUtils.autoFitColumns(tabelaExercicios);
     }
 
     private void mostrarDetalhesExercicio(Exercicio e) {

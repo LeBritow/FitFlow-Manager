@@ -44,7 +44,7 @@
                </font>
             </Label>
 
-            <ListView fx:id="listaFeedbacks" VBox.vgrow="ALWAYS" />
+            <ListView fx:id="listaFeedbacks" prefHeight="280.0" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>
    </children>

@@ -37,28 +37,45 @@ public class DashboardInicioController {
         adicionarCartao(2, 1, String.valueOf(treinoDAO.contarFeedbacksNaoLidos()), "Feedbacks Não Lidos", "#e74c3c", "#fdedec", "analise");
 
         java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        listaFeedbacks.setItems(FXCollections.observableArrayList(treinoDAO.buscarFeedbacksRecentes(20)));
-        listaFeedbacks.setCellFactory(lv -> new ListCell<com.mycompany.academia.treino.model.ComentarioTreino>() {
+        listaFeedbacks.setItems(FXCollections.observableArrayList(treinoDAO.buscarFeedbacksRecentes(30)));
+        listaFeedbacks.setCellFactory(lv -> new javafx.scene.control.ListCell<com.mycompany.academia.treino.model.ComentarioTreino>() {
             @Override
             protected void updateItem(com.mycompany.academia.treino.model.ComentarioTreino item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
+                    setGraphic(null);
                     setStyle("");
                 } else {
-                    String prefixo = item.isLido() ? "" : "🔶 ";
-                    setText(String.format("%s[%s] %s — %s: \"%s\"",
-                        prefixo,
-                        item.getDataCriacao().format(formatter),
-                        item.getAluno().getNome(),
-                        item.getTreino().getNome(),
-                        item.getTexto().length() > 80 ? item.getTexto().substring(0, 80) + "..." : item.getTexto()
-                    ));
-                    if (!item.isLido()) {
-                        setStyle("-fx-font-weight: bold;");
+                    javafx.scene.layout.VBox conteudo = new javafx.scene.layout.VBox(4);
+                    javafx.scene.layout.HBox linha1 = new javafx.scene.layout.HBox(8);
+                    Label lblAluno = new javafx.scene.control.Label(item.getAluno().getNome().split(" ")[0]);
+                    lblAluno.setStyle("-fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-font-size: 13px;");
+                    Label lblTreino = new javafx.scene.control.Label(item.getTreino().getNome());
+                    lblTreino.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 12px;");
+                    Label lblData = new javafx.scene.control.Label(item.getDataCriacao().format(formatter));
+                    lblData.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 11px;");
+                    javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+                    spacer.setMaxWidth(Double.MAX_VALUE);
+                    javafx.scene.layout.HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+                    linha1.getChildren().addAll(lblAluno, lblTreino, spacer, lblData);
+
+                    String text = item.getTexto().length() > 100 ? item.getTexto().substring(0, 100) + "..." : item.getTexto();
+                    Label lblTexto = new javafx.scene.control.Label(text);
+                    lblTexto.setWrapText(true);
+                    lblTexto.setStyle("-fx-text-fill: #34495e; -fx-font-size: 12px; -fx-padding: 0 0 0 0;");
+
+                    conteudo.getChildren().addAll(linha1, lblTexto);
+
+                    if (item.isLido()) {
+                        conteudo.setStyle("-fx-padding: 8 10 8 10; -fx-border-color: transparent transparent #ecf0f1 transparent; -fx-border-width: 0 0 1 0;");
                     } else {
-                        setStyle("");
+                        conteudo.setStyle("-fx-background-color: #fff8e1; -fx-padding: 8 10 8 15; -fx-border-color: transparent transparent #f5d76e transparent; -fx-border-width: 0 0 1 0; -fx-background-insets: 0, 0, 0, 0;");
                     }
+
+                    setGraphic(conteudo);
+                    setText(null);
+                    setStyle("-fx-background-color: transparent;");
                 }
             }
         });

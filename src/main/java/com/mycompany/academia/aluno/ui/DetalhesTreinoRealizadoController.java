@@ -1,5 +1,6 @@
 package com.mycompany.academia.aluno.ui;
 
+import com.mycompany.academia.core.util.TableUtils;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -86,6 +87,7 @@ public class DetalhesTreinoRealizadoController {
         }
 
         tabelaExecucao.setItems(dados);
+        TableUtils.autoFitColumns(tabelaExecucao);
     }
 
     public void carregarDadosReais(com.mycompany.academia.treino.model.ComentarioTreino comentario) {
@@ -137,6 +139,7 @@ public class DetalhesTreinoRealizadoController {
         }
         
         tabelaExecucao.setItems(dados);
+        TableUtils.autoFitColumns(tabelaExecucao);
     }
 
     private String formatarTempo(int totalSegundos) {
