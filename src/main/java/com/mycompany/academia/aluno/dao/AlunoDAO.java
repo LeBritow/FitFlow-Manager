@@ -120,69 +120,6 @@ public class AlunoDAO {
         }
     }
     
-    // 1. CARD: Ficha Ativa (Busca o nome do treino planejado para o período atual)
-    public String buscarNomeFichaAtiva(int alunoId) {
-        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
-        try {
-            String jpql = "SELECT pt.treino.nome FROM ProgramacaoTreino pt " +
-                          "WHERE pt.aluno.id = :alunoId " +
-                          "AND :hoje BETWEEN pt.dataInicioSemanas AND pt.dataFimSemanas";
-            
-            List<String> resultados = em.createQuery(jpql, String.class)
-                                        .setParameter("alunoId", alunoId)
-                                        .setParameter("hoje", java.time.LocalDateTime.now())
-                                        .getResultList();
-            
-            return resultados.isEmpty() ? "Nenhuma Ativa" : resultados.get(0);
-        } finally {
-            em.close();
-        }
-    }
-
-    // 2. CARD: Último Treino (Busca a data do último feedback enviado pelo app mobile)
-    public String buscarDataUltimoTreino(int alunoId) {
-        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
-        try {
-            // Nota: Se a sua classe ComentarioTreino ou ItemRealizado tiver um atributo LocalDateTime chamado 'data',
-            // nós buscamos o registro mais recente (MAX). Aqui usaremos o ComentarioTreino como base:
-            String jpql = "SELECT MAX(c.dataCriacao) FROM ComentarioTreino c WHERE c.treino IN (" +
-                          "    SELECT pt.treino FROM ProgramacaoTreino pt WHERE pt.aluno.id = :alunoId" +
-                          ")";
-            
-            java.time.LocalDateTime ultimaData = em.createQuery(jpql, java.time.LocalDateTime.class)
-                                                   .setParameter("alunoId", alunoId)
-                                                   .getSingleResult();
-            
-            if (ultimaData == null) return "Sem registros";
-            
-            java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            return ultimaData.format(formatador);
-        } catch (Exception e) {
-            return "Não realizado";
-        } finally {
-            em.close();
-        }
-    }
-
-    // 3. CARD: Treinos no Mês (Conta quantos treinos foram concluídos no mês atual)
-    public long buscarQuantidadeTreinosMes(int alunoId) {
-        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
-        try {
-            java.time.LocalDateTime inicioDoMes = java.time.LocalDate.now().withDayOfMonth(1).atStartOfDay();
-            
-            String jpql = "SELECT COUNT(c) FROM ComentarioTreino c WHERE c.treino IN (" +
-                          "    SELECT pt.treino FROM ProgramacaoTreino pt WHERE pt.aluno.id = :alunoId" +
-                          ") AND c.dataCriacao >= :inicioDoMes";
-            
-            return em.createQuery(jpql, Long.class)
-                     .setParameter("alunoId", alunoId)
-                     .setParameter("inicioDoMes", inicioDoMes)
-                     .getSingleResult();
-        } finally {
-            em.close();
-        }
-    }
-    
     public void deletarAvaliacaoFisica(com.mycompany.academia.aluno.model.AvaliacaoFisica avaliacao) {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {

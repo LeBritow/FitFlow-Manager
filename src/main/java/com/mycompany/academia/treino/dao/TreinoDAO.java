@@ -120,10 +120,16 @@ public class TreinoDAO {
                           "JOIN it.exercicio e " +
                           "WHERE it.treino IN (" +
                           "    SELECT pt.treino FROM ProgramacaoTreino pt WHERE pt.aluno.id = :alunoId" +
+                          "    AND :hoje BETWEEN pt.dataInicioSemanas AND pt.dataFimSemanas" +
+                          ") " +
+                          "AND EXISTS (" +
+                          "    SELECT 1 FROM ItemRealizado ir " +
+                          "    WHERE ir.itemTreino = it AND ir.feito = true" +
                           ")";
-                          
+
             jakarta.persistence.TypedQuery<String> query = em.createQuery(jpql, String.class);
             query.setParameter("alunoId", alunoId);
+            query.setParameter("hoje", java.time.LocalDateTime.now());
             return query.getResultList();
         } catch (Exception e) {
             System.err.println("Erro ao buscar exercícios do aluno: " + e.getMessage());
@@ -181,7 +187,7 @@ public class TreinoDAO {
             String jpqlItens = "SELECT DISTINCT ir FROM ItemRealizado ir " +
                                "JOIN FETCH ir.itemTreino it " +
                                "JOIN FETCH it.exercicio e " +
-                               "LEFT JOIN FETCH it.seriesTreino " + 
+                               "LEFT JOIN FETCH it.seriesTreino st " +
                                "WHERE ir.sessaoTreino.id = :sessaoId";
                                
             return em.createQuery(jpqlItens, com.mycompany.academia.treino.model.ItemRealizado.class)

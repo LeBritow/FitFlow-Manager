@@ -46,9 +46,12 @@
                      </children>
                   </VBox>
                   <HBox HBox.hgrow="ALWAYS" />
-                  <Button mnemonicParsing="false" onAction="#clicouAtualizarMedidas" style="-fx-background-color: #00c3ff; -fx-text-fill: white;" text="Atualizar Medidas">
-                     <font><Font name="System Bold" size="12.0" /></font>
-                  </Button>
+                   <Button mnemonicParsing="false" onAction="#clicouAtualizarMedidas" style="-fx-background-color: #00c3ff; -fx-text-fill: white;" text="Atualizar Medidas">
+                      <font><Font name="System Bold" size="12.0" /></font>
+                   </Button>
+                   <Button mnemonicParsing="false" onAction="#clicouTrocarFicha" style="-fx-background-color: #27ae60; -fx-text-fill: white;" text="Trocar Ficha">
+                      <font><Font name="System Bold" size="12.0" /></font>
+                   </Button>
                </children>
             </HBox>
             

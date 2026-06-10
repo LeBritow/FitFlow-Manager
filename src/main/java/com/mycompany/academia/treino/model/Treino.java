@@ -45,4 +45,9 @@ public class Treino {
 
     public boolean isFichaPadrao() { return fichaPadrao; }
     public void setFichaPadrao(boolean fichaPadrao) { this.fichaPadrao = fichaPadrao; }
+
+    @Override
+    public String toString() {
+        return nome;
+    }
 }

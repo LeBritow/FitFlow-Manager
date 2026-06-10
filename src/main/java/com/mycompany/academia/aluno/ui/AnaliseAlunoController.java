@@ -21,7 +21,7 @@ import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.util.List;
-import java.util.Random;
+import java.time.LocalDateTime;
 import javafx.geometry.Insets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -163,9 +163,8 @@ public class AnaliseAlunoController {
         // ====================================================================
         // ATUALIZAÇÃO DO STATUS DE LEITURA
         // ====================================================================
-        treinoDAO.marcarComentariosComoLidos(aluno.getId()); // Zera as pendências no banco
+        treinoDAO.marcarComentariosComoLidos(aluno.getId());
         
-        listaComentarios.getItems().clear();
         listaComentarios.getItems().clear();
         List<com.mycompany.academia.treino.model.ComentarioTreino> feedbacksReais = treinoDAO.buscarComentariosPorAluno(aluno.getId());
         listaComentarios.setItems(FXCollections.observableArrayList(feedbacksReais));
@@ -464,16 +463,83 @@ public class AnaliseAlunoController {
 
     private void gerarAlertas(Aluno aluno) {
         caixaAlertas.getChildren().clear();
-        Random rand = new Random();
-        if (rand.nextBoolean()) {
-            caixaAlertas.getChildren().add(criarEtiquetaAlerta("⚠️ Ficha Vencida: A ficha atual tem mais de 30 dias. Considere atualizar o treino.", "#d35400", "#fdebd0"));
+
+        String fichaAtiva = labelFichaAtiva.getText();
+        String ultimoTreino = labelUltimoTreino.getText();
+        int treinosMes = Integer.parseInt(labelTreinosMes.getText().replaceAll("\\D+", "0"));
+
+        boolean temAlerta = false;
+
+        if ("Nenhuma Ativa".equals(fichaAtiva)) {
+            caixaAlertas.getChildren().add(criarEtiquetaAlerta(
+                "⚠️ Sem Ficha Ativa: O aluno não possui uma ficha de treino vigente. Atribua uma nova programação.",
+                "#d35400", "#fdebd0"));
+            temAlerta = true;
         }
-        if (rand.nextBoolean()) {
-            caixaAlertas.getChildren().add(criarEtiquetaAlerta("🚨 Ausência: O aluno não registra treinos há mais de 7 dias.", "#c0392b", "#fadbd8"));
+
+        if (treinosMes == 0) {
+            caixaAlertas.getChildren().add(criarEtiquetaAlerta(
+                "🚨 Ausência: O aluno não registrou nenhum treino este mês.",
+                "#c0392b", "#fadbd8"));
+            temAlerta = true;
+        } else if (treinosMes <= 4) {
+            caixaAlertas.getChildren().add(criarEtiquetaAlerta(
+                "⚠️ Frequência Baixa: Apenas " + treinosMes + " treinos no mês. Considere reforçar a frequência.",
+                "#e67e22", "#fef5e7"));
+            temAlerta = true;
         }
-        if (caixaAlertas.getChildren().isEmpty()) {
-            caixaAlertas.getChildren().add(criarEtiquetaAlerta("✅ Desempenho excelente! Nenhuma pendência encontrada.", "#27ae60", "#d5f5e3"));
+
+        if (!temAlerta) {
+            caixaAlertas.getChildren().add(criarEtiquetaAlerta(
+                "✅ Desempenho excelente! " + treinosMes + " treinos no mês e ficha ativa em dia.",
+                "#27ae60", "#d5f5e3"));
         }
+    }
+
+    @FXML
+    void clicouTrocarFicha(ActionEvent event) {
+        if (alunoSelecionado == null) return;
+
+        List<com.mycompany.academia.treino.model.Treino> fichasPadrao = treinoDAO.listarFichasPadrao();
+        if (fichasPadrao.isEmpty()) {
+            Alert aviso = new Alert(Alert.AlertType.WARNING);
+            aviso.setTitle("Nenhuma Ficha Padrão");
+            aviso.setHeaderText("Não há fichas padrão cadastradas.");
+            aviso.setContentText("Crie uma ficha padrão primeiro em Treinos > Nova Ficha.");
+            aviso.showAndWait();
+            return;
+        }
+
+        ChoiceDialog<com.mycompany.academia.treino.model.Treino> dialog = new ChoiceDialog<>(fichasPadrao.get(0), fichasPadrao);
+        dialog.setTitle("Trocar Ficha de Treino");
+        dialog.setHeaderText("Selecione a nova ficha para " + alunoSelecionado.getNome());
+        dialog.setContentText("Ficha:");
+
+        dialog.showAndWait().ifPresent(ficha -> {
+            com.mycompany.academia.treino.model.ProgramacaoTreino programacao = new com.mycompany.academia.treino.model.ProgramacaoTreino();
+            programacao.setAluno(alunoSelecionado);
+            programacao.setTreino(ficha);
+            programacao.setDataInicioSemanas(LocalDateTime.now());
+            programacao.setDataFimSemanas(LocalDateTime.now().plusWeeks(4));
+
+            boolean ok = treinoDAO.salvarProgramacao(programacao);
+            if (ok) {
+                Alert sucesso = new Alert(Alert.AlertType.INFORMATION);
+                sucesso.setTitle("Ficha Trocada");
+                sucesso.setHeaderText("Programação salva com sucesso!");
+                sucesso.setContentText("Ficha \"" + ficha.getNome() + "\" atribuída de "
+                    + java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy").format(LocalDate.now())
+                    + " até "
+                    + java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy").format(LocalDate.now().plusWeeks(4)));
+                sucesso.showAndWait();
+                mostrarDetalhesAluno(alunoSelecionado);
+            } else {
+                Alert erro = new Alert(Alert.AlertType.ERROR);
+                erro.setTitle("Erro");
+                erro.setHeaderText("Falha ao salvar programação.");
+                erro.showAndWait();
+            }
+        });
     }
 
     private Label criarEtiquetaAlerta(String texto, String corTexto, String corFundo) {
@@ -483,25 +549,5 @@ public class AnaliseAlunoController {
         return etiqueta;
     }
     
-    public List<String> buscarNomesExerciciosPorAluno(Long alunoId) {
-        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
-        try {
-            // ATENÇÃO: A string JPQL abaixo pressupõe que o seu 'ItemTreino' tem um relacionamento com 'Exercicio' e com 'Treino', e que 'Treino' tem relacionamento com 'Aluno'.
-            // Se os nomes dos seus atributos na classe forem diferentes, basta ajustar os nomes após o JOIN.
-            String jpql = "SELECT DISTINCT e.nome FROM ItemTreino it " +
-                          "JOIN it.exercicio e " +
-                          "JOIN it.treino t " +
-                          "WHERE t.aluno.id = :alunoId";
-                          
-            jakarta.persistence.TypedQuery<String> query = em.createQuery(jpql, String.class);
-            query.setParameter("alunoId", alunoId);
-            return query.getResultList();
-        } catch (Exception e) {
-            System.err.println("Erro ao buscar exercícios do aluno: " + e.getMessage());
-            e.printStackTrace();
-            return java.util.Collections.emptyList(); // Retorna lista vazia para não quebrar a tela
-        } finally {
-            em.close();
-        }
-    }
+
 }
