@@ -8,6 +8,8 @@ import com.mycompany.academia.treino.model.ItemTreino;
 import com.mycompany.academia.treino.model.ProgramacaoTreino;
 import com.mycompany.academia.treino.model.SerieTreino;
 import com.mycompany.academia.treino.model.Treino;
+import com.mycompany.academia.treino.enums.ObjetivoTreino; // 1. IMPORT DO ENUM
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +47,8 @@ public class FichasTreinoController {
     @FXML private ComboBox<Treino> comboTemplates;
     @FXML private ComboBox<Aluno> comboAlunos;
     @FXML private ComboBox<ProgramacaoTreino> comboTreinosExistentes;
-    @FXML private TextField campoNomeTreino, campoObjetivo;
+    @FXML private TextField campoNomeTreino;
+    @FXML private ComboBox<ObjetivoTreino> comboObjetivo; // 2. TROCADO DE TEXTFIELD PARA COMBOBOX
     @FXML private CheckBox checkFichaPadrao;
     
     @FXML private TableView<Exercicio> tabelaCatalogo;
@@ -69,6 +72,9 @@ public class FichasTreinoController {
     public void initialize() {
         carregarAlunos();
         carregarTemplates();
+        
+        // 3. POPULAR O COMBOBOX DE OBJETIVOS
+        comboObjetivo.setItems(FXCollections.observableArrayList(ObjetivoTreino.values()));
         
         listaCatalogo = FXCollections.observableArrayList(exercicioDAO.listarTodos());
         tabelaCatalogo.setItems(listaCatalogo);
@@ -118,7 +124,7 @@ public class FichasTreinoController {
         if (prog != null && prog.getTreino() != null) {
             treinoEmEdicao = prog.getTreino();
             campoNomeTreino.setText(treinoEmEdicao.getNome());
-            campoObjetivo.setText(treinoEmEdicao.getObjetivo());
+            comboObjetivo.setValue(treinoEmEdicao.getObjetivo()); // SETAR VALOR DO ENUM
             checkFichaPadrao.setSelected(false);
             listaFicha.setAll(treinoDAO.listarItensPorTreino(treinoEmEdicao.getId()));
         }
@@ -139,7 +145,7 @@ public class FichasTreinoController {
         if (result.isPresent() && result.get() == btnImportar) {
             treinoEmEdicao = null; 
             campoNomeTreino.setText(template.getNome());
-            campoObjetivo.setText(template.getObjetivo());
+            comboObjetivo.setValue(template.getObjetivo()); // SETAR VALOR DO ENUM
             checkFichaPadrao.setSelected(false); 
             listaFicha.clear();
             
@@ -162,7 +168,7 @@ public class FichasTreinoController {
         } else if (result.isPresent() && result.get() == btnEditar) {
             treinoEmEdicao = template;
             campoNomeTreino.setText(template.getNome());
-            campoObjetivo.setText(template.getObjetivo());
+            comboObjetivo.setValue(template.getObjetivo()); // SETAR VALOR DO ENUM
             checkFichaPadrao.setSelected(true); 
             comboAlunos.getSelectionModel().clearSelection(); 
             listaFicha.clear();
@@ -182,8 +188,7 @@ public class FichasTreinoController {
         dialog.getDialogPane().getButtonTypes().addAll(btnGerar, ButtonType.CANCEL);
 
         GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
+        grid.setHgap(10); grid.setVgap(10);
         grid.setPadding(new Insets(20, 20, 10, 10));
 
         ComboBox<String> comboFoco = new ComboBox<>(FXCollections.observableArrayList(
@@ -203,11 +208,9 @@ public class FichasTreinoController {
 
         checkVariar.setOnAction(e -> {
             if (checkVariar.isSelected()) {
-                lblSeries.setText("Séries Máx:");
-                lblReps.setText("Reps Máx:");
+                lblSeries.setText("Séries Máx:"); lblReps.setText("Reps Máx:");
             } else {
-                lblSeries.setText("Séries Base:");
-                lblReps.setText("Reps Base:");
+                lblSeries.setText("Séries Base:"); lblReps.setText("Reps Base:");
             }
         });
 
@@ -293,11 +296,8 @@ public class FichasTreinoController {
             
             if (variar) {
                 seriesDoExercicio = Math.max(2, qtdSeries - rand.nextInt(3)); 
-                
                 int diferencaParaOMinimo = seriesDoExercicio - 2;
-                
                 int penalidadeReps = (diferencaParaOMinimo * 2) + rand.nextInt(2); 
-                
                 repsDoExercicio = Math.max(6, qtdReps - penalidadeReps);
             } else {
                 seriesDoExercicio = qtdSeries;
@@ -315,22 +315,16 @@ public class FichasTreinoController {
                     serie.setRepeticoes(repsDoExercicio);
                     serie.setCarga(baseCarga);
                 }
-                
                 item.adicionarSerie(serie);
             }
-            
             listaFicha.add(item);
         }
         
         campoNomeTreino.setText("Treino " + foco + " [" + totalExercicios + " Ex]");
-        String objetivoFinal = "Personalizado: Máx de " + qtdSeries + "x" + qtdReps;
-        if (variar) objetivoFinal += " (Volume Variado Balanceado)";
-        if (progredir) objetivoFinal += " | Foco: Progressão de Carga (Pirâmide)";
-        campoObjetivo.setText(objetivoFinal);
     }
 
-    private List<Exercicio> sortearExercicios(String grupo, int quantidade) {
-        List<Exercicio> doGrupo = exercicioDAO.buscarPorGrupoMuscular(grupo);
+    private List<Exercicio> sortearExercicios(String group, int quantidade) {
+        List<Exercicio> doGrupo = exercicioDAO.buscarPorGrupoMuscular(group);
         if (doGrupo.isEmpty()) return new ArrayList<>(); 
         Collections.shuffle(doGrupo);
         return doGrupo.subList(0, Math.min(quantidade, doGrupo.size()));
@@ -338,7 +332,6 @@ public class FichasTreinoController {
     
     private void configurarColunasDaFicha() {
         colunaExercicioFicha.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getExercicio().getNome()));
-        
         colunaSeries.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getSeriesTreino().size()).asObject());
         
         colunaReps.setCellValueFactory(cellData -> {
@@ -420,7 +413,6 @@ public class FichasTreinoController {
     @FXML 
     void clicouExcluirTreino(ActionEvent event) {
         ProgramacaoTreino progSelecionada = comboTreinosExistentes.getSelectionModel().getSelectedItem();
-        
         if (progSelecionada == null) {
             mostrarAlerta(Alert.AlertType.WARNING, "Aviso", "Selecione uma Ficha Pessoal do Aluno no topo para poder excluí-la.");
             return;
@@ -435,12 +427,8 @@ public class FichasTreinoController {
             if (treinoDAO.excluirProgramacao(progSelecionada)) {
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Ficha excluída com sucesso!");
                 limparEcra();
-                
-                // Atualiza a listagem de treinos do aluno selecionado
                 Aluno alunoAtual = comboAlunos.getValue();
-                if (alunoAtual != null) {
-                    atualizarComboTreinosDoAluno(alunoAtual);
-                }
+                if (alunoAtual != null) atualizarComboTreinosDoAluno(alunoAtual);
             } else {
                 mostrarAlerta(Alert.AlertType.ERROR, "Erro", "Não foi possível excluir a ficha do banco de dados.");
             }
@@ -463,7 +451,6 @@ public class FichasTreinoController {
             serie.setCarga(10.0f);
             novoItem.adicionarSerie(serie);
         }
-        
         listaFicha.add(novoItem);
     }
     
@@ -476,18 +463,21 @@ public class FichasTreinoController {
         boolean isTemplate = checkFichaPadrao.isSelected();
         Aluno alunoSelecionado = comboAlunos.getValue();
         String nomeTreino = campoNomeTreino.getText();
-        if (nomeTreino.isEmpty() || listaFicha.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Erro", "Preencha o Nome e adicione pelo menos um exercício.");
+        
+        if (nomeTreino.isEmpty() || listaFicha.isEmpty() || comboObjetivo.getValue() == null) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Erro", "Preencha o Nome, adicione pelo menos um exercício e defina o Objetivo.");
             return;
         }
         if (!isTemplate && alunoSelecionado == null) {
             mostrarAlerta(Alert.AlertType.ERROR, "Aviso", "Para guardar um treino pessoal, selecione o Aluno Alvo no topo.");
             return;
         }
+        
         Treino treino = (treinoEmEdicao != null) ? treinoEmEdicao : new Treino();
         treino.setNome(nomeTreino);
-        treino.setObjetivo(campoObjetivo.getText());
+        treino.setObjetivo(comboObjetivo.getValue()); // 5. SALVAR O VALOR DO ENUM DIRETAMENTE
         treino.setFichaPadrao(isTemplate);
+        
         Treino treinoSalvo = treinoDAO.salvarTreino(treino);
         if (treinoSalvo != null) {
             for (ItemTreino item : listaFicha) {
@@ -513,7 +503,9 @@ public class FichasTreinoController {
     
     private void limparEcra() {
         treinoEmEdicao = null;
-        campoNomeTreino.clear(); campoObjetivo.clear(); listaFicha.clear();
+        campoNomeTreino.clear(); 
+        comboObjetivo.getSelectionModel().clearSelection(); // 6. LIMPAR SELEÇÃO DO COMBO
+        listaFicha.clear();
         comboAlunos.getSelectionModel().clearSelection();
         comboTreinosExistentes.getItems().clear();
         comboTemplates.getSelectionModel().clearSelection();

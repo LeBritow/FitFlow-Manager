@@ -164,7 +164,7 @@ public class ServidorMobile {
                     JsonObject respostaJson = new JsonObject();
                     respostaJson.addProperty("idFicha", treino.getId()); // Envia o ID real do Treino
                     respostaJson.addProperty("nomeTreino", treino.getNome());
-                    respostaJson.addProperty("objetivo", treino.getObjetivo());
+                    respostaJson.addProperty("objetivo", treino.getObjetivo() != null ? treino.getObjetivo().name() : "");
                     
                     JsonArray arrayExercicios = new JsonArray();
                     for (ItemTreino item : itens) {

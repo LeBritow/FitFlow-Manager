@@ -56,8 +56,7 @@
                   <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Label text="Objetivo (Ex: Hipertrofia):" />
-                        <TextField fx:id="campoObjetivo" />
-                     </children>
+                        <ComboBox fx:id="comboObjetivo" /> </children>
                   </VBox>
                </children>
             </HBox>
