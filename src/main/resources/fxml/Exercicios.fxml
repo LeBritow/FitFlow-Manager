@@ -25,8 +25,11 @@
                   <Button mnemonicParsing="false" onAction="#clicouNovo" prefHeight="35.0" style="-fx-background-color: #5cb85c; -fx-text-fill: white; -fx-font-weight: bold;" text="Novo Exercício" />
                   <Button mnemonicParsing="false" onAction="#clicouEditar" prefHeight="35.0" style="-fx-background-color: #f0ad4e; -fx-text-fill: white; -fx-font-weight: bold;" text="Editar" />
                   <Button mnemonicParsing="false" onAction="#clicouExcluir" prefHeight="35.0" style="-fx-background-color: #d9534f; -fx-text-fill: white; -fx-font-weight: bold;" text="Excluir" />
+                  <Button fx:id="btnBuscarGifsMassa" mnemonicParsing="false" onAction="#clicouBuscarGifsMassa" prefHeight="35.0" style="-fx-background-color: #5bc0de; -fx-text-fill: white; -fx-font-weight: bold;" text="Buscar GIFs em Massa" />
                </children>
             </HBox>
+            
+            <Label fx:id="lblProgresso" text="Buscando GIFs..." textFill="#5bc0de" visible="false" />
             
             <TableView fx:id="tabelaExercicios" VBox.vgrow="ALWAYS">
               <columns>

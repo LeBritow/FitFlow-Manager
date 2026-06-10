@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 public class GifSearchService {
 
     private static final String GIPHY_API_KEY = "9mNtPeAd0KOhIJl0gwc2gAKi8EQVhSOF";
-    private static final String GIPHY_URL = "https://api.giphy.com/v1/gifs/search?api_key=%s&q=%s&limit=5&rating=g&lang=pt";
+    private static final String GIPHY_URL = "https://api.giphy.com/v1/gifs/search?api_key=%s&q=%s&limit=5&rating=g";
 
     private final HttpClient httpClient;
 
@@ -22,8 +22,18 @@ public class GifSearchService {
     }
 
     public String buscarMelhorGif(String termo) {
+        return buscarMelhorGif(termo, null);
+    }
+
+    public String buscarMelhorGif(String nome, String grupoMuscular) {
         try {
-            String query = URLEncoder.encode(termo + " exercise", StandardCharsets.UTF_8);
+            StringBuilder queryBuilder = new StringBuilder(nome);
+            queryBuilder.append(" gym exercise");
+            if (grupoMuscular != null && !grupoMuscular.isEmpty()) {
+                queryBuilder.append(" ").append(grupoMuscular);
+            }
+
+            String query = URLEncoder.encode(queryBuilder.toString(), StandardCharsets.UTF_8);
             String url = String.format(GIPHY_URL, GIPHY_API_KEY, query);
 
             HttpRequest request = HttpRequest.newBuilder()

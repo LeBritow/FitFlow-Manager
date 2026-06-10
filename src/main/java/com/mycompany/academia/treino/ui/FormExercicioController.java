@@ -71,8 +71,10 @@ public class FormExercicioController {
         btnBuscarGif.setDisable(true);
         btnBuscarGif.setText("Buscando...");
 
+        String grupo = campoGrupo.getText().trim();
+
         new Thread(() -> {
-            String url = gifService.buscarMelhorGif(nome);
+            String url = gifService.buscarMelhorGif(nome, grupo);
 
             javafx.application.Platform.runLater(() -> {
                 btnBuscarGif.setDisable(false);
