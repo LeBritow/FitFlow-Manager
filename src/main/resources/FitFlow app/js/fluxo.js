@@ -87,8 +87,7 @@ function anchor(box, side, lane) {
   }
 }
 
-// Lógica de "Cotovelo" corrigida: Força entrada por cima (Top-Down)
-// Adicionamos o 'index' como parâmetro para separar as linhas
+// Lógica de "Cotovelo": Força entrada por cima (Top-Down) e adiciona degraus nas linhas
 function orthogonalPath(a, b, fs, ts, index) {
   if (fs === 'right' && ts === 'left') {
     const midX = a.x + (b.x - a.x) / 2;
@@ -99,7 +98,6 @@ function orthogonalPath(a, b, fs, ts, index) {
   let baseMidY = a.y + 20;
 
   // Cria o "degrau": afasta cada linha em 6 pixels para não encavalarem
-  // Usamos % 15 para limitar até onde elas descem antes de criar uma nova camada
   let offset = (index % 15) * 6;
   let midY = baseMidY + offset;
 
@@ -132,7 +130,7 @@ function drawAllLines() {
     c._tl = toIdx[tk] - 1 - (toLanes[tk]-1)/2;
   });
 
-  conns.forEach(c => {
+  conns.forEach((c, index) => {
     const fEl = $(c.from), tEl = $(c.to);
     if (!fEl||!tEl) return;
     
@@ -142,8 +140,8 @@ function drawAllLines() {
     const id = 'conn-'+c.from+'-'+c.to;
     const p = document.createElementNS('http://www.w3.org/2000/svg','path');
     
-    // Passando o fs e ts para a função decidir a curva correta
-    p.setAttribute('d', orthogonalPath(a, b, c.fs, c.ts));
+    // Passando o fs, ts e index para a função decidir a curva e o degrau corretos
+    p.setAttribute('d', orthogonalPath(a, b, c.fs, c.ts, index));
     p.setAttribute('class','conn-line');
     p.id = id;
     svg.appendChild(p);
@@ -212,8 +210,12 @@ const viewMap = {
   'cb-painel': 'cb-painel-fxml',
   'cb-dashboard': 'cb-dashboard-fxml',
   'cb-usuarios': 'cb-usuarios-fxml',
+  'cb-formusuario': 'cb-formusuario-fxml',
+  'cb-exercicios': 'cb-exercicios-fxml',
+  'cb-formexercicio': 'cb-formexercicio-fxml',
   'cb-fichas': 'cb-fichas-fxml',
-  'cb-analise': 'cb-analise-fxml'
+  'cb-analise': 'cb-analise-fxml',
+  'cb-detalhes': 'cb-detalhes-fxml'
 };
 
 // ─── CONNECTION ANIMATION ───────
@@ -272,21 +274,8 @@ function conectar(){
 }
 
 function processarFila(){
-  if(eventQueue.length===0){
-    processing=false;
-    setTimeout(() => {
-      if(!processing) {
-        document.getElementById('detailBar').classList.add('empty');
-        $all('.canvas').forEach(c => c.classList.remove('focus-mode'));
-      }
-    }, 3000);
-    return;
-  }
+  if(eventQueue.length===0){processing=false;return;}
   processing=true;
-  
-  $all('.canvas').forEach(c => c.classList.add('focus-mode'));
-  document.getElementById('detailBar').classList.remove('empty');
-
   const d=eventQueue.shift();
   renderEvent(d);
   setTimeout(processarFila,STEP_MS);
@@ -298,7 +287,6 @@ function renderEvent(d){
   const m=mapEvent(d.component,d.action);
   const now=Date.now(), ts=d.timestamp||now;
   
-  // CORREÇÃO: Voltando o comportamento original do texto do Detail Bar
   document.getElementById('dComp').textContent=d.component+'.'+d.action+'()';
   document.getElementById('dAct').textContent=d.detail || '';
   document.getElementById('dDetail').textContent=m?'['+(m.zone||'?').toUpperCase()+']':'';
@@ -347,15 +335,12 @@ function limparLog(){
   eventQueue=[];processing=false;
   document.getElementById('logBody').innerHTML='<div class="log-empty">Sistema pronto.</div>';
   document.getElementById('evCount').textContent='0';
-  document.getElementById('detailBar').classList.add('empty');
-  
   document.querySelectorAll('.tab-panel').forEach(p=>{
     p.querySelectorAll('.uml').forEach(b=>{b.classList.remove('active');b.classList.add('done')});
     p.querySelectorAll('.mt.active').forEach(m=>m.classList.remove('active'));
     p.querySelectorAll('.conn-line.active,.conn-line.done').forEach(l=>l.classList.remove('active','done'));
     p.querySelectorAll('.conn-label.active').forEach(l=>l.classList.remove('active'));
     p.querySelectorAll('.zone.active').forEach(z=>z.classList.remove('active'));
-    p.querySelectorAll('.canvas').forEach(c=>c.classList.remove('focus-mode'));
   });
   activeConnection=null;lastBox=null;
 }
