@@ -1,9 +1,12 @@
 package com.mycompany.academia.treino.ui;
 
+import com.mycompany.academia.core.config.GifSearchService;
 import com.mycompany.academia.treino.dao.ExercicioDAO;
 import com.mycompany.academia.treino.model.Exercicio;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -16,8 +19,10 @@ public class FormExercicioController {
     @FXML private TextField campoGrupo;
     @FXML private TextField campoUrl;
     @FXML private TextArea campoDescricao;
+    @FXML private Button btnBuscarGif;
 
     private Exercicio exercicioEdicao = null;
+    private GifSearchService gifService = new GifSearchService();
 
     public void preencherParaEdicao(Exercicio e) {
         this.exercicioEdicao = e;
@@ -49,6 +54,41 @@ public class FormExercicioController {
     @FXML
     void clicouCancelar(ActionEvent event) {
         fecharJanela();
+    }
+
+    @FXML
+    void clicouBuscarGif(ActionEvent event) {
+        String nome = campoNome.getText().trim();
+        if (nome.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Aviso");
+            alert.setHeaderText(null);
+            alert.setContentText("Preencha o nome do exercício primeiro.");
+            alert.showAndWait();
+            return;
+        }
+
+        btnBuscarGif.setDisable(true);
+        btnBuscarGif.setText("Buscando...");
+
+        new Thread(() -> {
+            String url = gifService.buscarMelhorGif(nome);
+
+            javafx.application.Platform.runLater(() -> {
+                btnBuscarGif.setDisable(false);
+                btnBuscarGif.setText("Buscar GIF");
+
+                if (url != null) {
+                    campoUrl.setText(url);
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Resultado");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Nenhum GIF encontrado para \"" + nome + "\". Configure uma chave de API do Giphy em GifSearchService.java ou insira a URL manualmente.");
+                    alert.showAndWait();
+                }
+            });
+        }).start();
     }
 
     private void fecharJanela() {
