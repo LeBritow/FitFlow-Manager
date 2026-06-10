@@ -2,6 +2,7 @@ package com.mycompany.academia.treino.dao;
 
 import com.mycompany.academia.aluno.model.Aluno;
 import com.mycompany.academia.treino.model.ItemTreino;
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.core.config.JPAUtil;
 import com.mycompany.academia.treino.model.ProgramacaoTreino;
 import com.mycompany.academia.treino.model.Treino;
@@ -11,6 +12,7 @@ import java.util.List;
 public class TreinoDAO {
 
     public Treino salvarTreino(Treino treino) {
+        EventBus.emit("TreinoDAO", "salvarTreino", "treino=" + treino.getNome());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -33,6 +35,7 @@ public class TreinoDAO {
     }
 
     public boolean salvarItemTreino(ItemTreino item) {
+        EventBus.emit("TreinoDAO", "salvarItemTreino", "itemTreinoId=" + item.getId());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -55,6 +58,7 @@ public class TreinoDAO {
     }
 
     public List<Aluno> listarAlunos() {
+        EventBus.emit("TreinoDAO", "listarAlunos", "");
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery("SELECT a FROM Aluno a ORDER BY a.nome", Aluno.class).getResultList();
@@ -64,6 +68,7 @@ public class TreinoDAO {
     }
     
     public boolean salvarProgramacao(ProgramacaoTreino programacao) {
+        EventBus.emit("TreinoDAO", "salvarProgramacao", "alunoId=" + programacao.getAluno().getId());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -82,28 +87,35 @@ public class TreinoDAO {
     }
     
     public List<ProgramacaoTreino> listarProgramacoesPorAluno(int alunoId) {
+        EventBus.emit("TreinoDAO", "listarProgramacoesPorAluno", "alunoId=" + alunoId);
         EntityManager em = JPAUtil.getEntityManager();
         try {
-            return em.createQuery("SELECT p FROM ProgramacaoTreino p JOIN FETCH p.treino WHERE p.aluno.id = :alunoId", ProgramacaoTreino.class)
+            List<ProgramacaoTreino> r = em.createQuery("SELECT p FROM ProgramacaoTreino p JOIN FETCH p.treino WHERE p.aluno.id = :alunoId", ProgramacaoTreino.class)
                      .setParameter("alunoId", alunoId)
                      .getResultList();
+            EventBus.emit("JPA", "JPQL Query", "ProgramacaoTreino JOIN FETCH treino WHERE alunoId=" + alunoId);
+            return r;
         } finally {
             em.close();
         }
     }
 
     public List<ItemTreino> listarItensPorTreino(int treinoId) {
+        EventBus.emit("TreinoDAO", "listarItensPorTreino", "treinoId=" + treinoId);
         EntityManager em = JPAUtil.getEntityManager();
         try {
-            return em.createQuery("SELECT DISTINCT i FROM ItemTreino i JOIN FETCH i.exercicio LEFT JOIN FETCH i.seriesTreino WHERE i.treino.id = :treinoId", ItemTreino.class)
+            List<ItemTreino> r = em.createQuery("SELECT DISTINCT i FROM ItemTreino i JOIN FETCH i.exercicio LEFT JOIN FETCH i.seriesTreino WHERE i.treino.id = :treinoId", ItemTreino.class)
                      .setParameter("treinoId", treinoId)
                      .getResultList();
+            EventBus.emit("JPA", "JPQL Query", "ItemTreino JOIN FETCH exercicio+series WHERE treinoId=" + treinoId);
+            return r;
         } finally {
             em.close();
         }
     }
     
     public List<Treino> listarFichasPadrao() {
+        EventBus.emit("TreinoDAO", "listarFichasPadrao", "");
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery("SELECT t FROM Treino t WHERE t.fichaPadrao = true ORDER BY t.nome", Treino.class)
@@ -114,6 +126,7 @@ public class TreinoDAO {
     }
     
     public List<String> buscarNomesExerciciosPorAluno(int alunoId) {
+        EventBus.emit("TreinoDAO", "buscarNomesExerciciosPorAluno", "alunoId=" + alunoId);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             String jpql = "SELECT DISTINCT e.nome FROM ItemTreino it " +
@@ -141,6 +154,7 @@ public class TreinoDAO {
     }
     
     public List<com.mycompany.academia.treino.model.ComentarioTreino> buscarComentariosPorAluno(int alunoId) {
+        EventBus.emit("TreinoDAO", "buscarComentariosPorAluno", "alunoId=" + alunoId);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             String jpql = "SELECT c FROM ComentarioTreino c " +
@@ -161,6 +175,7 @@ public class TreinoDAO {
     }   
 
     public List<com.mycompany.academia.treino.model.ItemRealizado> buscarItensRealizados(int alunoId, int treinoId, java.time.LocalDateTime dataComentario) {
+        EventBus.emit("TreinoDAO", "buscarItensRealizados", "alunoId=" + alunoId + ", treinoId=" + treinoId);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             String jpqlSessao = "SELECT s FROM SessaoTreino s " +
@@ -199,6 +214,7 @@ public class TreinoDAO {
     }
 
     public List<com.mycompany.academia.treino.model.ItemRealizado> buscarHistoricoCargas(int alunoId, String nomeExercicio) {
+        EventBus.emit("TreinoDAO", "buscarHistoricoCargas", "alunoId=" + alunoId + ", exercicio=" + nomeExercicio);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             String jpql = "SELECT ir FROM ItemRealizado ir " +
@@ -219,6 +235,7 @@ public class TreinoDAO {
     }
 
     public String buscarNomeFichaAtiva(int alunoId) {
+        EventBus.emit("TreinoDAO", "buscarNomeFichaAtiva", "alunoId=" + alunoId);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             String jpql = "SELECT pt.treino.nome FROM ProgramacaoTreino pt " +
@@ -239,6 +256,7 @@ public class TreinoDAO {
     }
 
     public String buscarDataUltimoTreino(int alunoId) {
+        EventBus.emit("TreinoDAO", "buscarDataUltimoTreino", "alunoId=" + alunoId);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             String jpql = "SELECT MAX(c.dataCriacao) FROM ComentarioTreino c WHERE c.treino IN (" +
@@ -261,6 +279,7 @@ public class TreinoDAO {
     }
 
     public long buscarQuantidadeTreinosMes(int alunoId) {
+        EventBus.emit("TreinoDAO", "buscarQuantidadeTreinosMes", "alunoId=" + alunoId);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             java.time.LocalDateTime inicioDoMes = java.time.LocalDate.now().withDayOfMonth(1).atStartOfDay();
@@ -281,6 +300,7 @@ public class TreinoDAO {
     }
     
     public boolean excluirProgramacao(ProgramacaoTreino prog) {
+        EventBus.emit("TreinoDAO", "excluirProgramacao", "programacaoId=" + prog.getId());
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -310,6 +330,7 @@ public class TreinoDAO {
     }
     
     public List<com.mycompany.academia.core.session.SessaoTreino> buscarSessoesPorAluno(int alunoId) {
+        EventBus.emit("TreinoDAO", "buscarSessoesPorAluno", "alunoId=" + alunoId);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             String jpql = "SELECT DISTINCT s FROM SessaoTreino s " +
@@ -330,6 +351,7 @@ public class TreinoDAO {
     }
 
     public long contarFichas() {
+        EventBus.emit("TreinoDAO", "contarFichas", "");
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             return em.createQuery("SELECT COUNT(t) FROM Treino t WHERE t.fichaPadrao = true", Long.class).getSingleResult();
@@ -339,6 +361,7 @@ public class TreinoDAO {
     }
 
     public long contarFeedbacksNaoLidos() {
+        EventBus.emit("TreinoDAO", "contarFeedbacksNaoLidos", "");
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             return em.createQuery("SELECT COUNT(c) FROM ComentarioTreino c WHERE c.lido = false", Long.class).getSingleResult();
@@ -348,6 +371,7 @@ public class TreinoDAO {
     }
 
     public long contarTreinosHoje() {
+        EventBus.emit("TreinoDAO", "contarTreinosHoje", "");
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             java.time.LocalDateTime inicio = java.time.LocalDate.now().atStartOfDay();
@@ -362,6 +386,7 @@ public class TreinoDAO {
     }
 
     public long buscarTotalTreinos(int alunoId) {
+        EventBus.emit("TreinoDAO", "buscarTotalTreinos", "alunoId=" + alunoId);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             String jpql = "SELECT COUNT(c) FROM ComentarioTreino c WHERE c.treino IN (" +
@@ -378,6 +403,7 @@ public class TreinoDAO {
     }
 
     public java.util.Map<Integer, Long> buscarTreinosPorSemana(int alunoId, int semanas) {
+        EventBus.emit("TreinoDAO", "buscarTreinosPorSemana", "alunoId=" + alunoId + ", semanas=" + semanas);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             java.time.LocalDate inicio = java.time.LocalDate.now().minusWeeks(semanas).with(java.time.DayOfWeek.MONDAY);
@@ -411,6 +437,7 @@ public class TreinoDAO {
     }
 
     public long buscarStreakAtual(int alunoId) {
+        EventBus.emit("TreinoDAO", "buscarStreakAtual", "alunoId=" + alunoId);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             String jpql = "SELECT DISTINCT CAST(s.data AS date) FROM SessaoTreino s " +
@@ -449,6 +476,7 @@ public class TreinoDAO {
     }
 
     public long contarAlunosAtivosMes() {
+        EventBus.emit("TreinoDAO", "contarAlunosAtivosMes", "");
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             java.time.LocalDateTime inicio = java.time.LocalDate.now().withDayOfMonth(1).atStartOfDay();
@@ -463,6 +491,7 @@ public class TreinoDAO {
     }
 
     public List<com.mycompany.academia.treino.model.ComentarioTreino> buscarFeedbacksRecentes(int limite) {
+        EventBus.emit("TreinoDAO", "buscarFeedbacksRecentes", "limite=" + limite);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             String jpql = "SELECT c FROM ComentarioTreino c " +
@@ -481,6 +510,7 @@ public class TreinoDAO {
     }
 
     public void marcarComentariosComoLidos(int alunoId) {
+        EventBus.emit("TreinoDAO", "marcarComentariosComoLidos", "alunoId=" + alunoId);
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();

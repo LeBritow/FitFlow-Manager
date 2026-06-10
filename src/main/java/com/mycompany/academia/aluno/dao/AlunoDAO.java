@@ -2,6 +2,7 @@ package com.mycompany.academia.aluno.dao;
 
 import com.mycompany.academia.aluno.model.Aluno;
 import com.mycompany.academia.aluno.model.AvaliacaoFisica;
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.core.config.JPAUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -11,6 +12,7 @@ public class AlunoDAO {
 
     // Salva um novo ou atualiza um existente
     public void salvarOuAtualizar(Aluno aluno) {
+        EventBus.emit("AlunoDAO", "salvarOuAtualizar", "aluno=" + aluno.getNome());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -33,6 +35,7 @@ public class AlunoDAO {
 
     // Busca um aluno específico pelo ID
     public Aluno buscarPorId(Long id) {
+        EventBus.emit("AlunoDAO", "buscarPorId", "alunoId=" + id);
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.find(Aluno.class, id);
@@ -43,6 +46,7 @@ public class AlunoDAO {
 
     // Busca todos os alunos cadastrados (Para preencher a tabela do Dashboard)
     public List<Aluno> buscarTodos() {
+        EventBus.emit("AlunoDAO", "buscarTodos", "");
         EntityManager em = JPAUtil.getEntityManager();
         try {
             String jpql = "SELECT a FROM Aluno a";
@@ -55,6 +59,7 @@ public class AlunoDAO {
 
     // Exclui um aluno do banco
     public void excluir(Long id) {
+        EventBus.emit("AlunoDAO", "excluir", "alunoId=" + id);
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -74,11 +79,13 @@ public class AlunoDAO {
     }
     
     public List<AvaliacaoFisica> buscarAvaliacoesPorAluno(int alunoId) {
-    EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        EventBus.emit("AlunoDAO", "buscarAvaliacoesPorAluno", "alunoId=" + alunoId);
+        EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
     try {
         String jpql = "SELECT a FROM AvaliacaoFisica a WHERE a.aluno.id = :alunoId ORDER BY a.dataAvaliacao ASC";
         TypedQuery<AvaliacaoFisica> query = em.createQuery(jpql, AvaliacaoFisica.class);
         query.setParameter("alunoId", alunoId);
+        EventBus.emit("JPA", "JPQL Query", "AvaliacaoFisica WHERE alunoId=" + alunoId);
         return query.getResultList();
     } finally {
         em.close();
@@ -87,6 +94,7 @@ public class AlunoDAO {
 
     // Salva a nova avaliação garantindo que o Aluno seja reconhecido na transação atual
     public void salvarAvaliacaoFisica(com.mycompany.academia.aluno.model.AvaliacaoFisica avaliacao) {
+        EventBus.emit("AlunoDAO", "salvarAvaliacaoFisica", "alunoId=" + avaliacao.getAluno().getId());
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -107,6 +115,7 @@ public class AlunoDAO {
     }
     
     public void atualizarAvaliacaoFisica(com.mycompany.academia.aluno.model.AvaliacaoFisica avaliacao) {
+        EventBus.emit("AlunoDAO", "atualizarAvaliacaoFisica", "alunoId=" + avaliacao.getAluno().getId());
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -121,6 +130,7 @@ public class AlunoDAO {
     }
     
     public long contarAlunos() {
+        EventBus.emit("AlunoDAO", "contarAlunos", "");
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery("SELECT COUNT(a) FROM Aluno a", Long.class).getSingleResult();
@@ -130,6 +140,7 @@ public class AlunoDAO {
     }
 
     public void deletarAvaliacaoFisica(com.mycompany.academia.aluno.model.AvaliacaoFisica avaliacao) {
+        EventBus.emit("AlunoDAO", "deletarAvaliacaoFisica", "avaliacaoId=" + avaliacao.getId());
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();

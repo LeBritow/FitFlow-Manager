@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitFlow - Diagrama de Classes</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
+html,body{height:100%;overflow:hidden}
+body{background:#0a0a16;color:#e0e0e0}
+
+/* ─── TOPBAR ─────────────────────── */
+.topbar{background:#111122;border-bottom:1px solid #1e1e38;padding:8px 18px;display:flex;align-items:center;gap:14px;height:46px;flex-shrink:0}
+.topbar h1{font-size:14px;font-weight:700;background:linear-gradient(135deg,#00d2ff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.topbar .sub{color:#555;font-size:9px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;transition:.3s}
+.dot.on{background:#27ae60;box-shadow:0 0 10px rgba(39,174,96,.5)}
+.dot.off{background:#e74c3c}
+.status{font-size:10px;display:flex;align-items:center;gap:4px;margin-left:auto;color:#888}
+.counter{font-size:10px;color:#555;margin-left:8px}
+.counter b{color:#888}
+
+/* ─── MAIN LAYOUT ────────────────── */
+.main{display:flex;height:calc(100vh - 46px)}
+.canvas-wrap{flex:1;overflow:auto;position:relative;padding:20px}
+.canvas{position:relative;width:100%;min-height:600px}
+
+/* ─── CLASS BOXES ────────────────── */
+.class-box{
+  position:absolute;background:#111128;border:1.5px solid #1e1e3a;border-radius:8px;
+  padding:0;min-width:130px;transition:all .5s;cursor:default;z-index:5;
+}
+.class-box .hd{
+  padding:6px 10px;border-bottom:1px solid #1a1a34;font-size:10px;font-weight:700;
+  display:flex;align-items:center;gap:6px;border-radius:7px 7px 0 0;
+}
+.class-box .bd{padding:5px 10px 6px;font-size:8px;color:#666;line-height:1.6}
+.class-box .bd .method{color:#555;display:block;padding:1px 4px;border-radius:2px;transition:.3s;font-size:7.5px}
+.class-box .bd .method.active{color:#00d2ff;background:rgba(0,210,255,.08)}
+
+/* Colored headers */
+.class-box.ctrl .hd{background:#0d1a2e;color:#00d2ff}
+.class-box.handler .hd{background:#1a0d2e;color:#a855f7}
+.class-box.dao .hd{background:#1a2e0d;color:#27ae60}
+.class-box.entity .hd{background:#2e1a0d;color:#f39c12}
+.class-box.inf .hd{background:#2e0d0d;color:#e94560}
+
+/* Frame colors */
+.class-box.ctrl{border-color:#0d3a5e}
+.class-box.handler{border-color:#2d0d5e}
+.class-box.dao{border-color:#1a4a0d}
+.class-box.entity{border-color:#4a3a0d}
+.class-box.inf{border-color:#4a0d0d}
+
+/* Active highlight */
+.class-box.active{border-color:#00d2ff !important;box-shadow:0 0 20px rgba(0,210,255,.2)}
+.class-box.active .hd{color:#00d2ff !important}
+.class-box.done{opacity:.6;border-color:#2a2a4a !important}
+
+/* ─── ZONES (desktop / mobile / shared) ─ */
+.zone-label{
+  position:absolute;font-size:9px;text-transform:uppercase;letter-spacing:2px;
+  color:#2a2a4a;font-weight:700;pointer-events:none;z-index:1;
+}
+.zone-box{
+  position:absolute;border:1px dashed #1a1a30;border-radius:12px;z-index:0;
+  pointer-events:none;
+}
+.zone-box.desktop{border-color:#0d3a5e55}
+.zone-box.mobile{border-color:#2d0d5e55}
+.zone-box.dao-zone{border-color:#1a4a0d55}
+.zone-box.inf-zone{border-color:#4a0d0d55}
+
+/* ─── SVG LINES (connections) ─────── */
+#connSvg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.conn-line{stroke:#1a1a34;stroke-width:1.5;fill:none;stroke-dasharray:4,3;transition:all .5s}
+.conn-line.active{stroke:#00d2ff;stroke-width:2.5;stroke-dasharray:none;filter:drop-shadow(0 0 6px rgba(0,210,255,.4))}
+.conn-line.done{stroke:#27ae60;stroke-width:1.5;opacity:.3}
+.conn-label{font-size:7px;fill:#444;transition:fill .5s}
+.conn-label.active{fill:#00d2ff}
+
+/* ─── EVENT DETAIL ───────────────── */
+.detail-bar{background:#0c0c1c;border-top:1px solid #1a1a34;padding:7px 14px;min-height:42px;flex-shrink:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.detail-bar .dc{color:#00d2ff;font-size:10px;font-weight:600}
+.detail-bar .da{color:#ddd;font-size:10px}
+.detail-bar .dd{color:#666;font-size:9px;flex:1;min-width:80px}
+.detail-bar .dt{color:#444;font-size:8px;margin-left:auto;white-space:nowrap}
+
+/* ─── LOG ─────────────────────────── */
+.log-panel{width:220px;background:#0c0c18;border-left:1px solid #1a1a2e;display:flex;flex-direction:column;flex-shrink:0}
+.log-hd{padding:6px 10px;border-bottom:1px solid #1a1a2e;font-size:10px;color:#555;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.log-hd button{background:none;border:1px solid #2a2a2a;color:#555;padding:1px 6px;border-radius:3px;font-size:8px;cursor:pointer}
+.log-hd button:hover{border-color:#e74c3c;color:#e74c3c}
+.log-body{flex:1;overflow-y:auto;padding:3px}
+.log-item{padding:3px 7px;border-radius:3px;margin-bottom:1px;font-size:8px;background:#111122;border-left:2px solid #555;animation:li .2s;cursor:pointer}
+.log-item:hover{background:#181830}
+.log-item .lc{color:#aaa;font-weight:600}
+.log-item .la{color:#ddd}
+.log-item .ld{color:#555;font-size:7px}
+.log-item .lt{color:#333;font-size:7px}
+.log-empty{text-align:center;padding:16px;color:#333;font-size:9px}
+@keyframes li{from{opacity:0;transform:translateX(-4px)}}
+.log-body::-webkit-scrollbar{width:3px}
+.log-body::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+
+@media(max-width:700px){.log-panel{display:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>⚡ FitFlow · Diagrama de Classes</h1>
+  <span class="sub">Arquitetura em Tempo Real</span>
+  <div class="status">
+    <span class="dot off" id="dot"></span>
+    <span id="statText">Desconectado</span>
+  </div>
+  <div class="counter">📡 <b id="evCount">0</b> eventos</div>
+</div>
+
+<div class="main">
+  <div class="canvas-wrap">
+    <svg id="connSvg"></svg>
+    <div class="canvas" id="canvas">
+      <!-- Zone labels -->
+      <div class="zone-label" style="left:30px;top:8px">🖥️ DESKTOP (JavaFX)</div>
+      <div class="zone-label" style="left:460px;top:8px">📱 MOBILE (SPA)</div>
+      <div class="zone-label" style="left:40px;top:220px">🗄️ DAO LAYER</div>
+      <div class="zone-label" style="left:40px;top:400px">🔗 INFRASTRUCTURE</div>
+
+      <!-- Zone boxes -->
+      <div class="zone-box desktop" style="left:16px;top:30px;width:280px;height:155px"></div>
+      <div class="zone-box mobile" style="left:390px;top:30px;width:300px;height:155px"></div>
+      <div class="zone-box dao-zone" style="left:16px;top:250px;width:674px;height:110px"></div>
+      <div class="zone-box inf-zone" style="left:16px;top:430px;width:674px;height:120px"></div>
+
+      <!-- ============ CLASS BOXES ============ -->
+
+      <!-- Desktop controllers -->
+      <div class="class-box ctrl" style="left:30px;top:44px" data-group="desktop" id="cb-painel">
+        <div class="hd">🏠 PainelPrincipalController</div>
+        <div class="bd">
+          <span class="method" id="mt-abrirInicio">abrirInicio()</span>
+          <span class="method" id="mt-carregarDash">carregarDashboard()</span>
+        </div>
+      </div>
+      <div class="class-box ctrl" style="left:30px;top:112px" data-group="desktop" id="cb-analise">
+        <div class="hd">📈 AnaliseAlunoController</div>
+        <div class="bd">
+          <span class="method">carregarHistorico()</span>
+        </div>
+      </div>
+
+      <!-- Mobile handlers -->
+      <div class="class-box handler" style="left:404px;top:44px" data-group="mobile" id="cb-server">
+        <div class="hd">🌐 ServidorMobile.java</div>
+        <div class="bd">
+          <span class="method" id="mt-loginHandler">LoginHandler</span>
+          <span class="method" id="mt-fichaHandler">BuscarFichaHandler</span>
+          <span class="method" id="mt-finHandler">FinalizarTreinoHandler</span>
+          <span class="method" id="mt-dashHandler">DashboardHandler</span>
+          <span class="method" id="mt-histHandler">HistoricoHandler</span>
+          <span class="method" id="mt-perfHandler">PerfilHandler</span>
+        </div>
+      </div>
+      <div class="class-box handler" style="left:404px;top:120px" data-group="mobile" id="cb-eventbus">
+        <div class="hd">📡 EventBus.java</div>
+        <div class="bd">
+          <span class="method">emit() + SSE</span>
+        </div>
+      </div>
+
+      <!-- DAOs -->
+      <div class="class-box dao" style="left:30px;top:264px" data-group="dao" id="cb-treinodao">
+        <div class="hd">🗄️ TreinoDAO.java</div>
+        <div class="bd">
+          <span class="method" id="mt-listarProg">listarProgramacoesPorAluno()</span>
+          <span class="method" id="mt-listarItens">listarItensPorTreino()</span>
+          <span class="method" id="mt-buscarComent">buscarComentariosPorAluno()</span>
+          <span class="method" id="mt-buscarTotal">buscarTotalTreinos()</span>
+          <span class="method" id="mt-buscarSemana">buscarTreinosPorSemana()</span>
+          <span class="method" id="mt-outros">+12 outros métodos</span>
+        </div>
+      </div>
+      <div class="class-box dao" style="left:250px;top:264px" data-group="dao" id="cb-alunodao">
+        <div class="hd">🗄️ AlunoDAO.java</div>
+        <div class="bd">
+          <span class="method" id="mt-buscarTodos">buscarTodos()</span>
+          <span class="method" id="mt-buscarAvals">buscarAvaliacoesPorAluno()</span>
+          <span class="method" id="mt-salvar">salvarOuAtualizar()</span>
+          <span class="method">contarAlunos()</span>
+        </div>
+      </div>
+      <div class="class-box dao" style="left:430px;top:264px" data-group="dao" id="cb-exercdao">
+        <div class="hd">🗄️ ExercicioDAO.java</div>
+        <div class="bd">
+          <span class="method">listarTodos()</span>
+          <span class="method">contarExercicios()</span>
+          <span class="method">buscarPorGrupo()</span>
+        </div>
+      </div>
+      <div class="class-box dao" style="left:570px;top:264px" data-group="dao" id="cb-userdao">
+        <div class="hd">🗄️ UsuarioDAO.java</div>
+        <div class="bd">
+          <span class="method" id="mt-autenticar">autenticar()</span>
+          <span class="method">salvar()</span>
+        </div>
+      </div>
+
+      <!-- Infrastructure -->
+      <div class="class-box inf" style="left:30px;top:444px" data-group="inf" id="cb-jpa">
+        <div class="hd">🔗 JPAUtil.java</div>
+        <div class="bd">
+          <span class="method" id="mt-getEM">getEntityManager()</span>
+          <span class="method">EntityManagerFactory</span>
+        </div>
+      </div>
+      <div class="class-box inf" style="left:210px;top:444px" data-group="inf" id="cb-db">
+        <div class="hd">🐘 PostgreSQL</div>
+        <div class="bd">
+          <span class="method" id="mt-select">SELECT / JOIN</span>
+          <span class="method" id="mt-insert">INSERT / UPDATE</span>
+          <span class="method" id="mt-count">COUNT / GROUP BY</span>
+        </div>
+      </div>
+      <div class="class-box entity" style="left:430px;top:444px" data-group="inf" id="cb-entity">
+        <div class="hd">📦 Entities (JPA)</div>
+        <div class="bd">
+          <span class="method">Aluno, Treino, Usuario</span>
+          <span class="method">ProgramacaoTreino</span>
+          <span class="method">ItemTreino, Exercicio</span>
+          <span class="method">SessaoTreino, ComentarioTreino</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log -->
+  <div class="log-panel">
+    <div class="log-hd">
+      <span>📋 Eventos</span>
+      <button onclick="limparLog()">Limpar</button>
+    </div>
+    <div class="log-body" id="logBody">
+      <div class="log-empty">Aguardando…</div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail bar -->
+<div class="detail-bar" id="detailBar">
+  <span class="dc" id="dComp">—</span>
+  <span class="da" id="dAct">Aguardando eventos…</span>
+  <span class="dd" id="dDetail"></span>
+  <span class="dt" id="dTime"></span>
+</div>
+
+<script>
+// ─── CLASS BOX POSITIONS (for SVG lines) ──
+// Define which boxes connect to which
+const CONNECTIONS = [
+  { from:'cb-painel',  to:'cb-treinodao', label:'chama' },
+  { from:'cb-painel',  to:'cb-alunodao',  label:'chama' },
+  { from:'cb-painel',  to:'cb-exercdao',  label:'chama' },
+  { from:'cb-analise', to:'cb-treinodao', label:'chama' },
+  { from:'cb-server',  to:'cb-treinodao', label:'chama' },
+  { from:'cb-server',  to:'cb-alunodao',  label:'chama' },
+  { from:'cb-server',  to:'cb-exercdao',  label:'chama' },
+  { from:'cb-server',  to:'cb-userdao',   label:'chama' },
+  { from:'cb-server',  to:'cb-eventbus',  label:'EventBus.emit()' },
+  { from:'cb-treinodao',to:'cb-jpa',      label:'JPAUtil.getEM()' },
+  { from:'cb-alunodao', to:'cb-jpa',      label:'JPAUtil.getEM()' },
+  { from:'cb-exercdao', to:'cb-jpa',      label:'JPAUtil.getEM()' },
+  { from:'cb-userdao',  to:'cb-jpa',      label:'JPAUtil.getEM()' },
+  { from:'cb-jpa',     to:'cb-db',        label:'JDBC' },
+  { from:'cb-jpa',     to:'cb-entity',    label:'entities' },
+];
+
+// ─── DRAW CONNECTION LINES ────────────────
+function drawAllLines() {
+  const svg = document.getElementById('connSvg');
+  svg.innerHTML = '';
+  CONNECTIONS.forEach(c => {
+    const fromEl = document.getElementById(c.from);
+    const toEl = document.getElementById(c.to);
+    if (!fromEl || !toEl) return;
+
+    const canvas = document.getElementById('canvas');
+    const cr = canvas.getBoundingClientRect();
+    const fr = fromEl.getBoundingClientRect();
+    const tr = toEl.getBoundingClientRect();
+
+    const x1 = fr.left - cr.left + fr.width;
+    const y1 = fr.top - cr.top + fr.height/2;
+    const x2 = tr.left - cr.left;
+    const y2 = tr.top - cr.top + tr.height/2;
+
+    // SVG dimensions
+    svg.style.width = cr.width + 'px';
+    svg.style.height = cr.height + 'px';
+
+    const midX = (x1 + x2) / 2;
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
+    path.setAttribute('class', 'conn-line');
+    path.id = 'conn-' + c.from + '-' + c.to;
+    svg.appendChild(path);
+
+    // Small label at midpoint
+    if (c.label) {
+      const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+      lbl.setAttribute('x', midX + 4);
+      lbl.setAttribute('y', (y1 + y2)/2 - 4);
+      lbl.setAttribute('class', 'conn-label');
+      lbl.setAttribute('id', 'clbl-' + c.from + '-' + c.to);
+      lbl.textContent = c.label;
+      svg.appendChild(lbl);
+    }
+  });
+}
+
+// Redraw on resize
+window.addEventListener('resize', drawAllLines);
+
+// ─── EVENT → CLASS BOX MAPPING ──────────
+function mapEvent(component, action) {
+  const c = (component + '.' + action).toLowerCase();
+
+  // ── Desktop ──
+  if (c.includes('painelprincipal') || c.includes('dashboardinicio'))
+    return { box:'cb-painel', method:'mt-carregarDash', group:'desktop' };
+  if (c.includes('analisealuno'))
+    return { box:'cb-analise', method:null, group:'desktop' };
+
+  // ── ServidorMobile handlers ──
+  if (c.includes('loginhandler') && (c.includes('servidor') || c.includes('mobile')))
+    return { box:'cb-server', method:'mt-loginHandler', group:'mobile' };
+  if (c.includes('fichahandler') || (c.includes('servidor') && c.includes('ficha')))
+    return { box:'cb-server', method:'mt-fichaHandler', group:'mobile' };
+  if (c.includes('finalizar') && !c.includes('dao'))
+    return { box:'cb-server', method:'mt-finHandler', group:'mobile' };
+  if (c.includes('dashboardhandler') || (c.includes('servidor') && c.includes('dashboard')))
+    return { box:'cb-server', method:'mt-dashHandler', group:'mobile' };
+  if (c.includes('historicohandler') || (c.includes('servidor') && c.includes('historico')))
+    return { box:'cb-server', method:'mt-histHandler', group:'mobile' };
+  if (c.includes('perfilhandler') || (c.includes('servidor') && c.includes('perfil')))
+    return { box:'cb-server', method:'mt-perfHandler', group:'mobile' };
+  if (c.includes('eventbus') || c.includes('sse'))
+    return { box:'cb-eventbus', method:null, group:'mobile' };
+
+  // ── DAOs ──
+  if (c.includes('treinodao')) {
+    let method = null;
+    if (c.includes('listarprogramacoes') || c.includes('ficha')) method = 'mt-listarProg';
+    else if (c.includes('listaritens')) method = 'mt-listarItens';
+    else if (c.includes('comentario') || c.includes('feedback')) method = 'mt-buscarComent';
+    else if (c.includes('total') || c.includes('quantidade')) method = 'mt-buscarTotal';
+    else if (c.includes('semana')) method = 'mt-buscarSemana';
+    return { box:'cb-treinodao', method, group:'dao' };
+  }
+  if (c.includes('alunodao')) {
+    let method = null;
+    if (c.includes('avaliacao')) method = 'mt-buscarAvals';
+    else if (c.includes('salvar') || c.includes('atualizar')) method = 'mt-salvar';
+    else if (c.includes('todos')) method = 'mt-buscarTodos';
+    return { box:'cb-alunodao', method, group:'dao' };
+  }
+  if (c.includes('exerciciodao'))
+    return { box:'cb-exercdao', method:null, group:'dao' };
+  if (c.includes('usuariodao')) {
+    let method = null;
+    if (c.includes('autenticar')) method = 'mt-autenticar';
+    return { box:'cb-userdao', method, group:'dao' };
+  }
+
+  // ── JPA / Infra ──
+  if (c.includes('jpa') || c.includes('entitymanager') || c.includes('jpql') || c.includes('persist') || c.includes('merge') || c.includes('find') || c.includes('query'))
+    return { box:'cb-jpa', method:'mt-getEM', group:'inf' };
+  if (c.includes('postgres') || c.includes('db') || c.includes('sql') || c.includes('select') || c.includes('insert') || c.includes('count'))
+    return { box:'cb-db', method:null, group:'inf' };
+  if (c.includes('entity') || c.includes('aluno') || c.includes('treino') || c.includes('usuario'))
+    return { box:'cb-entity', method:null, group:'inf' };
+
+  return null;
+}
+
+// ─── CONNECTION LINE ANIMATION ──────────
+function activateConnection(fromBox, toBox, group) {
+  // Try direct connection first
+  let connId = 'conn-' + fromBox + '-' + toBox;
+  let conn = document.getElementById(connId);
+  if (!conn) {
+    // Try reverse
+    connId = 'conn-' + toBox + '-' + fromBox;
+    conn = document.getElementById(connId);
+  }
+  if (!conn) {
+    // Find any connection FROM fromBox (pick the first relevant one)
+    const prefix = 'conn-' + fromBox + '-';
+    const candidates = document.querySelectorAll('[id^="' + prefix + '"]');
+    if (candidates.length) conn = candidates[0];
+  }
+
+  // Reset all
+  document.querySelectorAll('.conn-line.active,.conn-line.done').forEach(l => {
+    l.classList.remove('active', 'done');
+    l.classList.add('conn-line');
+  });
+  document.querySelectorAll('.conn-label.active').forEach(l => l.classList.remove('active'));
+
+  if (conn) {
+    conn.classList.remove('done', 'conn-line');
+    conn.classList.add('active');
+    const lbl = document.getElementById('clbl-' + conn.id.replace('conn-', ''));
+    if (lbl) lbl.classList.add('active');
+
+    // Auto-dim
+    setTimeout(() => {
+      conn.classList.remove('active');
+      conn.classList.add('done');
+      if (lbl) lbl.classList.remove('active');
+    }, 4000);
+  }
+}
+
+// ─── SSE ──────────────────────────────────
+let evCount = 0;
+let es = null;
+let lastBox = null;
+
+function conectar() {
+  es = new EventSource('/api/sse');
+  es.onopen = () => {
+    document.getElementById('dot').className = 'dot on';
+    document.getElementById('statText').textContent = 'Conectado';
+  };
+  es.onmessage = e => {
+    try {
+      const d = JSON.parse(e.data);
+      if (d.type === 'dao_call') processar(d);
+    } catch(_) {}
+  };
+  es.onerror = () => {
+    document.getElementById('dot').className = 'dot off';
+    document.getElementById('statText').textContent = 'Reconectando...';
+    es.close();
+    setTimeout(conectar, 2000);
+  };
+}
+
+function processar(d) {
+  evCount++;
+  document.getElementById('evCount').textContent = evCount;
+
+  const m = mapEvent(d.component, d.action);
+  const now = Date.now();
+  const ts = d.timestamp || now;
+
+  // Update detail bar
+  document.getElementById('dComp').textContent = d.component + '.' + d.action + '()';
+  document.getElementById('dAct').textContent = d.detail || '';
+  document.getElementById('dDetail').textContent = m ? '[' + (m.group||'?') + ']' : '';
+  document.getElementById('dTime').textContent = new Date(ts).toLocaleTimeString() + '.' + (ts % 1000);
+
+  if (!m) {
+    addLog(d.component, d.action, d.detail, ts);
+    return;
+  }
+
+  // Reset all class boxes
+  document.querySelectorAll('.class-box.active').forEach(b => {
+    b.classList.remove('active');
+    b.classList.add('done');
+  });
+
+  // Highlight the class box
+  const box = document.getElementById(m.box);
+  if (box) {
+    box.classList.remove('done');
+    box.classList.add('active');
+
+    // Highlight method inside box
+    if (m.method) {
+      document.querySelectorAll('.method.active').forEach(mt => mt.classList.remove('active'));
+      const mtEl = document.getElementById(m.method);
+      if (mtEl) mtEl.classList.add('active');
+    }
+
+    // Draw connection line from last to current
+    if (lastBox && lastBox !== m.box) {
+      activateConnection(lastBox, m.box, m.group);
+    }
+    lastBox = m.box;
+  }
+
+  addLog(d.component, d.action, d.detail, ts, m.group);
+}
+
+// ─── LOG ──────────────────────────────────
+function addLog(component, action, detail, timestamp, group) {
+  const log = document.getElementById('logBody');
+  const empty = log.querySelector('.log-empty');
+  if (empty) empty.remove();
+  const t = new Date(timestamp);
+  const ts = t.toTimeString().slice(0,8) + '.' + t.getMilliseconds();
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  item.innerHTML = '<div><span class="lc">' + component + '</span>.<span class="la">' + action + '()</span></div>' +
+    (detail ? '<div class="ld">' + detail + '</div>' : '') +
+    '<div class="lt">' + ts + '</div>';
+  item.onclick = () => {
+    document.getElementById('dComp').textContent = component + '.' + action + '()';
+    document.getElementById('dAct').textContent = detail || '';
+    document.getElementById('dTime').textContent = ts;
+  };
+  log.insertBefore(item, log.firstChild);
+  while (log.children.length > 200) log.removeChild(log.lastChild);
+}
+
+function limparLog() {
+  document.getElementById('logBody').innerHTML = '<div class="log-empty">Log limpo.</div>';
+  document.getElementById('evCount').textContent = '0';
+  document.querySelectorAll('.class-box.active,.class-box.done').forEach(b => {
+    b.classList.remove('active','done');
+  });
+  document.querySelectorAll('.method.active').forEach(m => m.classList.remove('active'));
+  document.querySelectorAll('.conn-line.active,.conn-line.done').forEach(l => {
+    l.classList.remove('active','done');
+  });
+  document.querySelectorAll('.conn-label.active').forEach(l => l.classList.remove('active'));
+  lastBox = null;
+  document.getElementById('dComp').textContent = '—';
+  document.getElementById('dAct').textContent = 'Aguardando eventos…';
+  document.getElementById('dDetail').textContent = '';
+  document.getElementById('dTime').textContent = '';
+}
+
+// ─── INIT ─────────────────────────────────
+drawAllLines();
+conectar();
+</script>
+</body>
+</html>

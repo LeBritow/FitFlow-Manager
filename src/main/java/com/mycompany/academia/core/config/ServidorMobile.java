@@ -58,6 +58,7 @@ public class ServidorMobile {
             servidorAtual.createContext("/api/aluno/dashboard", new DashboardHandler());
             servidorAtual.createContext("/api/aluno/historico", new HistoricoHandler());
             servidorAtual.createContext("/api/aluno/perfil", new PerfilHandler());
+            servidorAtual.createContext("/api/sse", new SSEHandler());
 
             // Arquivos estáticos (SPA)
             servidorAtual.createContext("/", new StaticFileHandler());
@@ -150,9 +151,11 @@ public class ServidorMobile {
                 json(ex, 405, "{\"erro\":\"Use POST.\"}"); return;
             }
             try {
+                EventBus.emit("ServidorMobile", "LoginHandler", "Recebendo POST /api/login");
                 JsonObject body = bodyJson(ex);
                 String login = body.get("login").getAsString();
                 String senha = body.get("senha").getAsString();
+                EventBus.emit("ServidorMobile", "LoginHandler", "Credenciais recebidas, autenticando...");
 
                 UsuarioDAO dao = new UsuarioDAO();
                 Usuario u = dao.autenticar(login, senha);
@@ -190,16 +193,19 @@ public class ServidorMobile {
                 json(ex, 405, "{\"erro\":\"Use GET.\"}"); return;
             }
             try {
+                EventBus.emit("ServidorMobile", "BuscarFichaHandler", "Recebendo GET /api/ficha?alunoId=...");
                 Map<String, String> q = queryParams(ex.getRequestURI().getQuery());
                 int alunoId = Integer.parseInt(q.getOrDefault("alunoId", "0"));
                 if (alunoId == 0) { json(ex, 400, "{\"erro\":\"alunoId obrigatório.\"}"); return; }
 
                 TreinoDAO dao = new TreinoDAO();
+                EventBus.emit("ServidorMobile", "BuscarFichaHandler", "Buscando programação do aluno " + alunoId);
                 List<ProgramacaoTreino> progs = dao.listarProgramacoesPorAluno(alunoId);
                 if (progs.isEmpty()) { json(ex, 404, "{\"erro\":\"Nenhuma ficha ativa.\"}"); return; }
 
                 ProgramacaoTreino ficha = progs.get(0);
                 Treino treino = ficha.getTreino();
+                EventBus.emit("ServidorMobile", "BuscarFichaHandler", "Buscando itens do treino " + treino.getId());
                 List<ItemTreino> itens = dao.listarItensPorTreino(treino.getId());
 
                 JsonObject j = new JsonObject();
@@ -231,6 +237,7 @@ public class ServidorMobile {
                     exs.add(o);
                 }
                 j.add("exercicios", exs);
+                EventBus.emit("ServidorMobile", "BuscarFichaHandler", "Retornando " + exs.size() + " exercícios para o aluno " + alunoId);
                 json(ex, 200, j.toString());
 
             } catch (Exception e) {
@@ -248,6 +255,7 @@ public class ServidorMobile {
             if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
                 json(ex, 405, "{\"erro\":\"Use POST.\"}"); return;
             }
+            EventBus.emit("ServidorMobile", "POST /api/treino/finalizar", "Recebendo requisição de finalização");
             EntityManager em = JPAUtil.getEntityManager();
             try {
                 JsonObject body = bodyJson(ex);
@@ -255,7 +263,9 @@ public class ServidorMobile {
                 int treinoId = body.get("treinoId").getAsInt();
                 String comentario = body.has("comentario") ? body.get("comentario").getAsString() : "Treino concluído.";
 
+                EventBus.emit("JPA", "EntityManager.find(Aluno)", "alunoId=" + alunoId);
                 Aluno aluno = em.find(Aluno.class, alunoId);
+                EventBus.emit("JPA", "EntityManager.find(Treino)", "treinoId=" + treinoId);
                 Treino treino = em.find(Treino.class, treinoId);
                 if (aluno == null || treino == null) {
                     json(ex, 404, "{\"status\":\"erro\",\"mensagem\":\"Aluno ou Treino não encontrados.\"}");
@@ -263,6 +273,7 @@ public class ServidorMobile {
                 }
 
                 em.getTransaction().begin();
+                EventBus.emit("JPA", "JPQL Query", "Buscando ProgramacaoTreino por alunoId=" + alunoId + ", treinoId=" + treinoId);
 
                 List<ProgramacaoTreino> progs = em.createQuery(
                     "SELECT p FROM ProgramacaoTreino p WHERE p.aluno.id = :a AND p.treino.id = :t", ProgramacaoTreino.class)
@@ -270,6 +281,7 @@ public class ServidorMobile {
 
                 if (!progs.isEmpty()) {
                     ProgramacaoTreino prog = progs.get(0);
+                    EventBus.emit("JPA", "EntityManager.persist(SessaoTreino)", "Criando sessão de treino");
                     SessaoTreino sessao = new SessaoTreino();
                     sessao.setProgramacaoTreino(prog);
                     sessao.setData(LocalDateTime.now());
@@ -286,6 +298,7 @@ public class ServidorMobile {
                             int tDesc = o.has("tempoDescanso") ? o.get("tempoDescanso").getAsInt() : 0;
                             String sc = o.has("statusCarga") ? o.get("statusCarga").getAsString() : "MANTEVE";
 
+                            EventBus.emit("JPA", "EntityManager.find(ItemTreino)", "itemTreinoId=" + idItem);
                             ItemTreino it = em.find(ItemTreino.class, idItem);
                             if (it != null) {
                                 ItemRealizado ir = new ItemRealizado();
@@ -296,12 +309,14 @@ public class ServidorMobile {
                                 ir.setTempoExecucaoSegundos(tExec);
                                 ir.setTempoDescansoSegundos(tDesc);
                                 ir.setStatusCarga(sc);
+                                EventBus.emit("JPA", "EntityManager.persist(ItemRealizado)", "feito=" + feito + ", carga=" + carga);
                                 em.persist(ir);
                             }
                         }
                     }
                 }
 
+                EventBus.emit("JPA", "EntityManager.persist(ComentarioTreino)", "Registrando feedback do treino");
                 ComentarioTreino c = new ComentarioTreino();
                 c.setAluno(aluno);
                 c.setTreino(treino);
@@ -311,6 +326,7 @@ public class ServidorMobile {
                 em.persist(c);
 
                 em.getTransaction().commit();
+                EventBus.emit("ServidorMobile", "FinalizarTreinoHandler", "Treino finalizado com sucesso!");
                 json(ex, 200, "{\"status\":\"sucesso\",\"mensagem\":\"Treino finalizado!\"}");
 
             } catch (Exception e) {
@@ -335,6 +351,7 @@ public class ServidorMobile {
                 json(ex, 405, "{\"erro\":\"Use GET.\"}"); return;
             }
             try {
+                EventBus.emit("ServidorMobile", "ListarExerciciosHandler", "Recebendo GET /api/exercicios");
                 ExercicioDAO dao = new ExercicioDAO();
                 JsonArray a = new JsonArray();
                 for (Exercicio e : dao.listarTodos()) {
@@ -364,11 +381,13 @@ public class ServidorMobile {
                 json(ex, 405, "{\"erro\":\"Use GET.\"}"); return;
             }
             try {
+                EventBus.emit("ServidorMobile", "DashboardHandler", "Recebendo GET /api/aluno/dashboard");
                 int alunoId = Integer.parseInt(queryParams(ex.getRequestURI().getQuery()).getOrDefault("alunoId", "0"));
                 if (alunoId == 0) { json(ex, 400, "{\"erro\":\"alunoId obrigatório.\"}"); return; }
 
                 TreinoDAO dao = new TreinoDAO();
                 LocalDateTime inicioMes = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+                EventBus.emit("ServidorMobile", "DashboardHandler", "Consultando métricas do aluno " + alunoId);
 
                 long treinosMes = dao.buscarQuantidadeTreinosMes(alunoId);
                 long totalTreinos = dao.buscarTotalTreinos(alunoId);
@@ -414,10 +433,12 @@ public class ServidorMobile {
                 json(ex, 405, "{\"erro\":\"Use GET.\"}"); return;
             }
             try {
+                EventBus.emit("ServidorMobile", "HistoricoHandler", "Recebendo GET /api/aluno/historico");
                 int alunoId = Integer.parseInt(queryParams(ex.getRequestURI().getQuery()).getOrDefault("alunoId", "0"));
                 if (alunoId == 0) { json(ex, 400, "{\"erro\":\"alunoId obrigatório.\"}"); return; }
 
                 TreinoDAO dao = new TreinoDAO();
+                EventBus.emit("ServidorMobile", "HistoricoHandler", "Buscando histórico do aluno " + alunoId);
                 List<ComentarioTreino> comentarios = dao.buscarComentariosPorAluno(alunoId);
 
                 JsonArray arr = new JsonArray();
@@ -451,8 +472,10 @@ public class ServidorMobile {
 
             if ("GET".equalsIgnoreCase(ex.getRequestMethod())) {
                 try {
+                    EventBus.emit("ServidorMobile", "PerfilHandler", "Recebendo GET /api/aluno/perfil");
                     if (alunoId == 0) { json(ex, 400, "{\"erro\":\"alunoId obrigatório.\"}"); return; }
                     EntityManager em = JPAUtil.getEntityManager();
+                    EventBus.emit("ServidorMobile", "PerfilHandler", "Buscando dados do aluno " + alunoId);
                     Aluno a = em.find(Aluno.class, alunoId);
                     em.close();
                     if (a == null) { json(ex, 404, "{\"erro\":\"Aluno não encontrado.\"}"); return; }
@@ -467,6 +490,7 @@ public class ServidorMobile {
                     j.addProperty("imc", a.getImc());
 
                     AlunoDAO alunoDAO = new AlunoDAO();
+                    EventBus.emit("ServidorMobile", "PerfilHandler", "Buscando avaliações físicas do aluno " + alunoId);
                     List<AvaliacaoFisica> avals = alunoDAO.buscarAvaliacoesPorAluno(alunoId);
                     JsonArray avArr = new JsonArray();
                     for (var av : avals) {
@@ -484,6 +508,7 @@ public class ServidorMobile {
                 }
             } else if ("PUT".equalsIgnoreCase(ex.getRequestMethod())) {
                 try {
+                    EventBus.emit("ServidorMobile", "PerfilHandler", "Recebendo PUT /api/aluno/perfil - atualizando dados");
                     JsonObject body = bodyJson(ex);
                     alunoId = body.get("alunoId").getAsInt();
                     float peso = body.get("peso").getAsFloat();
@@ -491,6 +516,7 @@ public class ServidorMobile {
 
                     EntityManager em = JPAUtil.getEntityManager();
                     em.getTransaction().begin();
+                    EventBus.emit("ServidorMobile", "PerfilHandler", "Atualizando peso=" + peso + ", altura=" + altura + " do aluno " + alunoId);
                     Aluno a = em.find(Aluno.class, alunoId);
                     if (a != null) {
                         a.setPeso(peso);
@@ -510,6 +536,62 @@ public class ServidorMobile {
         }
     }
 
+    // ─── SSE (Server-Sent Events) ──────────────────────────────────────
+
+    static class SSEHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange ex) throws IOException {
+            cors(ex);
+            ex.getResponseHeaders().add("Content-Type", "text/event-stream; charset=UTF-8");
+            ex.getResponseHeaders().add("Cache-Control", "no-cache");
+            ex.getResponseHeaders().add("Connection", "keep-alive");
+            ex.sendResponseHeaders(200, 0);
+
+            OutputStream out = ex.getResponseBody();
+            // Envia evento inicial de conexão
+            JsonObject connMsg = new JsonObject();
+            connMsg.addProperty("type", "connected");
+            connMsg.addProperty("message", "Conectado ao monitor de eventos!");
+            out.write(("data: " + connMsg.toString() + "\n\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            out.flush();
+
+            EventBus.Listener listener = event -> {
+                try {
+                    JsonObject j = new JsonObject();
+                    j.addProperty("type", "dao_call");
+                    j.addProperty("component", event.component);
+                    j.addProperty("action", event.action);
+                    j.addProperty("detail", event.detail);
+                    j.addProperty("timestamp", event.timestamp);
+                    synchronized (out) {
+                        out.write(("data: " + j.toString() + "\n\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                        out.flush();
+                    }
+                } catch (IOException e) {
+                    // client disconnected
+                }
+            };
+
+            EventBus.subscribe(listener);
+
+            // Mantém conexão viva até o cliente desconectar
+            try {
+                while (ex.getHttpContext() != null) {
+                    Thread.sleep(30000);
+                    synchronized (out) {
+                        out.write(":keepalive\n\n".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                        out.flush();
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                EventBus.unsubscribe(listener);
+                try { out.close(); } catch (Exception ignored) {}
+            }
+        }
+    }
+
     // ─── STATIC FILE SERVER ────────────────────────────────────────────
 
     static class StaticFileHandler implements HttpHandler {
@@ -523,6 +605,8 @@ public class ServidorMobile {
                 path = "/pages/login.html";
             } else if (path.equals("/app.html") || path.equals("/treino.html")) {
                 path = "/pages/app.html";
+            } else if (path.equals("/fluxo.html")) {
+                path = "/pages/fluxo.html";
             } else if (path.equals("/style.css")) {
                 path = "/css/style.css";
             } else if (path.equals("/app.js")) {
@@ -552,6 +636,9 @@ public class ServidorMobile {
             else if (path.endsWith(".gif")) mime = "image/gif";
 
             ex.getResponseHeaders().add("Content-Type", mime);
+            ex.getResponseHeaders().add("Cache-Control", "no-cache, no-store, must-revalidate");
+            ex.getResponseHeaders().add("Pragma", "no-cache");
+            ex.getResponseHeaders().add("Expires", "0");
             byte[] data = readAll(in);
             ex.sendResponseHeaders(200, data.length);
             ex.getResponseBody().write(data);

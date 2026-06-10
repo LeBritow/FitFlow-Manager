@@ -1,5 +1,6 @@
 package com.mycompany.academia.admin.dao;
 
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.core.config.JPAUtil;
 import com.mycompany.academia.admin.model.Usuario;
 import java.util.List;
@@ -10,6 +11,7 @@ import jakarta.persistence.TypedQuery;
 public class UsuarioDAO {
 
     public Usuario autenticar(String login, String senha) {
+        EventBus.emit("UsuarioDAO", "autenticar", "login=" + login);
         EntityManager em = JPAUtil.getEntityManager();
         
         try {
@@ -18,6 +20,7 @@ public class UsuarioDAO {
             
             query.setParameter("login", login);
             query.setParameter("senha", senha);
+            EventBus.emit("JPA", "JPQL Query", "SELECT Usuario WHERE email OR cpf = :login");
             
             return query.getSingleResult();
             
@@ -29,6 +32,7 @@ public class UsuarioDAO {
     }
     
     public boolean atualizarSenhaPorEmail(String email, String novaSenha) {
+        EventBus.emit("UsuarioDAO", "atualizarSenhaPorEmail", "email=" + email);
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -61,6 +65,7 @@ public class UsuarioDAO {
     }
     
     public List<Usuario> listarTodos() {
+        EventBus.emit("UsuarioDAO", "listarTodos", "");
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery("SELECT u FROM Usuario u", Usuario.class).getResultList();
@@ -70,6 +75,7 @@ public class UsuarioDAO {
     }
     
     public boolean excluir(Usuario usuario) {
+        EventBus.emit("UsuarioDAO", "excluir", "usuario=" + usuario.getNome());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -89,6 +95,7 @@ public class UsuarioDAO {
     }
     
     public boolean salvar(Usuario usuario) {
+        EventBus.emit("UsuarioDAO", "salvar", "usuario=" + usuario.getNome());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();

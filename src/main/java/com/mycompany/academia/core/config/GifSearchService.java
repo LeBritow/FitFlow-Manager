@@ -12,7 +12,9 @@ import java.nio.charset.StandardCharsets;
 
 public class GifSearchService {
 
-    private static final String GIPHY_API_KEY = "9mNtPeAd0KOhIJl0gwc2gAKi8EQVhSOF";
+    private static final String GIPHY_API_KEY = System.getenv("GIPHY_API_KEY") != null
+        ? System.getenv("GIPHY_API_KEY")
+        : System.getProperty("giphy.api.key", "");
     private static final String GIPHY_URL = "https://api.giphy.com/v1/gifs/search?api_key=%s&q=%s&limit=5&rating=g";
 
     private final HttpClient httpClient;
@@ -26,6 +28,9 @@ public class GifSearchService {
     }
 
     public String buscarMelhorGif(String nome, String grupoMuscular) {
+        if (GIPHY_API_KEY.isEmpty()) {
+            return null;
+        }
         try {
             StringBuilder queryBuilder = new StringBuilder(nome);
             queryBuilder.append(" gym exercise");

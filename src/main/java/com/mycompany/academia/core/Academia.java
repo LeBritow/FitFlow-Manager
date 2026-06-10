@@ -26,7 +26,7 @@ public class Academia extends Application {
     // ========================================================================
     @Override
     public void stop() throws Exception {
-        System.out.println("👋 Janela principal fechada. Encerrando processos...");
+        System.out.println("Janela principal fechada. Encerrando processos...");
         
         // 1. Desliga o servidor HTTP nativo
         com.mycompany.academia.core.config.ServidorMobile.parar();

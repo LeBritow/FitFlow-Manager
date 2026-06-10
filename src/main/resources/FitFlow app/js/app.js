@@ -96,15 +96,21 @@ function renderizarExercicios() {
     el.innerHTML = exercicios.map((ex, i) => {
         const feito = historicoRealizado.find(h => h.itemTreinoId === ex.idItem);
         const seriesInfo = ex.series.map(s => s.reps + 'x' + s.carga + 'kg').join(', ');
+        const gifBtn = ex.urlMidia && !feito
+            ? '<span class="gif-toggle" onclick="event.stopPropagation();toggleGif(' + i + ')" style="color:#666;font-size:18px;cursor:pointer;" title="Ver GIF">🎬</span>'
+            : '';
+        const playBtn = !feito
+            ? '<span style="color:#00d2ff;font-size:20px;cursor:pointer;">▶</span>'
+            : '<span style="color:#27ae60;">✓</span>';
         return '<div class="card exercicio-card ' + (feito ? 'exercicio-done' : '') + '" id="ex-card-' + i + '">' +
-            '<div class="exercicio-header" onclick="' + (!feito ? "toggleGif(" + i + ")" : "") + '">' +
+            '<div class="exercicio-header" onclick="' + (!feito ? "abrirFoco(" + i + ")" : "") + '">' +
                 '<div>' +
                     '<div class="nome">' + (feito ? '✅ ' : '') + ex.nomeExercicio + '</div>' +
                     '<div class="info">' + ex.series.length + ' séries · ' + seriesInfo + ' · ' + ex.descanso + 's descanso</div>' +
                 '</div>' +
                 '<div style="display:flex;align-items:center;gap:6px;">' +
-                    (ex.urlMidia ? '<span style="color:#666;font-size:14px;" title="Ver GIF">🎬</span>' : '') +
-                    (!feito ? '<span style="color:#00d2ff;font-size:20px;">▶</span>' : '<span style="color:#27ae60;">✓</span>') +
+                    gifBtn +
+                    playBtn +
                 '</div>' +
             '</div>' +
             (ex.urlMidia && !feito ? '<div class="exercicio-gif" id="ex-gif-' + i + '"><img src="' + ex.urlMidia + '" alt="' + ex.nomeExercicio + '" loading="lazy"></div>' : '') +

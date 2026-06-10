@@ -17,3 +17,5 @@ src/main/resources/META-INF/persistence.xml
 
 .DS_Store
 Thumbs.db
+*.config.properties
+config.properties

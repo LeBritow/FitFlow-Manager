@@ -1,6 +1,7 @@
 package com.mycompany.academia.treino.dao;
 
 import com.mycompany.academia.treino.model.Exercicio;
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.core.config.JPAUtil;
 import jakarta.persistence.EntityManager;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
 public class ExercicioDAO {
 
     public boolean salvar(Exercicio exercicio) {
+        EventBus.emit("ExercicioDAO", "salvar", "exercicio=" + exercicio.getNome());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -30,6 +32,7 @@ public class ExercicioDAO {
     }
 
     public List<Exercicio> listarTodos() {
+        EventBus.emit("ExercicioDAO", "listarTodos", "");
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery("SELECT e FROM Exercicio e ORDER BY e.grupoMuscular, e.nome", Exercicio.class).getResultList();
@@ -39,6 +42,7 @@ public class ExercicioDAO {
     }
 
     public boolean excluir(Exercicio exercicio) {
+        EventBus.emit("ExercicioDAO", "excluir", "exercicio=" + exercicio.getNome());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -58,6 +62,7 @@ public class ExercicioDAO {
     }
     
     public long contarExercicios() {
+        EventBus.emit("ExercicioDAO", "contarExercicios", "");
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery("SELECT COUNT(e) FROM Exercicio e", Long.class).getSingleResult();
@@ -67,6 +72,7 @@ public class ExercicioDAO {
     }
 
     public List<Exercicio> buscarPorGrupoMuscular(String grupo) {
+        EventBus.emit("ExercicioDAO", "buscarPorGrupoMuscular", "grupo=" + grupo);
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery("SELECT e FROM Exercicio e WHERE e.grupoMuscular = :grupo", Exercicio.class)
