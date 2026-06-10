@@ -62,3 +62,5 @@ mvn clean compile exec:java
 ```
 
 O servidor mobile será iniciado automaticamente junto com a interface desktop.
+
+Sistema criado 100% em Vibe Coding, devido a proporção que tomou.
