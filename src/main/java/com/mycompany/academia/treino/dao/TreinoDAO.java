@@ -361,6 +361,93 @@ public class TreinoDAO {
         }
     }
 
+    public long buscarTotalTreinos(int alunoId) {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            String jpql = "SELECT COUNT(c) FROM ComentarioTreino c WHERE c.treino IN (" +
+                          "    SELECT pt.treino FROM ProgramacaoTreino pt WHERE pt.aluno.id = :alunoId" +
+                          ")";
+            return em.createQuery(jpql, Long.class)
+                     .setParameter("alunoId", alunoId)
+                     .getSingleResult();
+        } catch (Exception e) {
+            return 0;
+        } finally {
+            em.close();
+        }
+    }
+
+    public java.util.Map<Integer, Long> buscarTreinosPorSemana(int alunoId, int semanas) {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            java.time.LocalDate inicio = java.time.LocalDate.now().minusWeeks(semanas).with(java.time.DayOfWeek.MONDAY);
+            String jpql = "SELECT s.data FROM SessaoTreino s " +
+                          "WHERE s.programacaoTreino.aluno.id = :alunoId " +
+                          "AND s.concluido = true AND s.data >= :inicio " +
+                          "ORDER BY s.data ASC";
+            List<java.time.LocalDateTime> datas = em.createQuery(jpql, java.time.LocalDateTime.class)
+                                                    .setParameter("alunoId", alunoId)
+                                                    .setParameter("inicio", inicio.atStartOfDay())
+                                                    .getResultList();
+
+            java.util.Map<Integer, Long> semMap = new java.util.LinkedHashMap<>();
+            for (int i = 0; i < semanas; i++) {
+                int ano = inicio.plusWeeks(i).getYear();
+                int semana = inicio.plusWeeks(i).get(java.time.temporal.IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+                semMap.put(ano * 100 + semana, 0L);
+            }
+            for (java.time.LocalDateTime dt : datas) {
+                int ano = dt.getYear();
+                int semana = dt.get(java.time.temporal.IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+                int chave = ano * 100 + semana;
+                semMap.merge(chave, 1L, Long::sum);
+            }
+            return semMap;
+        } catch (Exception e) {
+            return java.util.Collections.emptyMap();
+        } finally {
+            em.close();
+        }
+    }
+
+    public long buscarStreakAtual(int alunoId) {
+        jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
+        try {
+            String jpql = "SELECT DISTINCT CAST(s.data AS date) FROM SessaoTreino s " +
+                          "WHERE s.programacaoTreino.aluno.id = :alunoId " +
+                          "AND s.concluido = true ORDER BY s.data DESC";
+            List<java.sql.Date> datas = em.createQuery(jpql, java.sql.Date.class)
+                                          .setParameter("alunoId", alunoId)
+                                          .getResultList();
+            if (datas.isEmpty()) return 0;
+
+            long streak = 0;
+            java.time.LocalDate hoje = java.time.LocalDate.now();
+            for (java.sql.Date d : datas) {
+                java.time.LocalDate ld = d.toLocalDate();
+                if (streak == 0) {
+                    if (ld.equals(hoje) || ld.equals(hoje.minusDays(1))) {
+                        streak = 1;
+                    } else {
+                        return 0;
+                    }
+                } else {
+                    java.time.LocalDate esperada = hoje.minusDays(streak);
+                    if (ld.equals(esperada)) {
+                        streak++;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            return streak;
+        } catch (Exception e) {
+            return 0;
+        } finally {
+            em.close();
+        }
+    }
+
     public long contarAlunosAtivosMes() {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitFlow - Login</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="logo">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5 17.5 17.5M6.5 17.5 17.5 6.5"/><circle cx="12" cy="12" r="10"/></svg>
+            FitFlow
+        </div>
+        <p class="login-sub">Acompanhe seus treinos</p>
+
+        <div class="input-group">
+            <label for="email">E-mail ou CPF</label>
+            <input type="text" id="email" placeholder="Digite seu acesso" autocomplete="username">
+        </div>
+
+        <div class="input-group">
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" placeholder="Digite sua senha" autocomplete="current-password">
+        </div>
+
+        <button class="btn btn-primary" onclick="fazerLogin()" id="btn-login">Entrar</button>
+        <div id="mensagem-erro" class="erro-msg"></div>
+    </div>
+
+    <script>
+        async function fazerLogin() {
+            const email = document.getElementById('email').value.trim();
+            const senha = document.getElementById('senha').value;
+            const msgErro = document.getElementById('mensagem-erro');
+            const botao = document.getElementById('btn-login');
+
+            if (!email || !senha) {
+                msgErro.textContent = "Preencha todos os campos!";
+                msgErro.style.display = "block";
+                return;
+            }
+
+            botao.disabled = true;
+            botao.textContent = "Entrando...";
+            msgErro.style.display = "none";
+
+            try {
+                const resp = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login: email, senha: senha })
+                });
+                const dados = await resp.json();
+
+                if (dados.status === "sucesso") {
+                    localStorage.setItem('fitflow_token', dados.token);
+                    localStorage.setItem('fitflow_aluno_id', dados.id);
+                    localStorage.setItem('fitflow_aluno_nome', dados.nome);
+                    localStorage.setItem('fitflow_aluno_email', dados.email);
+                    window.location.href = "app.html";
+                } else {
+                    msgErro.textContent = dados.mensagem || "Credenciais inválidas!";
+                    msgErro.style.display = "block";
+                    botao.disabled = false;
+                    botao.textContent = "Entrar";
+                }
+            } catch (e) {
+                msgErro.textContent = "Erro de conexão. Verifique se o sistema Desktop está aberto.";
+                msgErro.style.display = "block";
+                botao.disabled = false;
+                botao.textContent = "Entrar";
+            }
+        }
+        document.getElementById('senha').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+    </script>
+</body>
+</html>

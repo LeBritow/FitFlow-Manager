@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FitFlow</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+    <!-- ─── HEADER ──────────────────────────────────── -->
+    <header class="app-header">
+        <div>
+            <h1>FitFlow</h1>
+            <div class="aluno-nome" id="header-nome"></div>
+        </div>
+        <button class="btn btn-secondary" style="padding:6px 14px;font-size:12px;" onclick="logout()">Sair</button>
+    </header>
+
+    <!-- ─── SCREENS ─────────────────────────────────── -->
+    <main class="app-content" id="app-content">
+
+        <!-- FEED -->
+        <div id="screen-feed" class="screen active">
+            <div class="screen-scroll">
+                <h2 style="font-size:18px;margin-bottom:12px;color:#fff;">📋 Histórico de Treinos</h2>
+                <div id="feed-lista"></div>
+            </div>
+        </div>
+
+        <!-- TREINO -->
+        <div id="screen-treino" class="screen">
+            <div class="screen-scroll">
+                <h2 id="treino-titulo" style="font-size:18px;color:#fff;">Carregando...</h2>
+                <div id="treino-objetivo" style="font-size:13px;color:#888;margin-bottom:12px;"></div>
+                <div id="treino-lista"></div>
+
+                <div id="treino-finalizar-area" style="margin-top:12px;">
+                    <div class="card">
+                        <label style="font-size:14px;color:#aaa;">Como foi o treino?</label>
+                        <textarea id="treino-comentario" style="width:100%;height:70px;background:#2a2a2a;border:1px solid #333;color:#fff;border-radius:6px;margin-top:8px;padding:10px;font-size:14px;" placeholder="Ex: Cansativo, pulei o último exercício..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="finalizarTreino()" style="margin-top:4px;">🏁 Finalizar Treino</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PERFORMANCE -->
+        <div id="screen-performance" class="screen">
+            <div class="screen-scroll">
+                <h2 style="font-size:18px;margin-bottom:12px;color:#fff;">📊 Performance</h2>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-value" id="perf-treinos-mes">-</div><div class="stat-label">Treinos no Mês</div></div>
+                    <div class="stat-card"><div class="stat-value" id="perf-total-treinos">-</div><div class="stat-label">Total de Treinos</div></div>
+                    <div class="stat-card"><div class="stat-value" id="perf-streak">-</div><div class="stat-label">Dias Seguidos</div></div>
+                    <div class="stat-card"><div class="stat-value" id="perf-ultimo-treino">-</div><div class="stat-label">Último Treino</div></div>
+                </div>
+
+                <div class="chart-container">
+                    <div style="font-size:13px;color:#aaa;margin-bottom:8px;font-weight:600;">Treinos por Semana</div>
+                    <canvas id="chartCanvas"></canvas>
+                </div>
+
+                <div class="card" style="border-left:3px solid #00d2ff;">
+                    <div class="card-title">Ficha Ativa</div>
+                    <div class="card-sub" id="perf-ficha-ativa">Carregando...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PERFIL -->
+        <div id="screen-perfil" class="screen">
+            <div class="screen-scroll">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="perfil-avatar-inicial">?</div>
+                    <div class="profile-name" id="perfil-nome"></div>
+                    <div class="profile-email" id="perfil-email"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Informações</div>
+                    <div class="profile-info" id="perfil-info">
+                        <div class="profile-row"><span class="label">CPF</span><span class="value" id="perfil-cpf">---</span></div>
+                        <div class="profile-row"><span class="label">Peso</span><span class="value" id="perfil-peso">---</span></div>
+                        <div class="profile-row"><span class="label">Altura</span><span class="value" id="perfil-altura">---</span></div>
+                        <div class="profile-row"><span class="label">IMC</span><span class="value" id="perfil-imc">---</span></div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="toggleEditarPerfil()" style="width:100%;margin-top:10px;">✏️ Editar Peso / Altura</button>
+
+                    <div class="profile-edit-form" id="perfil-edit-form">
+                        <div class="input-group" style="margin-top:12px;">
+                            <label>Peso (kg)</label>
+                            <input type="number" step="0.1" id="perfil-edit-peso" placeholder="Ex: 75.5">
+                        </div>
+                        <div class="input-group">
+                            <label>Altura (m)</label>
+                            <input type="number" step="0.01" id="perfil-edit-altura" placeholder="Ex: 1.75">
+                        </div>
+                        <button class="btn btn-primary" onclick="salvarPerfil()" style="margin-top:4px;">Salvar</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Avaliações Físicas</div>
+                    <div id="perfil-avaliacoes">
+                        <div class="loading"><div class="spinner"></div>Carregando...</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-danger" onclick="logout()" style="width:100%;margin-top:8px;">🚪 Sair</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ─── MODO FOCO ───────────────────────────────── -->
+    <div id="tela-foco">
+        <div id="foco-nome">Exercício</div>
+        <div id="foco-serie">Série 1 de 3</div>
+        <img id="foco-gif" src="" alt="" style="display:none;">
+        <div id="foco-cronometro">00:00</div>
+        <div id="foco-status">Preparado?</div>
+        <button id="btn-foco" class="btn-foco btn-foco-iniciar" onclick="acaoFoco()">▶ Iniciar Série 1</button>
+        <div id="foco-area-carga">
+            <label>Carga utilizada (kg)</label>
+            <input type="number" step="0.5" id="foco-carga-input">
+        </div>
+        <button class="btn-foco-voltar" onclick="fecharFoco()">← Voltar à lista</button>
+        <button class="btn btn-outline" style="margin-top:8px;font-size:12px;" onclick="pularExercicio()">⏭ Pular este exercício</button>
+    </div>
+
+    <!-- ─── BOTTOM NAV ───────────────────────────────── -->
+    <nav id="bottom-nav">
+        <button class="nav-item" data-tab="feed"><span class="icon">📋</span>Feed</button>
+        <button class="nav-item" data-tab="treino"><span class="icon">💪</span>Treino</button>
+        <button class="nav-item" data-tab="performance"><span class="icon">📊</span>Performance</button>
+        <button class="nav-item" data-tab="perfil"><span class="icon">👤</span>Perfil</button>
+    </nav>
+
+    <script src="../js/app.js"></script>
+</body>
+</html>
