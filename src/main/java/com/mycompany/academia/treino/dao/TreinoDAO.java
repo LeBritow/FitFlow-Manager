@@ -18,8 +18,12 @@ public class TreinoDAO {
             em.getTransaction().begin();
             if (treino.getId() == 0) {
                 em.persist(treino);
+                EventBus.emit("PostgreSQL", "INSERT INTO treino (nome=" + treino.getNome() + ")", "persist");
+                EventBus.emit("Entities", "Treino created", "nome=" + treino.getNome());
             } else {
                 treino = em.merge(treino);
+                EventBus.emit("PostgreSQL", "UPDATE treino SET ... WHERE id=" + treino.getId(), "merge");
+                EventBus.emit("Entities", "Treino updated", "id=" + treino.getId());
             }
             em.getTransaction().commit();
             return treino; 
@@ -41,8 +45,10 @@ public class TreinoDAO {
             em.getTransaction().begin();
             if (item.getId() == 0) {
                 em.persist(item);
+                EventBus.emit("PostgreSQL", "INSERT INTO item_treino (treinoId=" + item.getTreino().getId() + ")", "persist");
             } else {
                 em.merge(item);
+                EventBus.emit("PostgreSQL", "UPDATE item_treino SET ... WHERE id=" + item.getId(), "merge");
             }
             em.getTransaction().commit();
             return true;
@@ -61,6 +67,7 @@ public class TreinoDAO {
         EventBus.emit("TreinoDAO", "listarAlunos", "");
         EntityManager em = JPAUtil.getEntityManager();
         try {
+            EventBus.emit("PostgreSQL", "SELECT FROM aluno ORDER BY nome", "query");
             return em.createQuery("SELECT a FROM Aluno a ORDER BY a.nome", Aluno.class).getResultList();
         } finally {
             em.close();
@@ -73,6 +80,8 @@ public class TreinoDAO {
         try {
             em.getTransaction().begin();
             em.persist(programacao);
+            EventBus.emit("PostgreSQL", "INSERT INTO programacao_treino (alunoId=" + programacao.getAluno().getId() + ")", "persist");
+            EventBus.emit("Entities", "ProgramacaoTreino created", "alunoId=" + programacao.getAluno().getId());
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
@@ -90,6 +99,8 @@ public class TreinoDAO {
         EventBus.emit("TreinoDAO", "listarProgramacoesPorAluno", "alunoId=" + alunoId);
         EntityManager em = JPAUtil.getEntityManager();
         try {
+            EventBus.emit("PostgreSQL", "SELECT FROM programacao_treino JOIN treino WHERE alunoId=" + alunoId, "query");
+            EventBus.emit("Entities", "ProgramacaoTreino+Treino loaded", "alunoId=" + alunoId);
             List<ProgramacaoTreino> r = em.createQuery("SELECT p FROM ProgramacaoTreino p JOIN FETCH p.treino WHERE p.aluno.id = :alunoId", ProgramacaoTreino.class)
                      .setParameter("alunoId", alunoId)
                      .getResultList();
@@ -104,6 +115,7 @@ public class TreinoDAO {
         EventBus.emit("TreinoDAO", "listarItensPorTreino", "treinoId=" + treinoId);
         EntityManager em = JPAUtil.getEntityManager();
         try {
+            EventBus.emit("PostgreSQL", "SELECT FROM item_treino JOIN exercicio WHERE treinoId=" + treinoId, "query");
             List<ItemTreino> r = em.createQuery("SELECT DISTINCT i FROM ItemTreino i JOIN FETCH i.exercicio LEFT JOIN FETCH i.seriesTreino WHERE i.treino.id = :treinoId", ItemTreino.class)
                      .setParameter("treinoId", treinoId)
                      .getResultList();
@@ -309,12 +321,10 @@ public class TreinoDAO {
             Treino treino = prog.getTreino();
             boolean isFichaExclusiva = !treino.isFichaPadrao();
             
-            em.remove(prog); 
+            // DB com ON DELETE CASCADE resolve as FKs automaticamente
+            em.remove(prog);
             
             if (isFichaExclusiva) {
-                em.createQuery("DELETE FROM ItemTreino i WHERE i.treino.id = :tId")
-                  .setParameter("tId", treino.getId())
-                  .executeUpdate();
                 em.remove(treino);
             }
             

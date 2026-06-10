@@ -7,110 +7,129 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
 html,body{height:100%;overflow:hidden}
-body{background:#0a0a16;color:#e0e0e0}
+body{background:#f5f5f5;color:#333}
 
 /* ─── TOPBAR ─────────────────────── */
-.topbar{background:#111122;border-bottom:1px solid #1e1e38;padding:8px 18px;display:flex;align-items:center;gap:14px;height:46px;flex-shrink:0}
-.topbar h1{font-size:14px;font-weight:700;background:linear-gradient(135deg,#00d2ff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.topbar .sub{color:#555;font-size:9px}
-.dot{width:7px;height:7px;border-radius:50%;display:inline-block;transition:.3s}
-.dot.on{background:#27ae60;box-shadow:0 0 10px rgba(39,174,96,.5)}
-.dot.off{background:#e74c3c}
-.status{font-size:10px;display:flex;align-items:center;gap:4px;margin-left:auto;color:#888}
-.counter{font-size:10px;color:#555;margin-left:8px}
-.counter b{color:#888}
+.topbar{background:#fff;border-bottom:2px solid #e0e0e0;padding:8px 20px;display:flex;align-items:center;gap:14px;height:48px;flex-shrink:0}
+.topbar h1{font-size:15px;font-weight:700;color:#1565c0}
+.topbar h1 small{font-weight:400;color:#888;font-size:11px;margin-left:8px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dot.on{background:#4caf50;box-shadow:0 0 8px rgba(76,175,80,.4)}
+.dot.off{background:#f44336}
+.status{font-size:11px;display:flex;align-items:center;gap:5px;margin-left:auto;color:#777}
+.counter{font-size:11px;color:#aaa;margin-left:10px}
 
-/* ─── MAIN LAYOUT ────────────────── */
-.main{display:flex;height:calc(100vh - 46px)}
-.canvas-wrap{flex:1;overflow:auto;position:relative;padding:20px}
-.canvas{position:relative;width:100%;min-height:600px}
+/* ─── MAIN ────────────────────────── */
+.main{display:flex;height:calc(100vh - 48px)}
+.canvas-wrap{flex:1;overflow:auto;padding:20px 24px;background:#fcfcfc;position:relative;min-width:0}
+.canvas{position:relative;min-height:720px}
+#panel-desktop .canvas{width:1640px}
+#panel-mobile .canvas{width:760px}
 
-/* ─── CLASS BOXES ────────────────── */
-.class-box{
-  position:absolute;background:#111128;border:1.5px solid #1e1e3a;border-radius:8px;
-  padding:0;min-width:130px;transition:all .5s;cursor:default;z-index:5;
+/* ─── ZONE ────────────────────────── */
+.zone{
+  position:absolute;border:2px dashed #ddd;border-radius:12px;padding:0;
+  background:rgba(255,255,255,.5);z-index:0;
+  transition:box-shadow .4s;
 }
-.class-box .hd{
-  padding:6px 10px;border-bottom:1px solid #1a1a34;font-size:10px;font-weight:700;
-  display:flex;align-items:center;gap:6px;border-radius:7px 7px 0 0;
+.zone.active{box-shadow:inset 0 0 30px rgba(21,101,192,.06)}
+.zone .zl{position:absolute;top:-10px;left:16px;background:#fcfcfc;padding:0 8px;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#aaa;}
+
+/* ─── CLASS BOX (UML style) ──────── */
+.uml{
+  position:absolute;background:#fff;border:2px solid #bbb;border-radius:4px;
+  min-width:140px;z-index:5;transition:all .35s;cursor:default;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
 }
-.class-box .bd{padding:5px 10px 6px;font-size:8px;color:#666;line-height:1.6}
-.class-box .bd .method{color:#555;display:block;padding:1px 4px;border-radius:2px;transition:.3s;font-size:7.5px}
-.class-box .bd .method.active{color:#00d2ff;background:rgba(0,210,255,.08)}
-
-/* Colored headers */
-.class-box.ctrl .hd{background:#0d1a2e;color:#00d2ff}
-.class-box.handler .hd{background:#1a0d2e;color:#a855f7}
-.class-box.dao .hd{background:#1a2e0d;color:#27ae60}
-.class-box.entity .hd{background:#2e1a0d;color:#f39c12}
-.class-box.inf .hd{background:#2e0d0d;color:#e94560}
-
-/* Frame colors */
-.class-box.ctrl{border-color:#0d3a5e}
-.class-box.handler{border-color:#2d0d5e}
-.class-box.dao{border-color:#1a4a0d}
-.class-box.entity{border-color:#4a3a0d}
-.class-box.inf{border-color:#4a0d0d}
-
-/* Active highlight */
-.class-box.active{border-color:#00d2ff !important;box-shadow:0 0 20px rgba(0,210,255,.2)}
-.class-box.active .hd{color:#00d2ff !important}
-.class-box.done{opacity:.6;border-color:#2a2a4a !important}
-
-/* ─── ZONES (desktop / mobile / shared) ─ */
-.zone-label{
-  position:absolute;font-size:9px;text-transform:uppercase;letter-spacing:2px;
-  color:#2a2a4a;font-weight:700;pointer-events:none;z-index:1;
+.uml .hd{
+  padding:7px 10px;font-size:11px;font-weight:700;color:#fff;
+  border-radius:2px 2px 0 0;text-align:center;letter-spacing:.3px;
 }
-.zone-box{
-  position:absolute;border:1px dashed #1a1a30;border-radius:12px;z-index:0;
-  pointer-events:none;
+.uml .sep{height:1px;background:#e0e0e0;margin:0}
+.uml .body{padding:5px 8px 7px;font-size:9px;color:#555;line-height:1.7}
+.uml .body .mt{display:block;padding:1px 4px;border-radius:3px;transition:all .3s;font-size:8.5px;font-family:'Consolas','Courier New',monospace;color:#444}
+.uml .body .mt.active{background:#e3f2fd;color:#1565c0;font-weight:600}
+.uml .body .mt::before{content:'+ ';color:#43a047;font-weight:700}
+
+/* Zone colors */
+.uml.blue .hd{background:#1565c0}
+.uml.blue{border-color:#1565c0}
+.uml.purple .hd{background:#7b1fa2}
+.uml.purple{border-color:#7b1fa2}
+.uml.green .hd{background:#2e7d32}
+.uml.green{border-color:#2e7d32}
+.uml.orange .hd{background:#e65100}
+.uml.orange{border-color:#e65100}
+.uml.teal .hd{background:#00695c}
+.uml.teal{border-color:#00695c}
+.uml.red .hd{background:#c62828}
+.uml.red{border-color:#c62828}
+.uml.indigo .hd{background:#3949ab}
+.uml.indigo{border-color:#3949ab}
+
+/* Active state */
+.uml.active{
+  border-color:#1565c0 !important;border-width:3px;
+  box-shadow:0 0 24px rgba(21,101,192,.22),0 4px 12px rgba(0,0,0,.1);
+  transform:scale(1.03);z-index:6;
 }
-.zone-box.desktop{border-color:#0d3a5e55}
-.zone-box.mobile{border-color:#2d0d5e55}
-.zone-box.dao-zone{border-color:#1a4a0d55}
-.zone-box.inf-zone{border-color:#4a0d0d55}
+.uml.done{opacity:.55;border-color:#ccc !important}
+.uml.done .hd{opacity:.6}
 
-/* ─── SVG LINES (connections) ─────── */
-#connSvg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2}
-.conn-line{stroke:#1a1a34;stroke-width:1.5;fill:none;stroke-dasharray:4,3;transition:all .5s}
-.conn-line.active{stroke:#00d2ff;stroke-width:2.5;stroke-dasharray:none;filter:drop-shadow(0 0 6px rgba(0,210,255,.4))}
-.conn-line.done{stroke:#27ae60;stroke-width:1.5;opacity:.3}
-.conn-label{font-size:7px;fill:#444;transition:fill .5s}
-.conn-label.active{fill:#00d2ff}
+/* ─── SVG CONNECTIONS ─────────────── */
+#connSvg-dt, #connSvg-mb{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:3}
+.conn-line{stroke:#bbb;stroke-width:1.5;fill:none;stroke-dasharray:5,4;transition:all .5s}
+.conn-line.active{stroke:#1565c0;stroke-width:3;stroke-dasharray:none;filter:drop-shadow(0 0 6px rgba(21,101,192,.35))}
+.conn-line.done{stroke:#a5d6a7;stroke-width:2;stroke-dasharray:3,3}
+.conn-label{font-size:7px;fill:#999;transition:fill .4s;font-family:'Consolas',monospace}
+.conn-label.active{fill:#1565c0;font-weight:600}
 
-/* ─── EVENT DETAIL ───────────────── */
-.detail-bar{background:#0c0c1c;border-top:1px solid #1a1a34;padding:7px 14px;min-height:42px;flex-shrink:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.detail-bar .dc{color:#00d2ff;font-size:10px;font-weight:600}
-.detail-bar .da{color:#ddd;font-size:10px}
-.detail-bar .dd{color:#666;font-size:9px;flex:1;min-width:80px}
-.detail-bar .dt{color:#444;font-size:8px;margin-left:auto;white-space:nowrap}
+/* ─── DETAIL BAR ──────────────────── */
+.detail-bar{
+  background:#fff;border-top:2px solid #e0e0e0;padding:8px 20px;min-height:44px;
+  flex-shrink:0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.detail-bar .dc{color:#1565c0;font-size:12px;font-weight:600;font-family:'Consolas',monospace}
+.detail-bar .da{color:#555;font-size:11px}
+.detail-bar .dd{color:#999;font-size:10px;flex:1;min-width:60px}
+.detail-bar .dt{color:#bbb;font-size:9px;margin-left:auto;white-space:nowrap}
 
 /* ─── LOG ─────────────────────────── */
-.log-panel{width:220px;background:#0c0c18;border-left:1px solid #1a1a2e;display:flex;flex-direction:column;flex-shrink:0}
-.log-hd{padding:6px 10px;border-bottom:1px solid #1a1a2e;font-size:10px;color:#555;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.log-hd button{background:none;border:1px solid #2a2a2a;color:#555;padding:1px 6px;border-radius:3px;font-size:8px;cursor:pointer}
-.log-hd button:hover{border-color:#e74c3c;color:#e74c3c}
-.log-body{flex:1;overflow-y:auto;padding:3px}
-.log-item{padding:3px 7px;border-radius:3px;margin-bottom:1px;font-size:8px;background:#111122;border-left:2px solid #555;animation:li .2s;cursor:pointer}
-.log-item:hover{background:#181830}
-.log-item .lc{color:#aaa;font-weight:600}
-.log-item .la{color:#ddd}
-.log-item .ld{color:#555;font-size:7px}
-.log-item .lt{color:#333;font-size:7px}
-.log-empty{text-align:center;padding:16px;color:#333;font-size:9px}
+.log-panel{width:240px;background:#fafafa;border-left:2px solid #e0e0e0;display:flex;flex-direction:column;flex-shrink:0}
+.log-hd{padding:7px 12px;border-bottom:1px solid #e8e8e8;font-size:11px;color:#888;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.log-hd button{background:#fff;border:1px solid #ddd;color:#888;padding:2px 8px;border-radius:4px;font-size:9px;cursor:pointer}
+.log-hd button:hover{background:#f5f5f5;color:#f44336}
+.log-body{flex:1;overflow-y:auto;padding:4px}
+.log-item{padding:4px 8px;border-radius:3px;margin-bottom:2px;font-size:9px;background:#fff;border-left:3px solid #ddd;animation:li .2s;cursor:pointer;border-bottom:1px solid #f0f0f0}
+.log-item:hover{background:#f5f9ff}
+.log-item .lc{color:#1565c0;font-weight:600}
+.log-item .la{color:#333}
+.log-item .ld{color:#aaa;font-size:8px}
+.log-item .lt{color:#ccc;font-size:8px}
+.log-empty{text-align:center;padding:20px;color:#ccc;font-size:10px}
 @keyframes li{from{opacity:0;transform:translateX(-4px)}}
-.log-body::-webkit-scrollbar{width:3px}
-.log-body::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+.log-body::-webkit-scrollbar{width:4px}
+.log-body::-webkit-scrollbar-thumb{background:#ddd;border-radius:4px}
 
-@media(max-width:700px){.log-panel{display:none}}
+/* ─── TABS ──────────────────────────── */
+.tab-bar{display:flex;gap:0;background:#f0f0f0;border-bottom:2px solid #e0e0e0;padding:0 16px;flex-shrink:0}
+.tab-btn{padding:10px 24px;font-size:13px;font-weight:600;border:none;background:transparent;color:#999;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s}
+.tab-btn:hover{color:#666;background:rgba(0,0,0,.02)}
+.tab-btn.active{color:#1565c0;border-bottom-color:#1565c0;background:#fff}
+.tab-panel{display:none}
+.tab-panel.active{display:flex;flex-direction:column;flex:1;min-height:0}
+/* override .main when tabs are present */
+.main.tabbed{flex-direction:column}
+.tab-body{display:flex;flex:1;overflow:hidden}
+
+@media(max-width:800px){.log-panel{display:none}}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <h1>⚡ FitFlow · Diagrama de Classes</h1>
-  <span class="sub">Arquitetura em Tempo Real</span>
+  <h1>⚡ FitFlow Manager <small>Diagrama de Classes em Tempo Real</small></h1>
   <div class="status">
     <span class="dot off" id="dot"></span>
     <span id="statText">Desconectado</span>
@@ -118,136 +137,328 @@ body{background:#0a0a16;color:#e0e0e0}
   <div class="counter">📡 <b id="evCount">0</b> eventos</div>
 </div>
 
-<div class="main">
-  <div class="canvas-wrap">
-    <svg id="connSvg"></svg>
-    <div class="canvas" id="canvas">
-      <!-- Zone labels -->
-      <div class="zone-label" style="left:30px;top:8px">🖥️ DESKTOP (JavaFX)</div>
-      <div class="zone-label" style="left:460px;top:8px">📱 MOBILE (SPA)</div>
-      <div class="zone-label" style="left:40px;top:220px">🗄️ DAO LAYER</div>
-      <div class="zone-label" style="left:40px;top:400px">🔗 INFRASTRUCTURE</div>
-
-      <!-- Zone boxes -->
-      <div class="zone-box desktop" style="left:16px;top:30px;width:280px;height:155px"></div>
-      <div class="zone-box mobile" style="left:390px;top:30px;width:300px;height:155px"></div>
-      <div class="zone-box dao-zone" style="left:16px;top:250px;width:674px;height:110px"></div>
-      <div class="zone-box inf-zone" style="left:16px;top:430px;width:674px;height:120px"></div>
-
-      <!-- ============ CLASS BOXES ============ -->
-
-      <!-- Desktop controllers -->
-      <div class="class-box ctrl" style="left:30px;top:44px" data-group="desktop" id="cb-painel">
-        <div class="hd">🏠 PainelPrincipalController</div>
-        <div class="bd">
-          <span class="method" id="mt-abrirInicio">abrirInicio()</span>
-          <span class="method" id="mt-carregarDash">carregarDashboard()</span>
-        </div>
-      </div>
-      <div class="class-box ctrl" style="left:30px;top:112px" data-group="desktop" id="cb-analise">
-        <div class="hd">📈 AnaliseAlunoController</div>
-        <div class="bd">
-          <span class="method">carregarHistorico()</span>
-        </div>
-      </div>
-
-      <!-- Mobile handlers -->
-      <div class="class-box handler" style="left:404px;top:44px" data-group="mobile" id="cb-server">
-        <div class="hd">🌐 ServidorMobile.java</div>
-        <div class="bd">
-          <span class="method" id="mt-loginHandler">LoginHandler</span>
-          <span class="method" id="mt-fichaHandler">BuscarFichaHandler</span>
-          <span class="method" id="mt-finHandler">FinalizarTreinoHandler</span>
-          <span class="method" id="mt-dashHandler">DashboardHandler</span>
-          <span class="method" id="mt-histHandler">HistoricoHandler</span>
-          <span class="method" id="mt-perfHandler">PerfilHandler</span>
-        </div>
-      </div>
-      <div class="class-box handler" style="left:404px;top:120px" data-group="mobile" id="cb-eventbus">
-        <div class="hd">📡 EventBus.java</div>
-        <div class="bd">
-          <span class="method">emit() + SSE</span>
-        </div>
-      </div>
-
-      <!-- DAOs -->
-      <div class="class-box dao" style="left:30px;top:264px" data-group="dao" id="cb-treinodao">
-        <div class="hd">🗄️ TreinoDAO.java</div>
-        <div class="bd">
-          <span class="method" id="mt-listarProg">listarProgramacoesPorAluno()</span>
-          <span class="method" id="mt-listarItens">listarItensPorTreino()</span>
-          <span class="method" id="mt-buscarComent">buscarComentariosPorAluno()</span>
-          <span class="method" id="mt-buscarTotal">buscarTotalTreinos()</span>
-          <span class="method" id="mt-buscarSemana">buscarTreinosPorSemana()</span>
-          <span class="method" id="mt-outros">+12 outros métodos</span>
-        </div>
-      </div>
-      <div class="class-box dao" style="left:250px;top:264px" data-group="dao" id="cb-alunodao">
-        <div class="hd">🗄️ AlunoDAO.java</div>
-        <div class="bd">
-          <span class="method" id="mt-buscarTodos">buscarTodos()</span>
-          <span class="method" id="mt-buscarAvals">buscarAvaliacoesPorAluno()</span>
-          <span class="method" id="mt-salvar">salvarOuAtualizar()</span>
-          <span class="method">contarAlunos()</span>
-        </div>
-      </div>
-      <div class="class-box dao" style="left:430px;top:264px" data-group="dao" id="cb-exercdao">
-        <div class="hd">🗄️ ExercicioDAO.java</div>
-        <div class="bd">
-          <span class="method">listarTodos()</span>
-          <span class="method">contarExercicios()</span>
-          <span class="method">buscarPorGrupo()</span>
-        </div>
-      </div>
-      <div class="class-box dao" style="left:570px;top:264px" data-group="dao" id="cb-userdao">
-        <div class="hd">🗄️ UsuarioDAO.java</div>
-        <div class="bd">
-          <span class="method" id="mt-autenticar">autenticar()</span>
-          <span class="method">salvar()</span>
-        </div>
-      </div>
-
-      <!-- Infrastructure -->
-      <div class="class-box inf" style="left:30px;top:444px" data-group="inf" id="cb-jpa">
-        <div class="hd">🔗 JPAUtil.java</div>
-        <div class="bd">
-          <span class="method" id="mt-getEM">getEntityManager()</span>
-          <span class="method">EntityManagerFactory</span>
-        </div>
-      </div>
-      <div class="class-box inf" style="left:210px;top:444px" data-group="inf" id="cb-db">
-        <div class="hd">🐘 PostgreSQL</div>
-        <div class="bd">
-          <span class="method" id="mt-select">SELECT / JOIN</span>
-          <span class="method" id="mt-insert">INSERT / UPDATE</span>
-          <span class="method" id="mt-count">COUNT / GROUP BY</span>
-        </div>
-      </div>
-      <div class="class-box entity" style="left:430px;top:444px" data-group="inf" id="cb-entity">
-        <div class="hd">📦 Entities (JPA)</div>
-        <div class="bd">
-          <span class="method">Aluno, Treino, Usuario</span>
-          <span class="method">ProgramacaoTreino</span>
-          <span class="method">ItemTreino, Exercicio</span>
-          <span class="method">SessaoTreino, ComentarioTreino</span>
-        </div>
-      </div>
-    </div>
+<div class="main tabbed">
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="desktop">🖥️ Desktop</button>
+    <button class="tab-btn" data-tab="mobile">📱 Mobile</button>
   </div>
+  <div class="tab-body">
+    <!-- ═══ PANEL: DESKTOP ═══ -->
+    <div class="tab-panel active" id="panel-desktop">
+      <div class="canvas-wrap">
+        <div class="canvas">
+          <svg id="connSvg-dt"></svg>
 
-  <!-- Log -->
-  <div class="log-panel">
-    <div class="log-hd">
-      <span>📋 Eventos</span>
-      <button onclick="limparLog()">Limpar</button>
+          <div class="zone" id="zone-desktop" style="left:26px;top:20px;width:1640px;height:150px">
+            <div class="zl">🖥️ DESKTOP (JavaFX)</div>
+          </div>
+          <!-- FXML Views (indigo) -->
+          <div class="uml indigo" style="left:44px;top:28px;min-width:90px" id="cb-login-fxml"><div class="hd">Login.fxml</div></div>
+          <div class="uml indigo" style="left:174px;top:28px;min-width:90px" id="cb-recuperar-fxml"><div class="hd">RecuperarSenha.fxml</div></div>
+          <div class="uml indigo" style="left:304px;top:28px;min-width:90px" id="cb-trocarsenha-fxml"><div class="hd">TrocarSenhaObrigatoria.fxml</div></div>
+          <div class="uml indigo" style="left:434px;top:28px;min-width:90px" id="cb-painel-fxml"><div class="hd">PainelPrincipal.fxml</div></div>
+          <div class="uml indigo" style="left:564px;top:28px;min-width:90px" id="cb-dashboard-fxml"><div class="hd">DashboardInicio.fxml</div></div>
+          <div class="uml indigo" style="left:694px;top:28px;min-width:90px" id="cb-usuarios-fxml"><div class="hd">Usuarios.fxml</div></div>
+          <div class="uml indigo" style="left:824px;top:28px;min-width:90px" id="cb-formusuario-fxml"><div class="hd">FormUsuario.fxml</div></div>
+          <div class="uml indigo" style="left:954px;top:28px;min-width:90px" id="cb-exercicios-fxml"><div class="hd">Exercicios.fxml</div></div>
+          <div class="uml indigo" style="left:1084px;top:28px;min-width:90px" id="cb-formexercicio-fxml"><div class="hd">FormExercicio.fxml</div></div>
+          <div class="uml indigo" style="left:1214px;top:28px;min-width:90px" id="cb-fichas-fxml"><div class="hd">FichasTreino.fxml</div></div>
+          <div class="uml indigo" style="left:1344px;top:28px;min-width:90px" id="cb-analise-fxml"><div class="hd">AnaliseAluno.fxml</div></div>
+          <div class="uml indigo" style="left:1474px;top:28px;min-width:90px" id="cb-detalhes-fxml"><div class="hd">DetalhesTreinoRealizado.fxml</div></div>
+          <!-- Controllers (blue) -->
+          <div class="uml blue" style="left:44px;top:80px;min-width:100px" id="cb-login">
+            <div class="hd">LoginController</div>
+            <div class="sep"></div><div class="body"><span class="mt">autenticar()</span></div>
+          </div>
+          <div class="uml blue" style="left:174px;top:80px;min-width:100px" id="cb-recuperar">
+            <div class="hd">RecuperarSenhaController</div>
+            <div class="sep"></div><div class="body"><span class="mt">enviarCodigo()</span></div>
+          </div>
+          <div class="uml blue" style="left:304px;top:80px;min-width:100px" id="cb-trocarsenha">
+            <div class="hd">TrocarSenhaController</div>
+            <div class="sep"></div><div class="body"><span class="mt">salvarEContinuar()</span></div>
+          </div>
+          <div class="uml blue" style="left:434px;top:80px;min-width:100px" id="cb-painel">
+            <div class="hd">PainelPrincipalController</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-abrirInicio">abrirInicio()</span>
+              <span class="mt" id="mt-carregarDash">carregarDashboard()</span>
+            </div>
+          </div>
+          <div class="uml blue" style="left:564px;top:80px;min-width:100px" id="cb-dashboard">
+            <div class="hd">DashboardInicioController</div>
+            <div class="sep"></div><div class="body"><span class="mt">carregarCards()</span></div>
+          </div>
+          <div class="uml blue" style="left:694px;top:80px;min-width:100px" id="cb-usuarios">
+            <div class="hd">UsuariosController</div>
+            <div class="sep"></div><div class="body"><span class="mt" id="mt-usuarios-listar">listarUsuarios()</span></div>
+          </div>
+          <div class="uml blue" style="left:824px;top:80px;min-width:100px" id="cb-formusuario">
+            <div class="hd">FormUsuarioController</div>
+            <div class="sep"></div><div class="body"><span class="mt">salvar()</span></div>
+          </div>
+          <div class="uml blue" style="left:954px;top:80px;min-width:100px" id="cb-exercicios">
+            <div class="hd">ExerciciosController</div>
+            <div class="sep"></div><div class="body"><span class="mt" id="mt-listarExer">listarExercicios()</span></div>
+          </div>
+          <div class="uml blue" style="left:1084px;top:80px;min-width:100px" id="cb-formexercicio">
+            <div class="hd">FormExercicioController</div>
+            <div class="sep"></div><div class="body"><span class="mt">salvar()</span></div>
+          </div>
+          <div class="uml blue" style="left:1214px;top:80px;min-width:100px" id="cb-fichas">
+            <div class="hd">FichasTreinoController</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-fichas-listarProg">listarProgramacoes()</span>
+              <span class="mt" id="mt-fichas-carregarItens">carregarItens()</span>
+            </div>
+          </div>
+          <div class="uml blue" style="left:1344px;top:80px;min-width:100px" id="cb-analise">
+            <div class="hd">AnaliseAlunoController</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-carregarHist">carregarHistorico()</span>
+            </div>
+          </div>
+          <div class="uml blue" style="left:1474px;top:80px;min-width:100px" id="cb-detalhes">
+            <div class="hd">DetalhesTreinoRealizadoController</div>
+            <div class="sep"></div><div class="body"><span class="mt">carregarDados()</span></div>
+          </div>
+
+          <!-- DAO -->
+          <div class="zone" id="zone-dao" style="left:26px;top:270px;width:840px;height:150px">
+            <div class="zl">🗄️ DAO LAYER</div>
+          </div>
+          <div class="uml green" style="left:44px;top:294px" id="cb-treinodao">
+            <div class="hd">TreinoDAO</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-listarProg">listarProgramacoesPorAluno()</span>
+              <span class="mt" id="mt-listarItens">listarItensPorTreino()</span>
+              <span class="mt" id="mt-buscarComent">buscarComentariosPorAluno()</span>
+              <span class="mt" id="mt-buscarTotal">buscarTotalTreinos()</span>
+              <span class="mt" id="mt-buscarSemana">buscarTreinosPorSemana()</span>
+              <span class="mt">+12 outros</span>
+            </div>
+          </div>
+          <div class="uml green" style="left:260px;top:294px" id="cb-alunodao">
+            <div class="hd">AlunoDAO</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-buscarTodos">buscarTodos()</span>
+              <span class="mt" id="mt-buscarAvals">buscarAvaliacoesPorAluno()</span>
+              <span class="mt" id="mt-salvar">salvarOuAtualizar()</span>
+              <span class="mt">contarAlunos()</span>
+            </div>
+          </div>
+          <div class="uml green" style="left:476px;top:294px" id="cb-exercdao">
+            <div class="hd">ExercicioDAO</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt">listarTodos()</span>
+              <span class="mt">contarExercicios()</span>
+              <span class="mt">buscarPorGrupo()</span>
+            </div>
+          </div>
+          <div class="uml green" style="left:692px;top:294px" id="cb-userdao">
+            <div class="hd">UsuarioDAO</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-autenticar">autenticar()</span>
+              <span class="mt">salvar()</span>
+            </div>
+          </div>
+
+          <!-- INFRA -->
+          <div class="zone" id="zone-infra" style="left:26px;top:490px;width:840px;height:150px">
+            <div class="zl">🔗 INFRAESTRUTURA</div>
+          </div>
+          <div class="uml orange" style="left:60px;top:514px" id="cb-jpa">
+            <div class="hd">JPAUtil</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-getEM">getEntityManager()</span>
+              <span class="mt">EntityManagerFactory</span>
+            </div>
+          </div>
+          <div class="uml red" style="left:260px;top:514px" id="cb-db">
+            <div class="hd">PostgreSQL</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-select">SELECT / JOIN</span>
+              <span class="mt" id="mt-insert">INSERT / UPDATE</span>
+              <span class="mt" id="mt-count">COUNT / GROUP BY</span>
+            </div>
+          </div>
+          <div class="uml teal" style="left:460px;top:514px" id="cb-entity">
+            <div class="hd">Entities (JPA)</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt">Aluno, Treino, Usuario</span>
+              <span class="mt">ProgramacaoTreino</span>
+              <span class="mt">ItemTreino, Exercicio</span>
+              <span class="mt">SessaoTreino, ComentarioTreino</span>
+            </div>
+          </div>
+          <div class="uml purple" style="left:660px;top:514px" id="cb-gif">
+            <div class="hd">GifSearchService</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt">buscarMelhorGif()</span>
+            </div>
+          </div>
+
+          <!-- LEGEND -->
+          <div class="legend" style="position:absolute;right:16px;bottom:16px;background:rgba(255,255,255,.92);border:1px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:9px;line-height:1.8;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+            <div style="font-weight:700;color:#555;margin-bottom:4px;font-size:10px">📖 Legenda</div>
+            <div><span class="lg-sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#3949ab;vertical-align:middle;margin-right:6px"></span>View (FXML)</div>
+            <div><span class="lg-sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1565c0;vertical-align:middle;margin-right:6px"></span>Desktop Controller</div>
+            <div><span class="lg-sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#7b1fa2;vertical-align:middle;margin-right:6px"></span>Mobile (SPA)</div>
+            <div><span class="lg-sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#2e7d32;vertical-align:middle;margin-right:6px"></span>DAO Layer</div>
+            <div><span class="lg-sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#e65100;vertical-align:middle;margin-right:6px"></span>Infraestrutura</div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="log-body" id="logBody">
-      <div class="log-empty">Aguardando…</div>
+
+    <!-- ═══ PANEL: MOBILE ═══ -->
+    <div class="tab-panel" id="panel-mobile">
+      <div class="canvas-wrap">
+        <div class="canvas">
+          <svg id="connSvg-mb"></svg>
+
+          <div class="zone" id="zone-mobile" style="left:26px;top:20px;width:760px;height:120px">
+            <div class="zl">📱 MOBILE (SPA)</div>
+          </div>
+          <div class="uml purple" style="left:44px;top:44px" id="cb-server">
+            <div class="hd">ServidorMobile</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-loginHandler">LoginHandler</span>
+              <span class="mt" id="mt-fichaHandler">BuscarFichaHandler</span>
+              <span class="mt" id="mt-finHandler">FinalizarTreinoHandler</span>
+              <span class="mt" id="mt-dashHandler">DashboardHandler</span>
+              <span class="mt" id="mt-histHandler">HistoricoHandler</span>
+              <span class="mt" id="mt-perfHandler">PerfilHandler</span>
+            </div>
+          </div>
+          <div class="uml purple" style="left:260px;top:44px" id="cb-eventbus">
+            <div class="hd">EventBus + SSE</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt">emit() / subscribe()</span>
+            </div>
+          </div>
+
+          <!-- DAO -->
+          <div class="zone" id="zone-dao" style="left:26px;top:200px;width:760px;height:150px">
+            <div class="zl">🗄️ DAO LAYER</div>
+          </div>
+          <div class="uml green" style="left:44px;top:224px" id="cb-treinodao">
+            <div class="hd">TreinoDAO</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-listarProg">listarProgramacoesPorAluno()</span>
+              <span class="mt" id="mt-listarItens">listarItensPorTreino()</span>
+              <span class="mt" id="mt-buscarComent">buscarComentariosPorAluno()</span>
+              <span class="mt" id="mt-buscarTotal">buscarTotalTreinos()</span>
+              <span class="mt" id="mt-buscarSemana">buscarTreinosPorSemana()</span>
+              <span class="mt">+12 outros</span>
+            </div>
+          </div>
+          <div class="uml green" style="left:220px;top:224px" id="cb-alunodao">
+            <div class="hd">AlunoDAO</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-buscarTodos">buscarTodos()</span>
+              <span class="mt" id="mt-buscarAvals">buscarAvaliacoesPorAluno()</span>
+              <span class="mt" id="mt-salvar">salvarOuAtualizar()</span>
+              <span class="mt">contarAlunos()</span>
+            </div>
+          </div>
+          <div class="uml green" style="left:396px;top:224px" id="cb-exercdao">
+            <div class="hd">ExercicioDAO</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt">listarTodos()</span>
+              <span class="mt">contarExercicios()</span>
+              <span class="mt">buscarPorGrupo()</span>
+            </div>
+          </div>
+          <div class="uml green" style="left:572px;top:224px" id="cb-userdao">
+            <div class="hd">UsuarioDAO</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-autenticar">autenticar()</span>
+              <span class="mt">salvar()</span>
+            </div>
+          </div>
+
+          <!-- INFRA -->
+          <div class="zone" id="zone-infra" style="left:26px;top:410px;width:760px;height:150px">
+            <div class="zl">🔗 INFRAESTRUTURA</div>
+          </div>
+          <div class="uml orange" style="left:44px;top:434px" id="cb-jpa">
+            <div class="hd">JPAUtil</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-getEM">getEntityManager()</span>
+              <span class="mt">EntityManagerFactory</span>
+            </div>
+          </div>
+          <div class="uml red" style="left:200px;top:434px" id="cb-db">
+            <div class="hd">PostgreSQL</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt" id="mt-select">SELECT / JOIN</span>
+              <span class="mt" id="mt-insert">INSERT / UPDATE</span>
+              <span class="mt" id="mt-count">COUNT / GROUP BY</span>
+            </div>
+          </div>
+          <div class="uml teal" style="left:360px;top:434px" id="cb-entity">
+            <div class="hd">Entities (JPA)</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt">Aluno, Treino, Usuario</span>
+              <span class="mt">ProgramacaoTreino</span>
+              <span class="mt">ItemTreino, Exercicio</span>
+              <span class="mt">SessaoTreino, ComentarioTreino</span>
+            </div>
+          </div>
+          <div class="uml purple" style="left:540px;top:434px" id="cb-gif">
+            <div class="hd">GifSearchService</div>
+            <div class="sep"></div>
+            <div class="body">
+              <span class="mt">buscarMelhorGif()</span>
+            </div>
+          </div>
+
+          <!-- LEGEND -->
+          <div class="legend" style="position:absolute;right:16px;bottom:16px;background:rgba(255,255,255,.92);border:1px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:9px;line-height:1.8;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+            <div style="font-weight:700;color:#555;margin-bottom:4px;font-size:10px">📖 Legenda</div>
+            <div><span class="lg-sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#3949ab;vertical-align:middle;margin-right:6px"></span>View (FXML)</div>
+            <div><span class="lg-sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1565c0;vertical-align:middle;margin-right:6px"></span>Desktop Controller</div>
+            <div><span class="lg-sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#7b1fa2;vertical-align:middle;margin-right:6px"></span>Mobile (SPA)</div>
+            <div><span class="lg-sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#2e7d32;vertical-align:middle;margin-right:6px"></span>DAO Layer</div>
+            <div><span class="lg-sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#e65100;vertical-align:middle;margin-right:6px"></span>Infraestrutura</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-panel">
+      <div class="log-hd">
+        <span>📋 Eventos</span>
+        <button onclick="limparLog()">Limpar</button>
+      </div>
+      <div class="log-body" id="logBody">
+        <div class="log-empty">Aguardando…</div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Detail bar -->
 <div class="detail-bar" id="detailBar">
   <span class="dc" id="dComp">—</span>
   <span class="da" id="dAct">Aguardando eventos…</span>
@@ -256,288 +467,390 @@ body{background:#0a0a16;color:#e0e0e0}
 </div>
 
 <script>
-// ─── CLASS BOX POSITIONS (for SVG lines) ──
-// Define which boxes connect to which
-const CONNECTIONS = [
-  { from:'cb-painel',  to:'cb-treinodao', label:'chama' },
-  { from:'cb-painel',  to:'cb-alunodao',  label:'chama' },
-  { from:'cb-painel',  to:'cb-exercdao',  label:'chama' },
-  { from:'cb-analise', to:'cb-treinodao', label:'chama' },
-  { from:'cb-server',  to:'cb-treinodao', label:'chama' },
-  { from:'cb-server',  to:'cb-alunodao',  label:'chama' },
-  { from:'cb-server',  to:'cb-exercdao',  label:'chama' },
-  { from:'cb-server',  to:'cb-userdao',   label:'chama' },
-  { from:'cb-server',  to:'cb-eventbus',  label:'EventBus.emit()' },
-  { from:'cb-treinodao',to:'cb-jpa',      label:'JPAUtil.getEM()' },
-  { from:'cb-alunodao', to:'cb-jpa',      label:'JPAUtil.getEM()' },
-  { from:'cb-exercdao', to:'cb-jpa',      label:'JPAUtil.getEM()' },
-  { from:'cb-userdao',  to:'cb-jpa',      label:'JPAUtil.getEM()' },
-  { from:'cb-jpa',     to:'cb-db',        label:'JDBC' },
-  { from:'cb-jpa',     to:'cb-entity',    label:'entities' },
+// ─── TABS ────────────────────────────────
+let currentTab = 'desktop';
+function switchTab(name) {
+  currentTab = name;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+name));
+  lastBox = null;
+  activeConnection = null;
+  setTimeout(drawAllLines, 50);
+}
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+// ─── HELPERS (elemento scoped no painel ativo) ─
+const $ = (id) => {
+  const panel = document.querySelector('.tab-panel.active');
+  return panel ? panel.querySelector('#'+id) : document.getElementById(id);
+};
+const $svg = () => {
+  const panel = document.querySelector('.tab-panel.active');
+  return panel ? panel.querySelector('svg') : document.getElementById('connSvg-dt');
+};
+const $all = (sel) => {
+  const panel = document.querySelector('.tab-panel.active');
+  return panel ? panel.querySelectorAll(sel) : document.querySelectorAll(sel);
+};
+
+// ─── CONNECTIONS: DESKTOP ────────────────
+const CONNS_DT = [
+  { from:'cb-painel',  fs:'bottom', to:'cb-treinodao', ts:'top',    label:'chama' },
+  { from:'cb-painel',  fs:'bottom', to:'cb-alunodao',  ts:'top',    label:'chama' },
+  { from:'cb-painel',  fs:'bottom', to:'cb-exercdao',  ts:'top',    label:'chama' },
+  { from:'cb-analise', fs:'bottom', to:'cb-treinodao', ts:'top',    label:'chama' },
+  { from:'cb-analise', fs:'bottom', to:'cb-alunodao',  ts:'top',    label:'chama' },
+  { from:'cb-analise', fs:'bottom', to:'cb-exercdao',  ts:'top',    label:'chama' },
+  { from:'cb-treinodao',fs:'bottom',to:'cb-jpa',       ts:'top',    label:'JPAUtil.getEM()' },
+  { from:'cb-alunodao', fs:'bottom',to:'cb-jpa',       ts:'top',    label:'JPAUtil.getEM()' },
+  { from:'cb-exercdao', fs:'bottom',to:'cb-jpa',       ts:'top',    label:'JPAUtil.getEM()' },
+  { from:'cb-userdao',  fs:'bottom',to:'cb-jpa',       ts:'top',    label:'JPAUtil.getEM()' },
+  { from:'cb-jpa',     fs:'right',  to:'cb-db',        ts:'left',   label:'JDBC' },
+  { from:'cb-jpa',     fs:'right',  to:'cb-entity',    ts:'left',   label:'JPQL' },
+  { from:'cb-painel',  fs:'bottom', to:'cb-userdao',   ts:'top',    label:'autenticar' },
+  { from:'cb-analise', fs:'bottom', to:'cb-alunodao',  ts:'top',    label:'chama' },
+  { from:'cb-analise', fs:'bottom', to:'cb-exercdao',  ts:'top',    label:'chama' },
+  { from:'cb-usuarios',fs:'bottom', to:'cb-userdao',   ts:'top',    label:'chama' },
+  { from:'cb-exercicios',fs:'bottom',to:'cb-exercdao',  ts:'top',   label:'chama' },
+  { from:'cb-fichas',  fs:'bottom', to:'cb-treinodao', ts:'top',    label:'chama' },
+  { from:'cb-fichas',  fs:'bottom', to:'cb-alunodao',  ts:'top',    label:'chama' },
+  { from:'cb-login-fxml',      fs:'bottom',to:'cb-login',         ts:'top', label:'FXMLLoader' },
+  { from:'cb-recuperar-fxml',  fs:'bottom',to:'cb-recuperar',     ts:'top', label:'FXMLLoader' },
+  { from:'cb-trocarsenha-fxml',fs:'bottom',to:'cb-trocarsenha',   ts:'top', label:'FXMLLoader' },
+  { from:'cb-painel-fxml',     fs:'bottom',to:'cb-painel',        ts:'top', label:'FXMLLoader' },
+  { from:'cb-dashboard-fxml',  fs:'bottom',to:'cb-dashboard',     ts:'top', label:'FXMLLoader' },
+  { from:'cb-usuarios-fxml',   fs:'bottom',to:'cb-usuarios',      ts:'top', label:'FXMLLoader' },
+  { from:'cb-formusuario-fxml',fs:'bottom',to:'cb-formusuario',   ts:'top', label:'FXMLLoader' },
+  { from:'cb-exercicios-fxml', fs:'bottom',to:'cb-exercicios',    ts:'top', label:'FXMLLoader' },
+  { from:'cb-formexercicio-fxml',fs:'bottom',to:'cb-formexercicio',ts:'top',label:'FXMLLoader' },
+  { from:'cb-fichas-fxml',     fs:'bottom',to:'cb-fichas',        ts:'top', label:'FXMLLoader' },
+  { from:'cb-analise-fxml',    fs:'bottom',to:'cb-analise',       ts:'top', label:'FXMLLoader' },
+  { from:'cb-detalhes-fxml',   fs:'bottom',to:'cb-detalhes',      ts:'top', label:'FXMLLoader' },
 ];
 
-// ─── DRAW CONNECTION LINES ────────────────
+// ─── CONNECTIONS: MOBILE ─────────────────
+const CONNS_MB = [
+  { from:'cb-server',  fs:'bottom', to:'cb-treinodao', ts:'top',    label:'chama' },
+  { from:'cb-server',  fs:'bottom', to:'cb-alunodao',  ts:'top',    label:'chama' },
+  { from:'cb-server',  fs:'bottom', to:'cb-exercdao',  ts:'top',    label:'chama' },
+  { from:'cb-server',  fs:'bottom', to:'cb-userdao',   ts:'top',    label:'chama' },
+  { from:'cb-server',  fs:'right',  to:'cb-eventbus',  ts:'left',   label:'emit()' },
+  { from:'cb-server',  fs:'right',  to:'cb-gif',       ts:'left',   label:'Giphy API' },
+  { from:'cb-treinodao',fs:'bottom',to:'cb-jpa',       ts:'top',    label:'JPAUtil.getEM()' },
+  { from:'cb-alunodao', fs:'bottom',to:'cb-jpa',       ts:'top',    label:'JPAUtil.getEM()' },
+  { from:'cb-exercdao', fs:'bottom',to:'cb-jpa',       ts:'top',    label:'JPAUtil.getEM()' },
+  { from:'cb-userdao',  fs:'bottom',to:'cb-jpa',       ts:'top',    label:'JPAUtil.getEM()' },
+  { from:'cb-jpa',     fs:'right',  to:'cb-db',        ts:'left',   label:'JDBC' },
+  { from:'cb-jpa',     fs:'right',  to:'cb-entity',    ts:'left',   label:'JPQL' },
+];
+
+const activeConns = () => currentTab==='desktop' ? CONNS_DT : CONNS_MB;
+
+function anchor(box, side, cr, lane) {
+  const r = box.getBoundingClientRect();
+  const cx = r.left - cr.left + r.width/2;
+  const cy = r.top - cr.top + r.height/2;
+  const d = 16;
+  const offset = (lane || 0) * d;
+  switch(side) {
+    case 'bottom': return { x: cx + offset, y: r.top - cr.top + r.height };
+    case 'top':    return { x: cx + offset, y: r.top - cr.top };
+    case 'right':  return { x: r.left - cr.left + r.width, y: cy + offset };
+    case 'left':   return { x: r.left - cr.left, y: cy + offset };
+    default:       return { x: cx, y: cy };
+  }
+}
+
+function orthogonalPath(a, b) {
+  const dy = b.y - a.y, dx = b.x - a.x;
+  const midY = a.y + dy/2;
+  const midX = a.x + dx/2;
+  if (Math.abs(dy) > Math.abs(dx)) {
+    return `M ${a.x} ${a.y} L ${a.x} ${midY} L ${b.x} ${midY} L ${b.x} ${b.y}`;
+  }
+  return `M ${a.x} ${a.y} L ${midX} ${a.y} L ${midX} ${b.y} L ${b.x} ${b.y}`;
+}
+
 function drawAllLines() {
-  const svg = document.getElementById('connSvg');
+  const conns = activeConns();
+  const svg = $svg();
+  if (!svg) return;
   svg.innerHTML = '';
-  CONNECTIONS.forEach(c => {
-    const fromEl = document.getElementById(c.from);
-    const toEl = document.getElementById(c.to);
-    if (!fromEl || !toEl) return;
+  const canvas = svg.closest('.canvas');
+  if (!canvas) return;
+  const cr = canvas.getBoundingClientRect();
+  svg.style.width=cr.width+'px'; svg.style.height=cr.height+'px';
 
-    const canvas = document.getElementById('canvas');
-    const cr = canvas.getBoundingClientRect();
-    const fr = fromEl.getBoundingClientRect();
-    const tr = toEl.getBoundingClientRect();
+  const fromLanes = {}, toLanes = {};
+  conns.forEach(c => {
+    const fk = c.from+'|'+c.fs, tk = c.to+'|'+c.ts;
+    fromLanes[fk] = (fromLanes[fk]||0) + 1;
+    toLanes[tk] = (toLanes[tk]||0) + 1;
+  });
+  const fromIdx = {}, toIdx = {};
+  conns.forEach(c => {
+    const fk = c.from+'|'+c.fs, tk = c.to+'|'+c.ts;
+    fromIdx[fk] = (fromIdx[fk]||0) + 1;
+    toIdx[tk] = (toIdx[tk]||0) + 1;
+    c._fl = fromIdx[fk] - 1 - (fromLanes[fk]-1)/2;
+    c._tl = toIdx[tk] - 1 - (toLanes[tk]-1)/2;
+  });
 
-    const x1 = fr.left - cr.left + fr.width;
-    const y1 = fr.top - cr.top + fr.height/2;
-    const x2 = tr.left - cr.left;
-    const y2 = tr.top - cr.top + tr.height/2;
-
-    // SVG dimensions
-    svg.style.width = cr.width + 'px';
-    svg.style.height = cr.height + 'px';
-
-    const midX = (x1 + x2) / 2;
-    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-    path.setAttribute('d', `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
-    path.setAttribute('class', 'conn-line');
-    path.id = 'conn-' + c.from + '-' + c.to;
-    svg.appendChild(path);
-
-    // Small label at midpoint
+  conns.forEach(c => {
+    const fEl = $(c.from), tEl = $(c.to);
+    if (!fEl||!tEl) return;
+    const a = anchor(fEl, c.fs, cr, c._fl);
+    const b = anchor(tEl, c.ts, cr, c._tl);
+    const id = 'conn-'+c.from+'-'+c.to;
+    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', orthogonalPath(a,b));
+    p.setAttribute('class','conn-line');
+    p.id = id;
+    svg.appendChild(p);
+    let defs = svg.querySelector('defs');
+    if (!defs) { defs = document.createElementNS('http://www.w3.org/2000/svg','defs'); svg.prepend(defs); }
+    const markerId = 'mk-'+c.from+'-'+c.to;
+    let marker = svg.querySelector('#'+markerId);
+    if (!marker) {
+      marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
+      marker.setAttribute('id', markerId);
+      marker.setAttribute('viewBox','0 0 10 10');
+      marker.setAttribute('refX','8'); marker.setAttribute('refY','5');
+      marker.setAttribute('markerWidth','7'); marker.setAttribute('markerHeight','7');
+      marker.setAttribute('orient','auto');
+      const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      poly.setAttribute('points','0,0 10,5 0,10');
+      poly.setAttribute('fill','#bbb');
+      marker.appendChild(poly);
+      defs.appendChild(marker);
+    }
+    p.setAttribute('marker-end','url(#'+markerId+')');
     if (c.label) {
-      const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
-      lbl.setAttribute('x', midX + 4);
-      lbl.setAttribute('y', (y1 + y2)/2 - 4);
-      lbl.setAttribute('class', 'conn-label');
-      lbl.setAttribute('id', 'clbl-' + c.from + '-' + c.to);
-      lbl.textContent = c.label;
-      svg.appendChild(lbl);
+      const l = document.createElementNS('http://www.w3.org/2000/svg','text');
+      const lx = (a.x + b.x)/2 + 6;
+      const ly = (a.y + b.y)/2 - 6;
+      l.setAttribute('x', lx); l.setAttribute('y', ly);
+      l.setAttribute('class','conn-label');
+      l.id = 'clbl-'+c.from+'-'+c.to;
+      l.textContent = c.label;
+      svg.appendChild(l);
     }
   });
 }
+window.addEventListener('resize',()=>setTimeout(drawAllLines,100));
 
-// Redraw on resize
-window.addEventListener('resize', drawAllLines);
-
-// ─── EVENT → CLASS BOX MAPPING ──────────
-function mapEvent(component, action) {
-  const c = (component + '.' + action).toLowerCase();
-
-  // ── Desktop ──
-  if (c.includes('painelprincipal') || c.includes('dashboardinicio'))
-    return { box:'cb-painel', method:'mt-carregarDash', group:'desktop' };
-  if (c.includes('analisealuno'))
-    return { box:'cb-analise', method:null, group:'desktop' };
-
-  // ── ServidorMobile handlers ──
-  if (c.includes('loginhandler') && (c.includes('servidor') || c.includes('mobile')))
-    return { box:'cb-server', method:'mt-loginHandler', group:'mobile' };
-  if (c.includes('fichahandler') || (c.includes('servidor') && c.includes('ficha')))
-    return { box:'cb-server', method:'mt-fichaHandler', group:'mobile' };
-  if (c.includes('finalizar') && !c.includes('dao'))
-    return { box:'cb-server', method:'mt-finHandler', group:'mobile' };
-  if (c.includes('dashboardhandler') || (c.includes('servidor') && c.includes('dashboard')))
-    return { box:'cb-server', method:'mt-dashHandler', group:'mobile' };
-  if (c.includes('historicohandler') || (c.includes('servidor') && c.includes('historico')))
-    return { box:'cb-server', method:'mt-histHandler', group:'mobile' };
-  if (c.includes('perfilhandler') || (c.includes('servidor') && c.includes('perfil')))
-    return { box:'cb-server', method:'mt-perfHandler', group:'mobile' };
-  if (c.includes('eventbus') || c.includes('sse'))
-    return { box:'cb-eventbus', method:null, group:'mobile' };
-
-  // ── DAOs ──
-  if (c.includes('treinodao')) {
-    let method = null;
-    if (c.includes('listarprogramacoes') || c.includes('ficha')) method = 'mt-listarProg';
-    else if (c.includes('listaritens')) method = 'mt-listarItens';
-    else if (c.includes('comentario') || c.includes('feedback')) method = 'mt-buscarComent';
-    else if (c.includes('total') || c.includes('quantidade')) method = 'mt-buscarTotal';
-    else if (c.includes('semana')) method = 'mt-buscarSemana';
-    return { box:'cb-treinodao', method, group:'dao' };
+// ─── EVENT MAP ─────────────────────────────
+function mapEvent(c,a){
+  const s=(c+'.'+a).toLowerCase();
+  if(s.includes('logincontroller')&&!s.includes('painel')) return {box:'cb-login',zone:'desktop'};
+  if(s.includes('recuperarsenha')) return {box:'cb-recuperar',zone:'desktop'};
+  if(s.includes('trocarsenha')) return {box:'cb-trocarsenha',zone:'desktop'};
+  if(s.includes('painelprincipal')&&!s.includes('inicio')) return {box:'cb-painel',method:'mt-carregarDash',zone:'desktop'};
+  if(s.includes('dashboardinicio')||(s.includes('painelprincipal')&&s.includes('inicio'))) return {box:'cb-dashboard',zone:'desktop'};
+  if(s.includes('usuarioscontroller')) return {box:'cb-usuarios',method:'mt-usuarios-listar',zone:'desktop'};
+  if(s.includes('formusuariocontroller')) return {box:'cb-formusuario',zone:'desktop'};
+  if(s.includes('exercicioscontroller')) return {box:'cb-exercicios',zone:'desktop'};
+  if(s.includes('formexerciciocontroller')) return {box:'cb-formexercicio',zone:'desktop'};
+  if(s.includes('fichastreino')) return {box:'cb-fichas',method:'mt-fichas-listarProg',zone:'desktop'};
+  if(s.includes('analisealuno')) return {box:'cb-analise',method:'mt-carregarHist',zone:'desktop'};
+  if(s.includes('detalhestreinorealizado')) return {box:'cb-detalhes',zone:'desktop'};
+  if(s.includes('loginhandler')) return {box:'cb-server',method:'mt-loginHandler',zone:'mobile'};
+  if((s.includes('servidor')&&s.includes('ficha'))||s.includes('fichahandler')) return {box:'cb-server',method:'mt-fichaHandler',zone:'mobile'};
+  if(s.includes('finalizar')&&!s.includes('dao')) return {box:'cb-server',method:'mt-finHandler',zone:'mobile'};
+  if(s.includes('dashboardhandler')||(s.includes('servidor')&&s.includes('dashboard'))) return {box:'cb-server',method:'mt-dashHandler',zone:'mobile'};
+  if(s.includes('historicohandler')||(s.includes('servidor')&&s.includes('historico'))) return {box:'cb-server',method:'mt-histHandler',zone:'mobile'};
+  if(s.includes('perfilhandler')||(s.includes('servidor')&&s.includes('perfil'))) return {box:'cb-server',method:'mt-perfHandler',zone:'mobile'};
+  if(s.includes('eventbus')||s.includes('sse')) return {box:'cb-eventbus',method:null,zone:'mobile'};
+  if(s.includes('gifsearch')||s.includes('giphy')) return {box:'cb-gif',method:null,zone:'mobile'};
+  if(s.includes('treinodao')){
+    let m=null;
+    if(s.includes('listarprogramacoes')||s.includes('ficha')) m='mt-listarProg';
+    else if(s.includes('listaritens')) m='mt-listarItens';
+    else if(s.includes('comentario')||s.includes('feedback')) m='mt-buscarComent';
+    else if(s.includes('total')||s.includes('quantidade')) m='mt-buscarTotal';
+    else if(s.includes('semana')) m='mt-buscarSemana';
+    return {box:'cb-treinodao',method:m,zone:'dao'};
   }
-  if (c.includes('alunodao')) {
-    let method = null;
-    if (c.includes('avaliacao')) method = 'mt-buscarAvals';
-    else if (c.includes('salvar') || c.includes('atualizar')) method = 'mt-salvar';
-    else if (c.includes('todos')) method = 'mt-buscarTodos';
-    return { box:'cb-alunodao', method, group:'dao' };
+  if(s.includes('alunodao')){
+    let m=null;
+    if(s.includes('avaliacao')) m='mt-buscarAvals';
+    else if(s.includes('salvar')||s.includes('atualizar')) m='mt-salvar';
+    else if(s.includes('todos')) m='mt-buscarTodos';
+    return {box:'cb-alunodao',method:m,zone:'dao'};
   }
-  if (c.includes('exerciciodao'))
-    return { box:'cb-exercdao', method:null, group:'dao' };
-  if (c.includes('usuariodao')) {
-    let method = null;
-    if (c.includes('autenticar')) method = 'mt-autenticar';
-    return { box:'cb-userdao', method, group:'dao' };
+  if(s.includes('exerciciodao')) return {box:'cb-exercdao',method:null,zone:'dao'};
+  if(s.includes('usuariodao')) return {box:'cb-userdao',method:s.includes('autenticar')?'mt-autenticar':null,zone:'dao'};
+  if(s.includes('jpa')||s.includes('entitymanager')||s.includes('jpql')||s.includes('persist')||s.includes('merge')||s.includes('find')||s.includes('query')) return {box:'cb-jpa',method:'mt-getEM',zone:'infra'};
+  if(s.includes('postgres')||s.includes('db')||s.includes('sql')||s.includes('select')||s.includes('insert')||s.includes('count')){
+    let m=null;
+    if(s.includes('insert')) m='mt-insert';
+    else if(s.includes('select')) m='mt-select';
+    else if(s.includes('count')) m='mt-count';
+    return {box:'cb-db',method:m,zone:'infra'};
   }
-
-  // ── JPA / Infra ──
-  if (c.includes('jpa') || c.includes('entitymanager') || c.includes('jpql') || c.includes('persist') || c.includes('merge') || c.includes('find') || c.includes('query'))
-    return { box:'cb-jpa', method:'mt-getEM', group:'inf' };
-  if (c.includes('postgres') || c.includes('db') || c.includes('sql') || c.includes('select') || c.includes('insert') || c.includes('count'))
-    return { box:'cb-db', method:null, group:'inf' };
-  if (c.includes('entity') || c.includes('aluno') || c.includes('treino') || c.includes('usuario'))
-    return { box:'cb-entity', method:null, group:'inf' };
-
+  if(s.includes('entity')||s.includes('aluno')||s.includes('treino')||s.includes('usuario')) return {box:'cb-entity',method:null,zone:'infra'};
   return null;
 }
 
-// ─── CONNECTION LINE ANIMATION ──────────
-function activateConnection(fromBox, toBox, group) {
-  // Try direct connection first
-  let connId = 'conn-' + fromBox + '-' + toBox;
-  let conn = document.getElementById(connId);
-  if (!conn) {
-    // Try reverse
-    connId = 'conn-' + toBox + '-' + fromBox;
-    conn = document.getElementById(connId);
-  }
-  if (!conn) {
-    // Find any connection FROM fromBox (pick the first relevant one)
-    const prefix = 'conn-' + fromBox + '-';
-    const candidates = document.querySelectorAll('[id^="' + prefix + '"]');
-    if (candidates.length) conn = candidates[0];
-  }
+// ─── VIEW→CONTROLLER MAPPING ───────────
+const viewMap = {
+  'cb-login': 'cb-login-fxml',
+  'cb-recuperar': 'cb-recuperar-fxml',
+  'cb-trocarsenha': 'cb-trocarsenha-fxml',
+  'cb-painel': 'cb-painel-fxml',
+  'cb-dashboard': 'cb-dashboard-fxml',
+  'cb-usuarios': 'cb-usuarios-fxml',
+  'cb-formusuario': 'cb-formusuario-fxml',
+  'cb-exercicios': 'cb-exercicios-fxml',
+  'cb-formexercicio': 'cb-formexercicio-fxml',
+  'cb-fichas': 'cb-fichas-fxml',
+  'cb-analise': 'cb-analise-fxml',
+  'cb-detalhes': 'cb-detalhes-fxml',
+};
 
-  // Reset all
-  document.querySelectorAll('.conn-line.active,.conn-line.done').forEach(l => {
-    l.classList.remove('active', 'done');
-    l.classList.add('conn-line');
-  });
-  document.querySelectorAll('.conn-label.active').forEach(l => l.classList.remove('active'));
+// ─── CONNECTION ANIMATION (scoped) ───────
+let activeConnection = null;
+function activateConnection(fromBox,toBox){
+  if(activeConnection){
+    activeConnection.classList.remove('active');
+    activeConnection.classList.add('done');
+  }
+  $all('.conn-label.active').forEach(l=>l.classList.remove('active'));
+  const svg = $svg();
+  if(svg) svg.querySelectorAll('marker polygon').forEach(p=>p.setAttribute('fill','#bbb'));
 
-  if (conn) {
-    conn.classList.remove('done', 'conn-line');
+  let connId='conn-'+fromBox+'-'+toBox;
+  let conn=$(connId);
+  if(!conn){ connId='conn-'+toBox+'-'+fromBox; conn=$(connId); }
+  if(!conn){
+    const pfx='conn-'+fromBox+'-';
+    const cs=$all('[id^="'+pfx+'"]');
+    if(cs.length) conn=cs[0];
+  }
+  if(conn){
+    conn.classList.remove('done');
     conn.classList.add('active');
-    const lbl = document.getElementById('clbl-' + conn.id.replace('conn-', ''));
-    if (lbl) lbl.classList.add('active');
-
-    // Auto-dim
-    setTimeout(() => {
-      conn.classList.remove('active');
-      conn.classList.add('done');
-      if (lbl) lbl.classList.remove('active');
-    }, 4000);
+    activeConnection = conn;
+    const mid = conn.id.replace('conn-','');
+    const svg2 = $svg();
+    if(svg2){
+      const mk = svg2.querySelector('#mk-'+mid);
+      if(mk) mk.querySelector('polygon').setAttribute('fill','#1565c0');
+    }
+    const lbl=$('clbl-'+mid);
+    if(lbl) lbl.classList.add('active');
   }
 }
 
-// ─── SSE ──────────────────────────────────
-let evCount = 0;
-let es = null;
-let lastBox = null;
+// ─── SSE + EVENT QUEUE ──────────────────
+let evCount=0, es=null, lastBox=null;
+let eventQueue=[], processing=false;
+const STEP_MS=2500;
 
-function conectar() {
-  es = new EventSource('/api/sse');
-  es.onopen = () => {
-    document.getElementById('dot').className = 'dot on';
-    document.getElementById('statText').textContent = 'Conectado';
+function conectar(){
+  es=new EventSource('/api/sse');
+  es.onopen=()=>{
+    document.getElementById('dot').className='dot on';
+    document.getElementById('statText').textContent='Conectado';
   };
-  es.onmessage = e => {
-    try {
-      const d = JSON.parse(e.data);
-      if (d.type === 'dao_call') processar(d);
-    } catch(_) {}
+  es.onmessage=e=>{
+    try{const d=JSON.parse(e.data);if(d.type==='dao_call')eventQueue.push(d);if(!processing)processarFila()}catch(_){}
   };
-  es.onerror = () => {
-    document.getElementById('dot').className = 'dot off';
-    document.getElementById('statText').textContent = 'Reconectando...';
-    es.close();
-    setTimeout(conectar, 2000);
+  es.onerror=()=>{
+    document.getElementById('dot').className='dot off';
+    document.getElementById('statText').textContent='Reconectando...';
+    es.close();setTimeout(conectar,2000);
   };
 }
 
-function processar(d) {
+function processarFila(){
+  if(eventQueue.length===0){processing=false;return}
+  processing=true;
+  const d=eventQueue.shift();
+  renderEvent(d);
+  setTimeout(processarFila,STEP_MS);
+}
+
+function renderEvent(d){
   evCount++;
-  document.getElementById('evCount').textContent = evCount;
+  document.getElementById('evCount').textContent=evCount;
+  const m=mapEvent(d.component,d.action);
+  const now=Date.now(), ts=d.timestamp||now;
+  document.getElementById('dComp').textContent=d.component+'.'+d.action+'()';
+  document.getElementById('dAct').textContent=d.detail||'';
+  document.getElementById('dDetail').textContent=m?'['+(m.zone||'?')+']':'';
+  document.getElementById('dTime').textContent=new Date(ts).toLocaleTimeString()+'.'+(ts%1000);
+  if(!m){addLog(d.component,d.action,d.detail,ts);return;}
 
-  const m = mapEvent(d.component, d.action);
-  const now = Date.now();
-  const ts = d.timestamp || now;
+  // Alterna aba automaticamente conforme a zona do evento
+  if(m.zone==='desktop' && currentTab!=='desktop') switchTab('desktop');
+  else if(m.zone==='mobile' && currentTab!=='mobile') switchTab('mobile');
+  // dao/infra: permanece na aba atual
 
-  // Update detail bar
-  document.getElementById('dComp').textContent = d.component + '.' + d.action + '()';
-  document.getElementById('dAct').textContent = d.detail || '';
-  document.getElementById('dDetail').textContent = m ? '[' + (m.group||'?') + ']' : '';
-  document.getElementById('dTime').textContent = new Date(ts).toLocaleTimeString() + '.' + (ts % 1000);
+  // Converte box anterior para "done"
+  $all('.uml.active').forEach(b=>{b.classList.remove('active');b.classList.add('done')});
+  $all('.zone.active').forEach(z=>z.classList.remove('active'));
 
-  if (!m) {
-    addLog(d.component, d.action, d.detail, ts);
-    return;
+  // Ativa zona
+  const zone=$('zone-'+m.zone);
+  if(zone) zone.classList.add('active');
+
+  // Ativa box
+  const box=$(m.box);
+  if(box){
+    box.classList.remove('done');box.classList.add('active');
+    $all('.mt.active').forEach(mt=>mt.classList.remove('active'));
+    if(m.method){const me=$(m.method);if(me)me.classList.add('active')}
+    if(lastBox&&lastBox!==m.box) activateConnection(lastBox,m.box);
+    lastBox=m.box;
   }
-
-  // Reset all class boxes
-  document.querySelectorAll('.class-box.active').forEach(b => {
-    b.classList.remove('active');
-    b.classList.add('done');
-  });
-
-  // Highlight the class box
-  const box = document.getElementById(m.box);
-  if (box) {
-    box.classList.remove('done');
-    box.classList.add('active');
-
-    // Highlight method inside box
-    if (m.method) {
-      document.querySelectorAll('.method.active').forEach(mt => mt.classList.remove('active'));
-      const mtEl = document.getElementById(m.method);
-      if (mtEl) mtEl.classList.add('active');
-    }
-
-    // Draw connection line from last to current
-    if (lastBox && lastBox !== m.box) {
-      activateConnection(lastBox, m.box, m.group);
-    }
-    lastBox = m.box;
+  // Ativa a View (FXML) correspondente ao controller
+  const viewId=viewMap[m.box];
+  if(viewId){
+    const vb=$(viewId);
+    if(vb){vb.classList.remove('done');vb.classList.add('active')}
   }
-
-  addLog(d.component, d.action, d.detail, ts, m.group);
+  addLog(d.component,d.action,d.detail,ts,m.zone);
 }
 
-// ─── LOG ──────────────────────────────────
-function addLog(component, action, detail, timestamp, group) {
-  const log = document.getElementById('logBody');
-  const empty = log.querySelector('.log-empty');
-  if (empty) empty.remove();
-  const t = new Date(timestamp);
-  const ts = t.toTimeString().slice(0,8) + '.' + t.getMilliseconds();
-  const item = document.createElement('div');
-  item.className = 'log-item';
-  item.innerHTML = '<div><span class="lc">' + component + '</span>.<span class="la">' + action + '()</span></div>' +
-    (detail ? '<div class="ld">' + detail + '</div>' : '') +
-    '<div class="lt">' + ts + '</div>';
-  item.onclick = () => {
-    document.getElementById('dComp').textContent = component + '.' + action + '()';
-    document.getElementById('dAct').textContent = detail || '';
-    document.getElementById('dTime').textContent = ts;
+function addLog(component,action,detail,ts,zone){
+  const log=document.getElementById('logBody');
+  const empty=log.querySelector('.log-empty');
+  if(empty)empty.remove();
+  const t=new Date(ts);
+  const item=document.createElement('div');
+  item.className='log-item';
+  item.innerHTML='<div><span class="lc">'+component+'</span>.<span class="la">'+action+'()</span></div>'+
+    (detail?'<div class="ld">'+detail+'</div>':'')+
+    '<div class="lt">'+t.toTimeString().slice(0,8)+'.'+t.getMilliseconds()+'</div>';
+  item.onclick=()=>{
+    document.getElementById('dComp').textContent=component+'.'+action+'()';
+    document.getElementById('dAct').textContent=detail||'';
+    document.getElementById('dTime').textContent=t.toTimeString().slice(0,8)+'.'+t.getMilliseconds();
   };
-  log.insertBefore(item, log.firstChild);
-  while (log.children.length > 200) log.removeChild(log.lastChild);
+  log.insertBefore(item,log.firstChild);
+  while(log.children.length>200)log.removeChild(log.lastChild);
 }
 
-function limparLog() {
-  document.getElementById('logBody').innerHTML = '<div class="log-empty">Log limpo.</div>';
-  document.getElementById('evCount').textContent = '0';
-  document.querySelectorAll('.class-box.active,.class-box.done').forEach(b => {
-    b.classList.remove('active','done');
+function limparLog(){
+  eventQueue=[];processing=false;
+  document.getElementById('logBody').innerHTML='<div class="log-empty">Log limpo.</div>';
+  document.getElementById('evCount').textContent='0';
+  document.querySelectorAll('.tab-panel').forEach(p=>{
+    p.querySelectorAll('.uml').forEach(b=>{b.classList.remove('active');b.classList.add('done')});
+    p.querySelectorAll('.mt.active').forEach(m=>m.classList.remove('active'));
+    p.querySelectorAll('.conn-line.active,.conn-line.done').forEach(l=>l.classList.remove('active','done'));
+    p.querySelectorAll('.conn-label.active').forEach(l=>l.classList.remove('active'));
+    p.querySelectorAll('.zone.active').forEach(z=>z.classList.remove('active'));
   });
-  document.querySelectorAll('.method.active').forEach(m => m.classList.remove('active'));
-  document.querySelectorAll('.conn-line.active,.conn-line.done').forEach(l => {
-    l.classList.remove('active','done');
-  });
-  document.querySelectorAll('.conn-label.active').forEach(l => l.classList.remove('active'));
-  lastBox = null;
-  document.getElementById('dComp').textContent = '—';
-  document.getElementById('dAct').textContent = 'Aguardando eventos…';
-  document.getElementById('dDetail').textContent = '';
-  document.getElementById('dTime').textContent = '';
+  activeConnection=null;lastBox=null;
+  document.getElementById('dComp').textContent='—';document.getElementById('dAct').textContent='Aguardando eventos…';
+  document.getElementById('dDetail').textContent='';document.getElementById('dTime').textContent='';
 }
 
-// ─── INIT ─────────────────────────────────
-drawAllLines();
-conectar();
+// Inicia todas as caixas "apagadas" (done)
+document.querySelectorAll('.tab-panel .uml').forEach(b => b.classList.add('done'));
+drawAllLines();conectar();
 </script>
 </body>
 </html>

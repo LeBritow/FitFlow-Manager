@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class ServidorMobile {
@@ -63,7 +64,7 @@ public class ServidorMobile {
             // Arquivos estáticos (SPA)
             servidorAtual.createContext("/", new StaticFileHandler());
 
-            servidorAtual.setExecutor(null);
+            servidorAtual.setExecutor(Executors.newCachedThreadPool());
             servidorAtual.start();
             System.out.println("🚀 Servidor Mobile rodando em http://localhost:8081");
             System.out.println("📱 Acesse pelo celular com o IP da máquina: http://" + getLocalIp() + ":8081");
@@ -156,6 +157,7 @@ public class ServidorMobile {
                 String login = body.get("login").getAsString();
                 String senha = body.get("senha").getAsString();
                 EventBus.emit("ServidorMobile", "LoginHandler", "Credenciais recebidas, autenticando...");
+                EventBus.emit("PostgreSQL", "SELECT FROM usuario WHERE email OR cpf = :login", "find");
 
                 UsuarioDAO dao = new UsuarioDAO();
                 Usuario u = dao.autenticar(login, senha);
@@ -198,6 +200,8 @@ public class ServidorMobile {
                 int alunoId = Integer.parseInt(q.getOrDefault("alunoId", "0"));
                 if (alunoId == 0) { json(ex, 400, "{\"erro\":\"alunoId obrigatório.\"}"); return; }
 
+                EventBus.emit("PostgreSQL", "SELECT FROM programacao_treino JOIN treino WHERE alunoId=" + alunoId, "BuscarFichaHandler");
+                EventBus.emit("Entities", "ProgramacaoTreino+Treino loaded", "alunoId=" + alunoId);
                 TreinoDAO dao = new TreinoDAO();
                 EventBus.emit("ServidorMobile", "BuscarFichaHandler", "Buscando programação do aluno " + alunoId);
                 List<ProgramacaoTreino> progs = dao.listarProgramacoesPorAluno(alunoId);
@@ -205,6 +209,8 @@ public class ServidorMobile {
 
                 ProgramacaoTreino ficha = progs.get(0);
                 Treino treino = ficha.getTreino();
+                EventBus.emit("PostgreSQL", "SELECT FROM item_treino JOIN exercicio WHERE treinoId=" + treino.getId(), "BuscarFichaHandler");
+                EventBus.emit("Entities", "ItemTreino+Exercicio loaded", "treinoId=" + treino.getId());
                 EventBus.emit("ServidorMobile", "BuscarFichaHandler", "Buscando itens do treino " + treino.getId());
                 List<ItemTreino> itens = dao.listarItensPorTreino(treino.getId());
 
@@ -264,8 +270,12 @@ public class ServidorMobile {
                 String comentario = body.has("comentario") ? body.get("comentario").getAsString() : "Treino concluído.";
 
                 EventBus.emit("JPA", "EntityManager.find(Aluno)", "alunoId=" + alunoId);
+                EventBus.emit("PostgreSQL", "SELECT FROM aluno WHERE id=" + alunoId, "find");
+                EventBus.emit("Entities", "Aluno loaded", "alunoId=" + alunoId);
                 Aluno aluno = em.find(Aluno.class, alunoId);
                 EventBus.emit("JPA", "EntityManager.find(Treino)", "treinoId=" + treinoId);
+                EventBus.emit("PostgreSQL", "SELECT FROM treino WHERE id=" + treinoId, "find");
+                EventBus.emit("Entities", "Treino loaded", "treinoId=" + treinoId);
                 Treino treino = em.find(Treino.class, treinoId);
                 if (aluno == null || treino == null) {
                     json(ex, 404, "{\"status\":\"erro\",\"mensagem\":\"Aluno ou Treino não encontrados.\"}");
@@ -274,6 +284,8 @@ public class ServidorMobile {
 
                 em.getTransaction().begin();
                 EventBus.emit("JPA", "JPQL Query", "Buscando ProgramacaoTreino por alunoId=" + alunoId + ", treinoId=" + treinoId);
+                EventBus.emit("PostgreSQL", "SELECT FROM programacao_treino WHERE alunoId=" + alunoId, "find");
+                EventBus.emit("Entities", "ProgramacaoTreino loaded", "alunoId=" + alunoId);
 
                 List<ProgramacaoTreino> progs = em.createQuery(
                     "SELECT p FROM ProgramacaoTreino p WHERE p.aluno.id = :a AND p.treino.id = :t", ProgramacaoTreino.class)
@@ -282,6 +294,8 @@ public class ServidorMobile {
                 if (!progs.isEmpty()) {
                     ProgramacaoTreino prog = progs.get(0);
                     EventBus.emit("JPA", "EntityManager.persist(SessaoTreino)", "Criando sessão de treino");
+                    EventBus.emit("PostgreSQL", "INSERT INTO sessao_treino (alunoId=" + alunoId + ", treinoId=" + treinoId + ")", "persist");
+                    EventBus.emit("Entities", "SessaoTreino created", "alunoId=" + alunoId);
                     SessaoTreino sessao = new SessaoTreino();
                     sessao.setProgramacaoTreino(prog);
                     sessao.setData(LocalDateTime.now());
@@ -299,6 +313,8 @@ public class ServidorMobile {
                             String sc = o.has("statusCarga") ? o.get("statusCarga").getAsString() : "MANTEVE";
 
                             EventBus.emit("JPA", "EntityManager.find(ItemTreino)", "itemTreinoId=" + idItem);
+                            EventBus.emit("PostgreSQL", "SELECT FROM item_treino WHERE id=" + idItem, "find");
+                            EventBus.emit("Entities", "ItemTreino loaded", "itemTreinoId=" + idItem);
                             ItemTreino it = em.find(ItemTreino.class, idItem);
                             if (it != null) {
                                 ItemRealizado ir = new ItemRealizado();
@@ -310,6 +326,8 @@ public class ServidorMobile {
                                 ir.setTempoDescansoSegundos(tDesc);
                                 ir.setStatusCarga(sc);
                                 EventBus.emit("JPA", "EntityManager.persist(ItemRealizado)", "feito=" + feito + ", carga=" + carga);
+                                EventBus.emit("PostgreSQL", "INSERT INTO item_realizado (itemTreinoId=" + idItem + ")", "persist");
+                                EventBus.emit("Entities", "ItemRealizado created", "feito=" + feito);
                                 em.persist(ir);
                             }
                         }
@@ -317,6 +335,8 @@ public class ServidorMobile {
                 }
 
                 EventBus.emit("JPA", "EntityManager.persist(ComentarioTreino)", "Registrando feedback do treino");
+                EventBus.emit("PostgreSQL", "INSERT INTO comentario_treino (alunoId=" + alunoId + ")", "persist");
+                EventBus.emit("Entities", "ComentarioTreino created", "alunoId=" + alunoId);
                 ComentarioTreino c = new ComentarioTreino();
                 c.setAluno(aluno);
                 c.setTreino(treino);
@@ -352,6 +372,7 @@ public class ServidorMobile {
             }
             try {
                 EventBus.emit("ServidorMobile", "ListarExerciciosHandler", "Recebendo GET /api/exercicios");
+                EventBus.emit("PostgreSQL", "SELECT FROM exercicio ORDER BY grupoMuscular", "select");
                 ExercicioDAO dao = new ExercicioDAO();
                 JsonArray a = new JsonArray();
                 for (Exercicio e : dao.listarTodos()) {
@@ -385,13 +406,17 @@ public class ServidorMobile {
                 int alunoId = Integer.parseInt(queryParams(ex.getRequestURI().getQuery()).getOrDefault("alunoId", "0"));
                 if (alunoId == 0) { json(ex, 400, "{\"erro\":\"alunoId obrigatório.\"}"); return; }
 
+                EventBus.emit("PostgreSQL", "SELECT COUNT FROM comentario_treino WHERE alunoId=" + alunoId, "count");
                 TreinoDAO dao = new TreinoDAO();
                 LocalDateTime inicioMes = LocalDate.now().withDayOfMonth(1).atStartOfDay();
                 EventBus.emit("ServidorMobile", "DashboardHandler", "Consultando métricas do aluno " + alunoId);
 
                 long treinosMes = dao.buscarQuantidadeTreinosMes(alunoId);
+                EventBus.emit("PostgreSQL", "SELECT COUNT FROM comentario_treino WHERE alunoId=" + alunoId, "count");
                 long totalTreinos = dao.buscarTotalTreinos(alunoId);
+                EventBus.emit("PostgreSQL", "SELECT MAX(dataCriacao) FROM comentario_treino WHERE alunoId=" + alunoId, "select");
                 String ultimoTreino = dao.buscarDataUltimoTreino(alunoId);
+                EventBus.emit("PostgreSQL", "SELECT DISTINCT data FROM sessao_treino WHERE alunoId=" + alunoId, "select");
                 long streak = dao.buscarStreakAtual(alunoId);
 
                 JsonObject j = new JsonObject();
@@ -437,6 +462,7 @@ public class ServidorMobile {
                 int alunoId = Integer.parseInt(queryParams(ex.getRequestURI().getQuery()).getOrDefault("alunoId", "0"));
                 if (alunoId == 0) { json(ex, 400, "{\"erro\":\"alunoId obrigatório.\"}"); return; }
 
+                EventBus.emit("PostgreSQL", "SELECT FROM comentario_treino JOIN treino WHERE alunoId=" + alunoId, "select");
                 TreinoDAO dao = new TreinoDAO();
                 EventBus.emit("ServidorMobile", "HistoricoHandler", "Buscando histórico do aluno " + alunoId);
                 List<ComentarioTreino> comentarios = dao.buscarComentariosPorAluno(alunoId);
@@ -476,6 +502,7 @@ public class ServidorMobile {
                     if (alunoId == 0) { json(ex, 400, "{\"erro\":\"alunoId obrigatório.\"}"); return; }
                     EntityManager em = JPAUtil.getEntityManager();
                     EventBus.emit("ServidorMobile", "PerfilHandler", "Buscando dados do aluno " + alunoId);
+                    EventBus.emit("PostgreSQL", "SELECT FROM aluno WHERE id=" + alunoId, "select");
                     Aluno a = em.find(Aluno.class, alunoId);
                     em.close();
                     if (a == null) { json(ex, 404, "{\"erro\":\"Aluno não encontrado.\"}"); return; }
@@ -491,6 +518,7 @@ public class ServidorMobile {
 
                     AlunoDAO alunoDAO = new AlunoDAO();
                     EventBus.emit("ServidorMobile", "PerfilHandler", "Buscando avaliações físicas do aluno " + alunoId);
+                    EventBus.emit("PostgreSQL", "SELECT FROM avaliacao_fisica WHERE alunoId=" + alunoId, "select");
                     List<AvaliacaoFisica> avals = alunoDAO.buscarAvaliacoesPorAluno(alunoId);
                     JsonArray avArr = new JsonArray();
                     for (var av : avals) {
@@ -517,11 +545,13 @@ public class ServidorMobile {
                     EntityManager em = JPAUtil.getEntityManager();
                     em.getTransaction().begin();
                     EventBus.emit("ServidorMobile", "PerfilHandler", "Atualizando peso=" + peso + ", altura=" + altura + " do aluno " + alunoId);
+                    EventBus.emit("PostgreSQL", "SELECT FROM aluno WHERE id=" + alunoId, "select");
                     Aluno a = em.find(Aluno.class, alunoId);
                     if (a != null) {
                         a.setPeso(peso);
                         a.setAltura(altura);
                         a.setImc(peso / (altura * altura));
+                        EventBus.emit("PostgreSQL", "UPDATE aluno SET peso=" + peso + " WHERE id=" + alunoId, "merge");
                         em.merge(a);
                     }
                     em.getTransaction().commit();

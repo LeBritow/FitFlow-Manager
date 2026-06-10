@@ -2,6 +2,7 @@ package com.mycompany.academia.aluno.ui;
 
 import com.mycompany.academia.aluno.dao.AlunoDAO;
 import com.mycompany.academia.aluno.model.Aluno;
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.aluno.model.AvaliacaoFisica;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -145,6 +146,7 @@ public class AnaliseAlunoController {
     }
 
     private void mostrarDetalhesAluno(Aluno aluno) {
+        EventBus.emit("Desktop", "AnaliseAlunoController.mostrarDetalhes", "alunoId=" + aluno.getId());
         labelNomeAluno.setText(aluno.getNome());
         atualizarLabelsMedidas(aluno);
         

@@ -79,7 +79,9 @@ public class UsuarioDAO {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            usuario = em.merge(usuario); 
+            usuario = em.merge(usuario);
+            
+            // DB com ON DELETE CASCADE resolve as FKs automaticamente
             em.remove(usuario);
             em.getTransaction().commit();
             return true;

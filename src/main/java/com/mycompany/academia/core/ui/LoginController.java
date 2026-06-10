@@ -4,6 +4,7 @@ import com.mycompany.academia.admin.model.Admin;
 import com.mycompany.academia.admin.model.Instrutor;
 import com.mycompany.academia.aluno.model.Aluno;
 import com.mycompany.academia.admin.model.Usuario;
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.core.session.SessaoUsuario;
 import com.mycompany.academia.admin.dao.UsuarioDAO;
 import javafx.application.Platform;
@@ -78,6 +79,7 @@ public class LoginController {
             try {
                 Platform.runLater(() -> labelStatus.setText("Verificando credenciais..."));
 
+                EventBus.emit("Desktop", "LoginController.autenticar", "login=" + login);
                 UsuarioDAO dao = new UsuarioDAO();
                 Usuario usuarioLogado = dao.autenticar(login, senha);
 

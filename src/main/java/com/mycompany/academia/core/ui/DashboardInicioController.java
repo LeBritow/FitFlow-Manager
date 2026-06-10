@@ -1,6 +1,7 @@
 package com.mycompany.academia.core.ui;
 
 import com.mycompany.academia.aluno.dao.AlunoDAO;
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.treino.dao.ExercicioDAO;
 import com.mycompany.academia.treino.dao.TreinoDAO;
 import java.util.function.Consumer;
@@ -29,6 +30,7 @@ public class DashboardInicioController {
 
     @FXML
     public void initialize() {
+        EventBus.emit("Desktop", "DashboardInicioController.carregar", "Carregando dashboard");
         adicionarCartao(0, 0, String.valueOf(alunoDAO.contarAlunos()), "Total de Alunos", "#3498db", "#ebf5fb", "usuarios");
         adicionarCartao(1, 0, String.valueOf(exercicioDAO.contarExercicios()), "Exercícios Cadastrados", "#2ecc71", "#eafaf1", "exercicios");
         adicionarCartao(2, 0, String.valueOf(treinoDAO.contarFichas()), "Fichas de Treino", "#9b59b6", "#f4ecf7", "fichas");
