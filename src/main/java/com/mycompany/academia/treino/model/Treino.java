@@ -3,6 +3,8 @@ package com.mycompany.academia.treino.model;
 import com.mycompany.academia.treino.enums.ObjetivoTreino;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,6 +17,8 @@ public class Treino {
     private int id;
 
     private String nome;
+
+    @Enumerated(EnumType.STRING)
     private ObjetivoTreino objetivo;
     private boolean fichaPadrao; 
 
