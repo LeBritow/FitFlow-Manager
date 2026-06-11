@@ -31,7 +31,7 @@ public class AlunoDAO {
         }
     }
 
-    // Busca todos os alunos cadastrados (Para preencher a tabela do Dashboard)
+    // Busca todos os alunos cadastrados
     public List<Aluno> buscarTodos() {
         EventBus.emit("AlunoDAO", "buscarTodos", "");
         EntityManager em = JPAUtil.getEntityManager();

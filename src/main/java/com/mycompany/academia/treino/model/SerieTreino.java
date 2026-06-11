@@ -25,7 +25,6 @@ public class SerieTreino {
     public SerieTreino() {
     }
 
-    // Getters e Setters
     public int getId() {
         return id;
     }

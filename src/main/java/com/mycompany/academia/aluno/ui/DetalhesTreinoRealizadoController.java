@@ -21,7 +21,6 @@ public class DetalhesTreinoRealizadoController {
     @FXML private TableColumn<LinhaExecucao, String> colPlanejado;
     @FXML private TableColumn<LinhaExecucao, String> colRealizado;
     
-    // NOVAS COLUNAS ANALÍTICAS PARA O INSTRUTOR:
     @FXML private TableColumn<LinhaExecucao, String> colTempoExecucao;
     @FXML private TableColumn<LinhaExecucao, String> colTempoDescanso;
     @FXML private TableColumn<LinhaExecucao, String> colTendenciaCarga;
@@ -38,7 +37,6 @@ public class DetalhesTreinoRealizadoController {
         colPlanejado.setCellValueFactory(cellData -> cellData.getValue().planejado);
         colRealizado.setCellValueFactory(cellData -> cellData.getValue().realizado);
         
-        // Vinculando as novas colunas analíticas
         colTempoExecucao.setCellValueFactory(cellData -> cellData.getValue().tempoExecucao);
         colTempoDescanso.setCellValueFactory(cellData -> cellData.getValue().tempoDescanso);
         colTendenciaCarga.setCellValueFactory(cellData -> cellData.getValue().tendenciaCarga);
@@ -109,7 +107,6 @@ public class DetalhesTreinoRealizadoController {
         ObservableList<LinhaExecucao> dados = FXCollections.observableArrayList();
         
         for (com.mycompany.academia.treino.model.ItemRealizado ir : realizados) {
-            // 1. O que o instrutor havia planejado
             int totalSeries = ir.getItemTreino().getSeriesTreino().size();
             String planejado = totalSeries + "x ";
             if (!ir.getItemTreino().getSeriesTreino().isEmpty()) {
@@ -117,14 +114,11 @@ public class DetalhesTreinoRealizadoController {
                              ir.getItemTreino().getSeriesTreino().get(0).getCarga() + "kg";
             }
 
-            // 2. O que o aluno realmente executou
             String realizado = ir.isFeito() ? String.format("%.1f kg", ir.getCargaUtilizada()) : "Não realizado";
 
-            // 3. Formatação dos tempos cronometrados (Segundos -> MM:SS)
             String tempoExecFmt = ir.isFeito() ? formatarTempo(ir.getTempoExecucaoSegundos() != null ? ir.getTempoExecucaoSegundos() : 0) : "--:--";
             String tempoDescFmt = ir.isFeito() ? formatarTempo(ir.getTempoDescansoSegundos() != null ? ir.getTempoDescansoSegundos() : 0) : "--:--";
 
-            // 4. Indicador visual inteligente da tendência de carga para facilitar a leitura do instrutor
             String tendencia = "➡️ Manteve";
             if ("SUBIU".equalsIgnoreCase(ir.getStatusCarga())) tendencia = "🔺 Aumentou";
             if ("DIMINUIU".equalsIgnoreCase(ir.getStatusCarga())) tendencia = "🔻 Diminuiu";
@@ -150,7 +144,6 @@ public class DetalhesTreinoRealizadoController {
         return String.format("%02d:%02d", minutos, segundos);
     }
 
-    // Estrutura de dados interna estendida para suportar as novas colunas da GUI
     public static class LinhaExecucao {
         private final SimpleStringProperty exercicio;
         private final SimpleStringProperty planejado;

@@ -56,7 +56,6 @@ public class AnaliseAlunoController {
         graficoCargas.setAnimated(false);
         configurarFiltroBusca();
         
-        // Configura um aviso nativo elegante para listas vazias
         Label placeholder = new Label("Nenhum treino ou feedback registrado para este aluno ainda.");
         placeholder.setStyle("-fx-text-fill: #7f8c8d;");
         listaComentarios.setPlaceholder(placeholder);
@@ -75,7 +74,6 @@ public class AnaliseAlunoController {
             }
         });
 
-        // CELL FACTORY: Converte ItemHistorico em texto estruturado
         listaComentarios.setCellFactory(lv -> new ListCell<ItemHistorico>() {
             @Override
             protected void updateItem(ItemHistorico item, boolean empty) {
@@ -96,7 +94,6 @@ public class AnaliseAlunoController {
             }
         });
 
-        // Ouvinte de duplo clique para abrir detalhes do treino
         listaComentarios.setOnMouseClicked((MouseEvent event) -> {
             if (event.getClickCount() == 2) {
                 ItemHistorico item = listaComentarios.getSelectionModel().getSelectedItem();
@@ -164,11 +161,6 @@ public class AnaliseAlunoController {
         
         renderizarGraficoPesoImcReal(aluno);
         gerarAlertas(aluno);
-        
-        // ====================================================================
-        // HISTÓRICO: mescla treinos realizados + feedbacks
-        // ====================================================================
-        treinoDAO.marcarComentariosComoLidos(aluno.getId());
 
         List<ItemHistorico> historico = new ArrayList<>();
 
@@ -204,32 +196,25 @@ public class AnaliseAlunoController {
         float imc = aluno.getImc();
         float altura = aluno.getAltura();
 
-        // 1. Descobrindo a Classificação Oficial da OMS
         String classificacao = "";
         if (imc > 0 && imc < 18.5) classificacao = "(Abaixo do Peso)";
         else if (imc >= 18.5 && imc <= 24.9) classificacao = "(Peso Ideal)";
         else if (imc >= 25.0 && imc <= 29.9) classificacao = "(Sobrepeso)";
         else if (imc >= 30.0 && imc <= 34.9) classificacao = "(Obesidade Grau I)";
         else if (imc >= 35.0 && imc <= 39.9) classificacao = "(Obesidade Grau II)";
-        else if (imc >= 40.0) classificacao = "(Obesidade Grau III)";
+        else         if (imc >= 40.0) classificacao = "(Obesidade Grau III)";
 
-        // 2. Calculando a faixa de peso ideal exclusivamente para a altura deste aluno
         float pesoIdealMin = 18.5f * (altura * altura);
         float pesoIdealMax = 24.9f * (altura * altura);
 
-        // 3. Atualizando a interface com os dados completos e inteligentes
         if (aluno.getPeso() > 0) {
             labelImcAluno.setText(String.format("Peso: %.1f kg | Altura: %.2f m | IMC: %.1f %s | Alvo Ideal: %.1f kg a %.1f kg", 
                     aluno.getPeso(), altura, imc, classificacao, pesoIdealMin, pesoIdealMax));
         } else {
-            // Se o aluno for recém-cadastrado e não tiver peso nenhum
             labelImcAluno.setText("Aluno sem medidas registradas. Realize a primeira avaliação física.");
         }
     }
 
-    // =================================================================
-    // GRÁFICO 1: PESO + IMC REAL DO BANCO DE DADOS
-    // =================================================================
     private void renderizarGraficoPesoImcReal(Aluno aluno) {
         graficoEvolucao.getData().clear();
         ((CategoryAxis) graficoEvolucao.getXAxis()).getCategories().clear(); 
@@ -249,10 +234,6 @@ public class AnaliseAlunoController {
             seriesPeso.getData().add(new XYChart.Data<>(dataEixoX, avaliacao.getPeso()));
             seriesImc.getData().add(new XYChart.Data<>(dataEixoX, avaliacao.getImc()));
         }
-
-        // ====================================================================
-        // UPDATED: Só plota o ponto inicial se o aluno possuir peso (Evita o bug pós-exclusão)
-        // ====================================================================
         if (historico.isEmpty() && aluno.getPeso() > 0) {
             String hoje = LocalDate.now().format(formatador);
             seriesPeso.getData().add(new XYChart.Data<>(hoje, aluno.getPeso()));
@@ -261,17 +242,12 @@ public class AnaliseAlunoController {
             configurarTooltips(seriesPeso, " kg");
             configurarTooltips(seriesImc, " IMC");
         } else if (!historico.isEmpty()) {
-            // Se tem histórico real, adiciona normalmente
             graficoEvolucao.getData().addAll(seriesPeso, seriesImc);
             configurarTooltips(seriesPeso, " kg");
             configurarTooltips(seriesImc, " IMC");
         }
-        // Se cair no else (historico vazio e peso 0), o gráfico não recebe nada e fica limpo!
     }
 
-    // =================================================================
-    // GRÁFICO 2: PROGRESSÃO DE CARGA POR EXERCÍCIO SELECIONADO
-    // =================================================================
     private void renderizarGraficoCargaExercicios(Aluno aluno, String nomeExercicio) {
         graficoCargas.getData().clear();
         ((CategoryAxis) graficoCargas.getXAxis()).getCategories().clear();
@@ -326,15 +302,13 @@ public class AnaliseAlunoController {
         dialog.setTitle("Gerenciamento de Avaliações Físicas");
         dialog.setHeaderText("Métricas Corporais - " + alunoSelecionado.getNome().split(" ")[0]);
 
-        // Criamos os 3 botões (O Excluir fica alinhado à esquerda)
         ButtonType btnSalvar = new ButtonType("Salvar", ButtonBar.ButtonData.OK_DONE);
         ButtonType btnExcluir = new ButtonType("Excluir", ButtonBar.ButtonData.LEFT);
         dialog.getDialogPane().getButtonTypes().addAll(btnExcluir, btnSalvar, ButtonType.CANCEL);
 
-        // Ocultamos o botão Excluir por padrão (ele só vai aparecer se o modo for "Editar")
         Node botaoExcluir = dialog.getDialogPane().lookupButton(btnExcluir);
         botaoExcluir.setVisible(false);
-        botaoExcluir.setStyle("-fx-base: #e74c3c; -fx-text-fill: white;"); // Deixa ele vermelho!
+        botaoExcluir.setStyle("-fx-base: #e74c3c; -fx-text-fill: white;");
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -360,7 +334,6 @@ public class AnaliseAlunoController {
         TextField txtAltura = new TextField(String.valueOf(alunoSelecionado.getAltura()));
         DatePicker pickerData = new DatePicker(LocalDate.now());
 
-        // TRAVA DO CALENDÁRIO: Desabilita qualquer dia que seja maior que hoje
         pickerData.setDayCellFactory(picker -> new DateCell() {
             @Override
             public void updateItem(LocalDate date, boolean empty) {
@@ -374,7 +347,7 @@ public class AnaliseAlunoController {
             boolean modoEdicao = novo.equals("Editar Lançamento Anterior");
             comboAvaliacoesAnteriores.setDisable(!modoEdicao);
             pickerData.setDisable(modoEdicao); 
-            botaoExcluir.setVisible(modoEdicao); // O botão de apagar acende aqui!
+            botaoExcluir.setVisible(modoEdicao);
         });
 
         comboAvaliacoesAnteriores.getSelectionModel().selectedItemProperty().addListener((obs, antigo, selec) -> {
@@ -413,9 +386,6 @@ public class AnaliseAlunoController {
                         alunoSelecionado.setAltura(ultima.getAltura());
                         alunoSelecionado.setImc(ultima.getImc());
                     } else {
-                        // ====================================================
-                        // NOVO: Se apagou a última medida do banco, zera o modelo
-                        // ====================================================
                         alunoSelecionado.setPeso(0);
                         alunoSelecionado.setAltura(0);
                         alunoSelecionado.setImc(0);
@@ -504,32 +474,26 @@ public class AnaliseAlunoController {
             Parent root = loader.load();
 
             DetalhesTreinoRealizadoController controller = loader.getController();
-            // É nesta linha abaixo que o sistema processa os cálculos de carga e histórico
-            controller.carregarDadosReais(comentario); 
+            controller.carregarDadosReais(comentario);
 
             Stage modal = new Stage();
             modal.setTitle("Detalhes da Execução do Treino");
             modal.setScene(new Scene(root));
             modal.setResizable(false);
-            modal.initModality(Modality.APPLICATION_MODAL); 
+            modal.initModality(Modality.APPLICATION_MODAL);
             modal.showAndWait();
-            
-            // Força a atualização da lista após fechar a janela
+
             if (alunoSelecionado != null) {
                 mostrarDetalhesAluno(alunoSelecionado);
             }
         } catch (Exception e) {
-            // =================================================================
-            // MODO INVESTIGAÇÃO: Força o erro oculto a aparecer na tela!
-            // =================================================================
             System.err.println("Erro crítico capturado ao tentar abrir o modal:");
-            e.printStackTrace(); // Imprime o rastro no console do NetBeans
+            e.printStackTrace();
             
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Modo Investigação - Bug Capturado");
             alert.setHeaderText("Um erro oculto impediu a tela de abrir!");
-            
-            // Pega a mensagem exata de erro que o Java tentou esconder
+
             String causa = e.getCause() != null ? e.getCause().toString() : e.toString();
             alert.setContentText("Motivo da falha:\n" + causa + "\n\nOlhe o console (Output) do NetBeans para ver a linha exata do código onde isso quebrou.");
             alert.showAndWait();
