@@ -9,10 +9,8 @@ import com.mycompany.academia.aluno.model.Aluno;
 import com.mycompany.academia.aluno.dao.AlunoDAO;
 import com.mycompany.academia.aluno.model.AvaliacaoFisica;
 import com.mycompany.academia.core.session.SessaoTreino;
-import com.mycompany.academia.treino.dao.ExercicioDAO;
 import com.mycompany.academia.treino.dao.TreinoDAO;
 import com.mycompany.academia.treino.model.ComentarioTreino;
-import com.mycompany.academia.treino.model.Exercicio;
 import com.mycompany.academia.treino.model.ItemRealizado;
 import com.mycompany.academia.treino.model.ItemTreino;
 import com.mycompany.academia.treino.model.ProgramacaoTreino;
@@ -51,11 +49,9 @@ public class ServidorMobile {
             servidorAtual = HttpServer.create(new InetSocketAddress(8081), 0);
 
             // API
-            servidorAtual.createContext("/api/teste", new TesteHandler());
             servidorAtual.createContext("/api/login", new LoginHandler());
             servidorAtual.createContext("/api/ficha", new BuscarFichaHandler());
             servidorAtual.createContext("/api/treino/finalizar", new FinalizarTreinoHandler());
-            servidorAtual.createContext("/api/exercicios", new ListarExerciciosHandler());
             servidorAtual.createContext("/api/aluno/dashboard", new DashboardHandler());
             servidorAtual.createContext("/api/aluno/historico", new HistoricoHandler());
             servidorAtual.createContext("/api/aluno/perfil", new PerfilHandler());
@@ -128,18 +124,6 @@ public class ServidorMobile {
             if (kv.length == 2) m.put(kv[0], URLDecoder.decode(kv[1], StandardCharsets.UTF_8));
         }
         return m;
-    }
-
-    // ─── TESTE ─────────────────────────────────────────────────────────
-
-    static class TesteHandler implements HttpHandler {
-        @Override
-        public void handle(HttpExchange ex) throws IOException {
-            JsonObject j = new JsonObject();
-            j.addProperty("status", "sucesso");
-            j.addProperty("mensagem", "API FitFlow online!");
-            json(ex, 200, j.toString());
-        }
     }
 
     // ─── LOGIN ───────────────────────────────────────────────────────────
@@ -355,37 +339,6 @@ public class ServidorMobile {
                 e.printStackTrace();
             } finally {
                 em.close();
-            }
-        }
-    }
-
-    // ─── LISTAR EXERCÍCIOS ──────────────────────────────────────────────
-
-    static class ListarExerciciosHandler implements HttpHandler {
-        @Override
-        public void handle(HttpExchange ex) throws IOException {
-            if (options(ex)) return;
-            cors(ex);
-            ex.getResponseHeaders().add("Content-Type", "application/json; charset=UTF-8");
-            if (!"GET".equalsIgnoreCase(ex.getRequestMethod())) {
-                json(ex, 405, "{\"erro\":\"Use GET.\"}"); return;
-            }
-            try {
-                EventBus.emit("ServidorMobile", "ListarExerciciosHandler", "Recebendo GET /api/exercicios");
-                EventBus.emit("PostgreSQL", "SELECT FROM exercicio ORDER BY grupoMuscular", "select");
-                ExercicioDAO dao = new ExercicioDAO();
-                JsonArray a = new JsonArray();
-                for (Exercicio e : dao.listarTodos()) {
-                    JsonObject o = new JsonObject();
-                    o.addProperty("id", e.getId());
-                    o.addProperty("nome", e.getNome());
-                    o.addProperty("grupo", e.getGrupoMuscular());
-                    o.addProperty("descricao", e.getDescricao() != null ? e.getDescricao() : "");
-                    a.add(o);
-                }
-                json(ex, 200, a.toString());
-            } catch (Exception e) {
-                json(ex, 500, "{\"erro\":\"Erro ao buscar exercícios.\"}");
             }
         }
     }

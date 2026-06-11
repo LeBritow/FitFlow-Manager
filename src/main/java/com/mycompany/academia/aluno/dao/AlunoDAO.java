@@ -33,17 +33,6 @@ public class AlunoDAO {
         }
     }
 
-    // Busca um aluno específico pelo ID
-    public Aluno buscarPorId(Long id) {
-        EventBus.emit("AlunoDAO", "buscarPorId", "alunoId=" + id);
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.find(Aluno.class, id);
-        } finally {
-            em.close();
-        }
-    }
-
     // Busca todos os alunos cadastrados (Para preencher a tabela do Dashboard)
     public List<Aluno> buscarTodos() {
         EventBus.emit("AlunoDAO", "buscarTodos", "");
@@ -57,27 +46,6 @@ public class AlunoDAO {
         }
     }
 
-    // Exclui um aluno do banco
-    public void excluir(Long id) {
-        EventBus.emit("AlunoDAO", "excluir", "alunoId=" + id);
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            em.getTransaction().begin();
-            Aluno aluno = em.find(Aluno.class, id);
-            if (aluno != null) {
-                em.remove(aluno);
-            }
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            e.printStackTrace();
-        } finally {
-            em.close();
-        }
-    }
-    
     public List<AvaliacaoFisica> buscarAvaliacoesPorAluno(int alunoId) {
         EventBus.emit("AlunoDAO", "buscarAvaliacoesPorAluno", "alunoId=" + alunoId);
         EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();

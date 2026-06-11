@@ -23,10 +23,6 @@ public class GifSearchService {
         this.httpClient = HttpClient.newHttpClient();
     }
 
-    public String buscarMelhorGif(String termo) {
-        return buscarMelhorGif(termo, null);
-    }
-
     public String buscarMelhorGif(String nome, String grupoMuscular) {
         if (GIPHY_API_KEY.isEmpty()) {
             return null;

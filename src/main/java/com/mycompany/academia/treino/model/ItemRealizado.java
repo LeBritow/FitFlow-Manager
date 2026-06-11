@@ -39,10 +39,6 @@ public class ItemRealizado {
     public ItemRealizado() {
     }
 
-    public void marcarComoFeito() {
-        this.feito = true;
-    }
-
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
