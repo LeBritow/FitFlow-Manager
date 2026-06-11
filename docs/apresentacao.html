@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitFlow Manager — Apresentação</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+    <style>
+        :root {
+            --bg: #0f1923;
+            --bg2: #162230;
+            --text: #e8edf2;
+            --text2: #8899aa;
+            --accent: #3b82f6;
+            --accent2: #60a5fa;
+            --green: #34d399;
+            --line: #1e3a5f;
+            --card: #1a2d3d;
+        }
+        .reveal { font-family: 'Inter', sans-serif; font-size: 26px; color: var(--text); background: var(--bg); }
+        .reveal .slides { text-align: left; }
+        .reveal h1 { font-size: 2.2em; font-weight: 700; color: #fff; letter-spacing: -0.02em; margin-bottom: 0.2em; }
+        .reveal h2 { font-size: 1.4em; font-weight: 600; color: #fff; letter-spacing: -0.01em; margin-bottom: 0.3em; }
+        .reveal h3 { font-size: 0.8em; font-weight: 600; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3em; }
+        .reveal p, .reveal li { font-size: 0.55em; font-weight: 300; line-height: 1.5; }
+        .reveal li { margin-bottom: 0.3em; }
+        .reveal code { font-family: 'JetBrains Mono', monospace; font-size: 0.5em; background: var(--bg2); padding: 2px 8px; border-radius: 4px; color: var(--green); }
+        .reveal pre { background: var(--bg2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; font-size: 0.4em; line-height: 1.4; box-shadow: 0 4px 20px rgba(0,0,0,0.3); margin: 8px 0; }
+        .reveal pre code { background: none; padding: 0; font-size: 1em; color: var(--text); line-height: 1.4; }
+        .reveal table { font-size: 0.45em; width: 100%; border-collapse: collapse; }
+        .reveal th { background: var(--bg2); color: var(--accent2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.65em; padding: 8px 12px; border-bottom: 2px solid var(--accent); }
+        .reveal td { padding: 6px 12px; border-bottom: 1px solid var(--line); font-weight: 300; }
+        .reveal .accent-box { background: var(--bg2); border-left: 4px solid var(--accent); padding: 14px 20px; border-radius: 6px; margin: 12px 0; }
+        .reveal .accent-box p { margin: 0; font-weight: 400; }
+        .reveal .tag { display: inline-block; background: var(--bg2); border: 1px solid var(--line); color: var(--text2); padding: 3px 12px; border-radius: 20px; font-size: 0.4em; font-weight: 500; margin: 3px; }
+        .reveal .tag-accent { border-color: var(--accent); color: var(--accent2); }
+        .reveal .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 8px 0; }
+        .reveal .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 8px 0; }
+        .reveal .card { background: var(--bg2); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; }
+        .reveal .card h4 { font-size: 0.65em; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 8px 0; }
+        .reveal .card ul { margin: 0; padding-left: 14px; }
+        .reveal .card li { font-size: 0.45em; }
+        .reveal .stat { text-align: center; padding: 8px; }
+        .reveal .stat-num { font-size: 1.6em; font-weight: 700; color: var(--accent2); line-height: 1; }
+        .reveal .stat-label { font-size: 0.38em; color: var(--text2); margin-top: 4px; }
+        .reveal .footnote { font-size: 0.32em; color: var(--text2); margin-top: 16px; }
+        .reveal .highlight { color: var(--accent2); font-weight: 600; }
+        .slide-background { background: var(--bg) !important; }
+        .title-slide h1 { font-size: 2.6em; }
+        .title-slide .sub { font-size: 0.65em; color: var(--text2); font-weight: 300; margin-top: 8px; }
+        .title-slide .meta { margin-top: 28px; font-size: 0.38em; color: var(--text2); }
+        .agenda-item { display: flex; gap: 12px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--line); }
+        .agenda-item:last-child { border-bottom: none; }
+        .agenda-num { font-size: 0.55em; font-weight: 700; color: var(--accent2); min-width: 24px; }
+        .agenda-text { font-size: 0.5em; }
+    </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- 1 ── Título -->
+<section class="title-slide">
+    <h1>FitFlow Manager</h1>
+    <p class="sub">Sistema Desktop + Mobile para Gestão de Academias</p>
+    <p style="margin-top:20px;">
+        <span class="tag tag-accent">Java 25</span>
+        <span class="tag tag-accent">JavaFX 21</span>
+        <span class="tag tag-accent">JPA / Hibernate</span>
+        <span class="tag tag-accent">PostgreSQL</span>
+        <span class="tag tag-accent">SPA Mobile</span>
+    </p>
+    <p class="meta">Trabalho Acadêmico — Desenvolvimento de Software</p>
+</section>
+
+<!-- 2 ── Agenda -->
+<section>
+    <h2>Agenda</h2>
+    <div style="margin-top:16px;">
+        <div class="agenda-item"><span class="agenda-num">01</span><span class="agenda-text">Problema e Solução</span></div>
+        <div class="agenda-item"><span class="agenda-num">02</span><span class="agenda-text">Arquitetura e Stack Tecnológica</span></div>
+        <div class="agenda-item"><span class="agenda-num">03</span><span class="agenda-text">Aplicação Desktop (JavaFX)</span></div>
+        <div class="agenda-item"><span class="agenda-num">04</span><span class="agenda-text">Aplicação Mobile (SPA)</span></div>
+        <div class="agenda-item"><span class="agenda-num">05</span><span class="agenda-text">Banco de Dados</span></div>
+        <div class="agenda-item"><span class="agenda-num">06</span><span class="agenda-text">Integrações e Diferenciais</span></div>
+        <div class="agenda-item"><span class="agenda-num">07</span><span class="agenda-text">Desafios Técnicos</span></div>
+        <div class="agenda-item"><span class="agenda-num">08</span><span class="agenda-text">Demonstração</span></div>
+        <div class="agenda-item"><span class="agenda-num">09</span><span class="agenda-text">Resultados e Conclusão</span></div>
+    </div>
+</section>
+
+<!-- 3 ── Problema + Solução -->
+<section>
+    <h2>Problema e Solução</h2>
+    <div class="accent-box">
+        <p>"Como unificar o trabalho do instrutor no desktop com o acompanhamento do aluno pelo celular?"</p>
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <h4>Problemas Identificados</h4>
+            <ul>
+                <li>Instrutores usam planilhas ou papel para fichas</li>
+                <li>Alunos perdem a ficha ou não registram cargas</li>
+                <li>Sem feedback do aluno para o instrutor</li>
+                <li>Histórico de evolução indisponível no treino</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h4>Solução</h4>
+            <ul>
+                <li><strong>Desktop:</strong> JavaFX para instrutor (cadastro, fichas, dashboards)</li>
+                <li><strong>Mobile:</strong> SPA para aluno (treino, progresso, feedback)</li>
+                <li><strong>Um único banco</strong> PostgreSQL compartilhado</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- 4 ── Arquitetura -->
+<section>
+    <h2>Arquitetura</h2>
+    <pre><code data-trim>
+┌──────────────────────────────────────────┐
+│         Desktop App (JavaFX)             │
+│  Login → Painel → Fichas / Analise      │
+└──────────────────┬───────────────────────┘
+                   │ inicia servidor HTTP
+                   ▼
+┌──────────────────────────────────────────┐
+│      Servidor HTTP Embutido :8081        │
+│  REST API  ·  Arquivos Estaticos │
+└──────────────────┬───────────────────────┘
+                   │
+┌──────────────────┴───────────────────────┐
+│      JPA / Hibernate + PostgreSQL        │
+└──────────────────────────────────────────┘
+    </code></pre>
+    <div class="grid-3" style="margin-top:12px;">
+        <div class="stat">
+            <div class="stat-num">JRE</div>
+            <div class="stat-label">Sem dependencias web</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num">38</div>
+            <div class="stat-label">Classes Java</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num">8</div>
+            <div class="stat-label">Endpoints REST</div>
+        </div>
+    </div>
+    <p class="footnote">Servidor HTTP: com.sun.net.httpserver (embutido no JDK — zero dependência extra)</p>
+</section>
+
+<!-- 5 ── Stack -->
+<section>
+    <h2>Stack Tecnológica</h2>
+    <table>
+        <thead><tr><th>Camada</th><th>Tecnologia</th><th>Função</th></tr></thead>
+        <tbody>
+            <tr><td>Linguagem</td><td><strong>Java 25</strong></td><td>Plataforma principal do sistema</td></tr>
+            <tr><td>UI Desktop</td><td><strong>JavaFX 21 + FXML</strong></td><td>Interface gráfica do instrutor</td></tr>
+            <tr><td>ORM</td><td><strong>JPA / Hibernate 6</strong></td><td>Mapeamento objeto-relacional</td></tr>
+            <tr><td>Banco</td><td><strong>PostgreSQL</strong></td><td>Persistência de dados</td></tr>
+            <tr><td>API HTTP</td><td><strong>HttpServer (JDK nativo)</strong></td><td>Servidor REST + arquivos estáticos</td></tr>
+            <tr><td>Frontend Mobile</td><td><strong>HTML + CSS + JS puro</strong></td><td>SPA sem frameworks</td></tr>
+            <tr><td>Build</td><td><strong>Maven</strong></td><td>Gerenciamento de dependências</td></tr>
+            <tr><td>API Externa</td><td><strong>GIPHY</strong></td><td>Demonstração visual dos exercícios</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- 6 ── Desktop -->
+<section>
+    <h2>Desktop — JavaFX</h2>
+    <div class="grid-2">
+        <div class="card">
+            <h4>Módulos</h4>
+            <ul>
+                <li><strong>Login</strong> — autenticação com controle de acesso e troca de senha</li>
+                <li><strong>Dashboard</strong> — métricas gerais da academia</li>
+                <li><strong>Usuários</strong> — CRUD de alunos, instrutores e admins</li>
+                <li><strong>Exercícios</strong> — catálogo com busca de GIFs via GIPHY</li>
+                <li><strong>Fichas de Treino</strong> — montagem com grade editável de séries</li>
+                <li><strong>Análise de Aluno</strong> — gráficos de peso, IMC e carga</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h4>Fichas de Treino</h4>
+            <ul>
+                <li>Catálogo de exercícios à esquerda, ficha à direita</li>
+                <li>Grade editável diretamente na tabela (TextFieldTableCell)</li>
+                <li>Gerador automático: distribui por grupo muscular</li>
+                <li>Templates reutilizáveis (fichas padrão)</li>
+            </ul>
+            <pre><code data-trim>Supino Reto  |  4x10x50kg  60s descanso
+Agachamento |  4x10x40kg  60s descanso</code></pre>
+        </div>
+    </div>
+</section>
+
+<!-- 7 ── Mobile -->
+<section>
+    <h2>Mobile — SPA</h2>
+    <div class="grid-2">
+        <div class="card">
+            <h4>Páginas</h4>
+            <ul>
+                <li><code>login.html</code> — autenticação do aluno</li>
+                <li><code>app.html</code> — SPA principal com 4 abas (feed, treino, performance, perfil)</li>
+                <li><code>fluxo.html</code> — monitoramento ao vivo da comunicação entre camadas</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h4>Modo Foco</h4>
+            <ul>
+                <li>Cronômetro para tempo de execução e descanso entre séries</li>
+                <li>Campo de carga editável para progressão durante o treino</li>
+                <li>Ao finalizar, registra ItemRealizado e gera feedback</li>
+            </ul>
+            <pre><code data-trim>Supino Reto  |  Serie 2/4  |  00:45  |  TREINANDO</code></pre>
+        </div>
+    </div>
+</section>
+
+<!-- 8 ── Banco -->
+<section>
+    <h2>Banco de Dados</h2>
+    <pre><code data-trim>
+usuario (JOINED)  ← Admin / Instrutor / Aluno
+
+treino ──1:N── item_treino ──1:N── serie_treino
+  │              │
+  │              └── exercicio
+  │
+  └── programacao_treino ──1:N── sessao_treino ──1:N── item_realizado
+          │
+          └── aluno
+    </code></pre>
+    <div class="grid-3" style="margin-top:10px;">
+        <div class="stat"><div class="stat-num">13</div><div class="stat-label">Tabelas</div></div>
+        <div class="stat"><div class="stat-num">11</div><div class="stat-label">FKs com CASCADE</div></div>
+        <div class="stat"><div class="stat-num">JOINED</div><div class="stat-label">Herança normalizada</div></div>
+    </div>
+    <p class="footnote">EnumType.STRING nos enums — resistente a reordenação</p>
+</section>
+
+<!-- 9 ── Diferenciais -->
+<section>
+    <h2>Diferenciais Técnicos</h2>
+    <div class="grid-2">
+        <div class="card">
+            <h4>GIPHY</h4>
+            <ul>
+                <li>Busca automática por nome + grupo muscular</li>
+                <li>Em lote com threads paralelas (AtomicInteger)</li>
+                <li>Auto-preenchimento na API mobile</li>
+                <li>Chave via env / .properties / sistema</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h4>Frontend — SPA</h4>
+            <ul>
+                <li>HTML, CSS e JS puros — sem frameworks externos</li>
+                <li>4 abas: Feed, Treino, Performance, Perfil</li>
+                <li>Gráfico semanal em Canvas 2D</li>
+                <li>Armazenamento local (localStorage) e API centralizada</li>
+            </ul>
+        </div>
+    </div>
+    <div class="grid-2" style="margin-top:12px;">
+        <div class="card">
+            <h4>Concorrência</h4>
+            <ul>
+                <li>CachedThreadPool no servidor HTTP</li>
+                <li>EntityManager-per-request (thread-safe via isolamento)</li>
+                <li>Platform.runLater() para UI JavaFX</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h4>Padrões de Projeto</h4>
+            <ul>
+                <li>DAO, Singleton, MVC</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- 10 ── Desafios -->
+<section>
+    <h2>Desafios Técnicos</h2>
+    <div class="accent-box">
+        <p><strong>1.</strong> Integrar servidor HTTP com o ciclo de vida do JavaFX</p>
+    </div>
+    <p style="font-size:0.45em; margin-left:16px;">Servidor inicia via <code>new Thread(() -> ServidorMobile.iniciar()).start()</code> no <code>initialize()</code> do PainelPrincipal.</p>
+    <div class="accent-box" style="margin-top:10px;">
+        <p><strong>2.</strong> Thread-safety com EntityManager não thread-safe</p>
+    </div>
+    <p style="font-size:0.45em; margin-left:16px;">Cada handler HTTP cria seu próprio EntityManager — padrão EntityManager-per-request.</p>
+    <div class="accent-box" style="margin-top:10px;">
+        <p><strong>3.</strong> Consistência transacional entre EntityManagers (melhoria futura)</p>
+    </div>
+    <p style="font-size:0.45em; margin-left:16px;">Operações concorrentes em EntityManagers diferentes podem gerar inconsistência. Ideal seria um Transaction Manager.</p>
+</section>
+
+<!-- 11 ── Demo -->
+<section>
+    <h2>Demonstração</h2>
+    <p style="font-weight:600;">Roteiro (5-7 minutos)</p>
+    <ol>
+        <li><strong>Desktop:</strong> Login → Dashboard → Catálogo de Exercícios com GIF</li>
+        <li><strong>Desktop:</strong> Montagem de ficha com gerador automático</li>
+        <li><strong>Mobile:</strong> Login do aluno → Ficha ativa com GIFs</li>
+        <li><strong>Mobile:</strong> Modo Foco — execução de série com cronômetro</li>
+        <li><strong>Fluxo:</strong> <code>fluxo.html</code> — diagrama animado com a comunicação ao vivo</li>
+        <li><strong>Mobile:</strong> Finalização do treino → Feed com feedback</li>
+    </ol>
+    <p style="margin-top:16px;">
+        <span class="tag">Desktop: localhost</span>
+        <span class="tag">Mobile: &lt;IP&gt;:8081/pages/login.html</span>
+        <span class="tag">Fluxo: &lt;IP&gt;:8081/pages/fluxo.html</span>
+    </p>
+</section>
+
+<!-- 12 ── Resultados -->
+<section>
+    <h2>Resultados e Aprendizados</h2>
+    <div class="grid-3">
+        <div class="stat"><div class="stat-num">38</div><div class="stat-label">Classes Java</div></div>
+        <div class="stat"><div class="stat-num">12</div><div class="stat-label">Arquivos FXML</div></div>
+        <div class="stat"><div class="stat-num">8</div><div class="stat-label">Endpoints REST</div></div>
+        <div class="stat"><div class="stat-num">1</div><div class="stat-label">SPA Mobile</div></div>
+        <div class="stat"><div class="stat-num">0</div><div class="stat-label">Dependências Web</div></div>
+        <div class="stat"><div class="stat-num">13</div><div class="stat-label">Tabelas no Banco</div></div>
+    </div>
+    <div class="grid-2" style="margin-top:12px;">
+        <div class="card">
+            <h4>Conceitos Aplicados</h4>
+            <ul>
+                <li>JavaFX + FXML para UI desktop</li>
+                <li>JPA com herança JOINED</li>
+                <li>Servidor HTTP nativo do JDK</li>
+                <li>SPA com JavaScript puro</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h4>Práticas</h4>
+            <ul>
+                <li>DAO, Singleton, Observer, MVC</li>
+                <li>Programação concorrente</li>
+                <li>ON DELETE CASCADE vs CascadeType</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- 13 ── Perguntas -->
+<section class="title-slide" style="text-align:center !important;">
+    <h1 style="font-size:2em;">Perguntas?</h1>
+    <p style="font-size:0.6em; color:var(--text2); margin-top:20px;">Obrigado.</p>
+    <div style="margin-top:28px;">
+        <p>
+            <span class="tag tag-accent">Java 25</span>
+            <span class="tag tag-accent">JavaFX 21</span>
+            <span class="tag tag-accent">JPA / Hibernate</span>
+            <span class="tag tag-accent">PostgreSQL</span>
+        </p>
+        <p style="margin-top:8px;">
+            <span class="tag tag-accent">GIPHY API</span>
+            <span class="tag tag-accent">SPA</span>
+        </p>
+    </div>
+</section>
+
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+    Reveal.initialize({
+        hash: true,
+        slideNumber: 'c/t',
+        transition: 'fade',
+        backgroundTransition: 'none',
+        width: 1200,
+        height: 700,
+        controls: true,
+        progress: true,
+        center: false,
+        plugins: []
+    });
+</script>
+</body>
+</html>
