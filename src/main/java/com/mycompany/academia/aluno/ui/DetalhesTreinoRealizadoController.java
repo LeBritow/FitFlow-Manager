@@ -1,5 +1,6 @@
 package com.mycompany.academia.aluno.ui;
 
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.core.util.TableUtils;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -32,6 +33,7 @@ public class DetalhesTreinoRealizadoController {
 
     @FXML
     public void initialize() {
+        EventBus.emit("Desktop", "DetalhesTreinoRealizadoController.carregarDados", "Carregando detalhes do treino");
         colExercicio.setCellValueFactory(cellData -> cellData.getValue().exercicio);
         colPlanejado.setCellValueFactory(cellData -> cellData.getValue().planejado);
         colRealizado.setCellValueFactory(cellData -> cellData.getValue().realizado);

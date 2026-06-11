@@ -2,6 +2,7 @@ package com.mycompany.academia.admin.ui;
 
 import com.mycompany.academia.admin.dao.UsuarioDAO;
 import com.mycompany.academia.admin.model.Admin;
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.aluno.model.Aluno;
 import com.mycompany.academia.admin.model.Instrutor;
 import com.mycompany.academia.admin.model.Usuario;
@@ -31,6 +32,7 @@ public class FormUsuarioController {
 
     @FXML
     public void initialize() {
+        EventBus.emit("Desktop", "FormUsuarioController.salvar", "Abrindo formulário de usuário");
         Usuario atual = SessaoUsuario.getInstancia().getUsuarioLogado();
         if (atual instanceof Admin) {
             comboTipoPerfil.getItems().addAll("Admin", "Instrutor", "Aluno");

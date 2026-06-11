@@ -1,6 +1,7 @@
 package com.mycompany.academia.core.ui;
 
 import com.mycompany.academia.admin.dao.UsuarioDAO;
+import com.mycompany.academia.core.config.EventBus;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -23,6 +24,7 @@ public class RecuperarSenhaController {
 
     @FXML
     public void initialize() {
+        EventBus.emit("Desktop", "RecuperarSenhaController.enviarCodigo", "Tela de recuperação de senha");
         configurarPuloAutomatico(txtD1, txtD2);
         configurarPuloAutomatico(txtD2, txtD3);
         configurarPuloAutomatico(txtD3, txtD4);
