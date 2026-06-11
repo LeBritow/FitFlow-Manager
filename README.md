@@ -30,8 +30,11 @@ Sistema de gestão para academias com interface **Desktop (JavaFX)** e **Mobile 
 
 ### Banco de Dados
 1. Crie um banco PostgreSQL chamado `sistema_academia`.
-2. Copie `src/main/resources/META-INF/persistence.xml.example` → `src/main/resources/META-INF/persistence.xml`.
-3. Edite com suas credenciais (usuário/senha).
+2. Execute `schema.sql` para criar as 13 tabelas com todas as FKs e `ON DELETE CASCADE`.
+3. Copie `src/main/resources/META-INF/persistence.xml.example` → `src/main/resources/META-INF/persistence.xml`.
+4. Edite com suas credenciais (usuário/senha).
+
+> Alternativa: deixe `hibernate.hbm2ddl.auto=update` no `persistence.xml` para o Hibernate gerar o schema automaticamente (mas sem `ON DELETE CASCADE`).
 
 ### Busca de GIFs (opcional)
 1. Gere uma API Key gratuita em [GIPHY Developers](https://developers.giphy.com/dashboard/).
@@ -83,7 +86,7 @@ Veja [DOCUMENTACAO.md](DOCUMENTACAO.md) para documentação técnica detalhada �
 ## Banco de Dados
 
 - PostgreSQL, banco `sistema_academia`
-- Schema gerado automaticamente por Hibernate (`hibernate.hbm2ddl.auto=update`)
+- Schema via `schema.sql` (PostgreSQL) ou gerado automaticamente por Hibernate (`hibernate.hbm2ddl.auto=update`)
 - 13 entidades JPA com herança JOINED em `Usuario`
 - Todas as FKs com `ON DELETE CASCADE`
 

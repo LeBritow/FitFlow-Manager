@@ -126,7 +126,7 @@ sessao_treino ──1:N── item_realizado
 
 ### 4.4. ON DELETE CASCADE
 
-Todas as 11 constraints FK do banco foram alteradas para `ON DELETE CASCADE` via script `add_cascade.sql`. Isso permite que o Java use `em.remove()` em entidades pai sem precisar deletar manualmente os filhos. Exemplo: ao excluir uma `ProgramacaoTreino`, o banco remove automaticamente as `SessaoTreino` vinculadas, que por sua vez removem os `ItemRealizado`.
+Todas as 11 constraints FK do banco utilizam `ON DELETE CASCADE` (definido no `schema.sql`). Isso permite que o Java use `em.remove()` em entidades pai sem precisar deletar manualmente os filhos. Exemplo: ao excluir uma `ProgramacaoTreino`, o banco remove automaticamente as `SessaoTreino` vinculadas, que por sua vez removem os `ItemRealizado`.
 
 ---
 
@@ -369,13 +369,13 @@ Os eventos são enfileirados e processados a cada 1 segundo (`STEP_MS = 1000`). 
 
 `persistence.xml` → `jdbc:postgresql://localhost:5432/sistema_academia`  
 User: `postgres` / Password: `ifsp`  
-DDL: `hibernate.hbm2ddl.auto = update` (Hibernate cria/atualiza schema automaticamente)
+DDL: execute `schema.sql` no banco, ou deixe `hibernate.hbm2ddl.auto = update` para o Hibernate criar automaticamente
 
 ### 10.2. Scripts auxiliares
 
 | Arquivo | Função |
 |---------|--------|
-| `add_cascade.sql` | Adiciona `ON DELETE CASCADE` em todas as 11 FKs |
+| `schema.sql` | Cria o banco completo (13 tabelas) com `ON DELETE CASCADE` em todas as FKs |
 | `persistence.xml.example` | Template de configuração do banco (copiar para `persistence.xml` e ajustar credenciais) |
 | `config.properties.example` | Template da chave da GIPHY API (copiar para `config.properties` e adicionar a chave) |
 
