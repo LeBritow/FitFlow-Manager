@@ -92,7 +92,7 @@ Veja [docs/DOCUMENTACAO.md](docs/DOCUMENTACAO.md) (ou [docs/DOCUMENTACAO.pdf](do
 
 ## Créditos
 
-Gustavo Brito
-Pedro Modesto
-Vitor Savioli
-Lucas Verissimo
+- Gustavo Brito
+- Pedro Modesto
+- Vitor Savioli
+- Lucas Verissimo
