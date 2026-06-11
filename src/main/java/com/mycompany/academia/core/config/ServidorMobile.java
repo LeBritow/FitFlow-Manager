@@ -9,7 +9,9 @@ import com.mycompany.academia.aluno.model.Aluno;
 import com.mycompany.academia.aluno.dao.AlunoDAO;
 import com.mycompany.academia.aluno.model.AvaliacaoFisica;
 import com.mycompany.academia.core.session.SessaoTreino;
+import com.mycompany.academia.treino.dao.ExercicioDAO;
 import com.mycompany.academia.treino.dao.TreinoDAO;
+import com.mycompany.academia.treino.model.Exercicio;
 import com.mycompany.academia.treino.model.ComentarioTreino;
 import com.mycompany.academia.treino.model.ItemRealizado;
 import com.mycompany.academia.treino.model.ItemTreino;
@@ -206,7 +208,16 @@ public class ServidorMobile {
                     o.addProperty("grupoMuscular", item.getExercicio().getGrupoMuscular());
                     o.addProperty("descanso", item.getIntervaloDescanso());
                     o.addProperty("progressaoCarga", item.isProgressaoCarga());
-                    String urlMidia = item.getExercicio().getUrlMidia();
+                    Exercicio exercicio = item.getExercicio();
+                    String urlMidia = exercicio.getUrlMidia();
+                    if (urlMidia == null || urlMidia.isEmpty()) {
+                        String gifUrl = new GifSearchService().buscarMelhorGif(exercicio.getNome(), exercicio.getGrupoMuscular());
+                        if (gifUrl != null) {
+                            exercicio.setUrlMidia(gifUrl);
+                            new ExercicioDAO().salvar(exercicio);
+                            urlMidia = gifUrl;
+                        }
+                    }
                     o.addProperty("urlMidia", urlMidia != null && !urlMidia.isEmpty() ? urlMidia : "");
 
                     JsonArray ss = new JsonArray();
