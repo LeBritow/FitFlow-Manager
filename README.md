@@ -26,6 +26,20 @@ Sistema de gestão para academias com interface **Desktop (JavaFX)** e **Mobile 
 - **Interface mobile** acessível pelo navegador do celular
 - **Monitoramento em tempo real** via diagrama de fluxo com SSE
 
+## Configuração
+
+### Banco de Dados
+1. Crie um banco PostgreSQL chamado `sistema_academia`.
+2. Copie `src/main/resources/META-INF/persistence.xml.example` → `src/main/resources/META-INF/persistence.xml`.
+3. Edite com suas credenciais (usuário/senha).
+
+### Busca de GIFs (opcional)
+1. Gere uma API Key gratuita em [GIPHY Developers](https://developers.giphy.com/dashboard/).
+2. Copie `src/main/resources/config.properties.example` → `src/main/resources/config.properties`.
+3. Edite com sua chave real.
+
+> Ambos os arquivos reais (`persistence.xml`, `config.properties`) estão no `.gitignore` — seguros para commit.
+
 ## Como executar
 
 ```bash

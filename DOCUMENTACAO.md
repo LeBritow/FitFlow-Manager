@@ -399,7 +399,16 @@ DDL: `hibernate.hbm2ddl.auto = update` (Hibernate cria/atualiza schema automatic
 - Maven 3.8+
 - PostgreSQL rodando com banco `sistema_academia` criado
 
-### 12.2. Comandos
+### 12.2. Configuração inicial
+
+Antes de executar, configure os arquivos sensíveis (já ignorados pelo `.gitignore`):
+
+| Arquivo | Como configurar |
+|---------|----------------|
+| `src/main/resources/META-INF/persistence.xml` | Copie de `persistence.xml.example` e ajuste usuário/senha do PostgreSQL |
+| `src/main/resources/config.properties` | Copie de `config.properties.example` e insira sua chave da GIPHY API (opcional) |
+
+### 12.3. Comandos
 
 ```bash
 # Compilar e executar

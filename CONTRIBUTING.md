@@ -17,14 +17,15 @@ Fico muito feliz que você tenha interesse em contribuir com o **FitFlow**! Para
    ```
 3. **Configure o Banco de Dados:**
    - Crie um banco PostgreSQL chamado `sistema_academia`.
-   - Localize o arquivo `src/main/resources/META-INF/persistence.example.xml`.
-   - Renomeie para `persistence.xml` e insira suas credenciais do PostgreSQL (usuário e senha).
-   - *Atenção: Nunca suba o arquivo `persistence.xml` real para o GitHub.*
+   - Copie `src/main/resources/META-INF/persistence.xml.example` para `src/main/resources/META-INF/persistence.xml`.
+   - Edite `persistence.xml` com suas credenciais do PostgreSQL (usuário e senha).
+   - *O `persistence.xml` já está no `.gitignore` — seguro.*
 4. **(Opcional) Busca automática de GIFs:**
    - A busca de GIFs usa a [API do Giphy](https://developers.giphy.com/).
    - Crie uma conta e gere uma **API Key** gratuita em `https://developers.giphy.com/dashboard/`.
-   - Edite `src/main/java/com/mycompany/academia/core/config/GifSearchService.java` e cole sua chave no lugar de `SUA_CHAVE_AQUI`.
-   - *Atenção: Nunca commite a chave real — mantenha o placeholder.*
+   - Copie `src/main/resources/config.properties.example` para `src/main/resources/config.properties`.
+   - Edite `config.properties` com sua chave real.
+   - *O `config.properties` já está no `.gitignore` — seguro.*
 5. **Codifique:** Siga a organização por pacotes de domínio (`admin/`, `aluno/`, `treino/`, `core/`), cada um com `dao/`, `model/` e `ui/`.
 6. **Commit:** Use mensagens claras e objetivas (ex: `feat: adiciona gerador de treino` ou `fix: corrige erro no login`).
 
