@@ -1,5 +1,6 @@
 package com.mycompany.academia.treino.ui;
 
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.core.config.GifSearchService;
 import com.mycompany.academia.core.util.TableUtils;
 import com.mycompany.academia.treino.dao.ExercicioDAO;
@@ -33,6 +34,7 @@ public class ExerciciosController {
 
     @FXML
     public void initialize() {
+        EventBus.emit("Desktop", "ExerciciosController.listarExercicios", "Carregando exercícios");
         carregarDadosTabela();
 
         tabelaExercicios.getSelectionModel().selectedItemProperty().addListener((obs, antigo, novo) -> {

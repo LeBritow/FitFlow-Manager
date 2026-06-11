@@ -1,5 +1,6 @@
 package com.mycompany.academia.treino.ui;
 
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.core.util.TableUtils;
 import com.mycompany.academia.treino.dao.ExercicioDAO;
 import com.mycompany.academia.treino.dao.TreinoDAO;
@@ -71,6 +72,7 @@ public class FichasTreinoController {
 
     @FXML
     public void initialize() {
+        EventBus.emit("Desktop", "FichasTreinoController.listarProgramacoes", "Carregando fichas de treino");
         carregarAlunos();
         carregarTemplates();
         

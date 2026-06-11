@@ -4,6 +4,7 @@ import com.mycompany.academia.admin.model.Admin;
 import com.mycompany.academia.aluno.model.Aluno;
 import com.mycompany.academia.admin.model.Instrutor;
 import com.mycompany.academia.admin.model.Usuario;
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.core.session.SessaoUsuario;
 import java.io.IOException;
 import javafx.event.ActionEvent;
@@ -25,6 +26,7 @@ public class PainelPrincipalController {
 
     @FXML
     public void initialize() {
+        EventBus.emit("Desktop", "PainelPrincipalController.carregarDash", "Painel principal carregado");
         Usuario usuario = SessaoUsuario.getInstancia().getUsuarioLogado();
         
         if (usuario != null) {

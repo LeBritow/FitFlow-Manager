@@ -1,5 +1,6 @@
 package com.mycompany.academia.core.ui;
 
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.core.session.SessaoUsuario;
 import com.mycompany.academia.admin.dao.UsuarioDAO;
 import com.mycompany.academia.admin.model.Usuario;
@@ -16,6 +17,7 @@ public class TrocarSenhaObrigatoriaController {
 
     @FXML
     void salvarEContinuar(ActionEvent event) {
+        EventBus.emit("Desktop", "TrocarSenhaController.salvarEContinuar", "Trocando senha obrigatória");
         String novaSenha = campoNovaSenha.getText();
         String confirmaSenha = campoConfirmaSenha.getText();
 

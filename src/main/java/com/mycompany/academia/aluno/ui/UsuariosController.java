@@ -2,6 +2,7 @@ package com.mycompany.academia.aluno.ui;
 
 import com.mycompany.academia.admin.ui.FormUsuarioController;
 import com.mycompany.academia.admin.dao.UsuarioDAO;
+import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.admin.model.Admin;
 import com.mycompany.academia.admin.model.Usuario;
 import com.mycompany.academia.core.session.SessaoUsuario;
@@ -27,6 +28,7 @@ public class UsuariosController {
     public void initialize() {
         Usuario atual = SessaoUsuario.getInstancia().getUsuarioLogado();
         usuarioLogadoEhAdmin = atual instanceof Admin;
+        EventBus.emit("Desktop", "UsuariosController.listarUsuarios", "Carregando gerenciamento de usuários");
         carregarDadosTabela();
     }
 

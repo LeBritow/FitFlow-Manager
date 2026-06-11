@@ -10,6 +10,12 @@
 
 <div class="topbar">
   <h1>⚡ FitFlow Manager <small>Diagrama de Classes em Tempo Real</small></h1>
+  <div class="zoom-bar">
+    <button onclick="zoomOut()" title="Reduzir">🔍−</button>
+    <span class="zlvl" id="zoomLabel">100%</span>
+    <button onclick="zoomIn()" title="Aumentar">🔍+</button>
+    <button onclick="zoomReset()" title="Redefinir">⊡</button>
+  </div>
   <div class="status">
     <span class="dot off" id="dot"></span>
     <span id="statText">Desconectado</span>
@@ -116,6 +122,7 @@
               <span class="mt" id="mt-buscarTotal">buscarTotalTreinos()</span>
               <span class="mt" id="mt-buscarSemana">buscarTreinosPorSemana()</span>
               <span class="mt">+12 outros</span>
+              <div class="cur-method" id="cur-act-treinodao">—</div>
             </div>
           </div>
           <div class="uml green" style="left:260px;top:294px" id="cb-alunodao">
@@ -126,6 +133,7 @@
               <span class="mt" id="mt-buscarAvals">buscarAvaliacoesPorAluno()</span>
               <span class="mt" id="mt-salvar">salvarOuAtualizar()</span>
               <span class="mt">contarAlunos()</span>
+              <div class="cur-method" id="cur-act-alunodao">—</div>
             </div>
           </div>
           <div class="uml green" style="left:476px;top:294px" id="cb-exercdao">
@@ -135,6 +143,7 @@
               <span class="mt">listarTodos()</span>
               <span class="mt">contarExercicios()</span>
               <span class="mt">buscarPorGrupo()</span>
+              <div class="cur-method" id="cur-act-exercdao">—</div>
             </div>
           </div>
           <div class="uml green" style="left:692px;top:294px" id="cb-userdao">
@@ -143,6 +152,7 @@
             <div class="body">
               <span class="mt" id="mt-autenticar">autenticar()</span>
               <span class="mt">salvar()</span>
+              <div class="cur-method" id="cur-act-userdao">—</div>
             </div>
           </div>
 
@@ -155,6 +165,7 @@
             <div class="body">
               <span class="mt" id="mt-getEM">getEntityManager()</span>
               <span class="mt">EntityManagerFactory</span>
+              <div class="cur-method" id="cur-act-jpa">—</div>
             </div>
           </div>
           <div class="uml red" style="left:260px;top:514px" id="cb-db">
@@ -164,6 +175,7 @@
               <span class="mt" id="mt-select">SELECT / JOIN</span>
               <span class="mt" id="mt-insert">INSERT / UPDATE</span>
               <span class="mt" id="mt-count">COUNT / GROUP BY</span>
+              <div class="cur-method" id="cur-act-db">—</div>
             </div>
           </div>
           <div class="uml teal" style="left:460px;top:514px" id="cb-entity">
@@ -174,6 +186,7 @@
               <span class="mt">ProgramacaoTreino</span>
               <span class="mt">ItemTreino, Exercicio</span>
               <span class="mt">SessaoTreino, ComentarioTreino</span>
+              <div class="cur-method" id="cur-act-entity">—</div>
             </div>
           </div>
           <div class="uml purple" style="left:660px;top:514px" id="cb-gif">
@@ -224,55 +237,61 @@
             </div>
           </div>
 
-          <div class="zone" id="zone-dao-mb" style="left:26px;top:200px;width:720px;height:150px">
+          <div class="zone" id="zone-dao" style="left:26px;top:200px;width:720px;height:150px">
             <div class="zl">🗄️ DAO LAYER</div>
           </div>
-          <div class="uml green" style="left:44px;top:224px" id="cb-treinodao-mb">
+          <div class="uml green" style="left:44px;top:224px" id="cb-treinodao">
             <div class="hd">TreinoDAO</div>
             <div class="sep"></div>
             <div class="body">
               <span class="mt" id="mt-listarProg">listarProgramacoesPorAluno()</span>
               <span class="mt" id="mt-listarItens">listarItensPorTreino()</span>
+              <div class="cur-method" id="cur-act-treinodao">—</div>
             </div>
           </div>
-          <div class="uml green" style="left:220px;top:224px" id="cb-alunodao-mb">
+          <div class="uml green" style="left:220px;top:224px" id="cb-alunodao">
             <div class="hd">AlunoDAO</div>
             <div class="sep"></div>
             <div class="body">
               <span class="mt" id="mt-buscarTodos">buscarTodos()</span>
               <span class="mt" id="mt-salvar">salvarOuAtualizar()</span>
+              <div class="cur-method" id="cur-act-alunodao">—</div>
             </div>
           </div>
-          <div class="uml green" style="left:396px;top:224px" id="cb-exercdao-mb">
+          <div class="uml green" style="left:396px;top:224px" id="cb-exercdao">
             <div class="hd">ExercicioDAO</div>
             <div class="sep"></div>
             <div class="body">
               <span class="mt">listarTodos()</span>
+              <div class="cur-method" id="cur-act-exercdao">—</div>
             </div>
           </div>
-          <div class="uml green" style="left:572px;top:224px" id="cb-userdao-mb">
+          <div class="uml green" style="left:572px;top:224px" id="cb-userdao">
             <div class="hd">UsuarioDAO</div>
             <div class="sep"></div>
             <div class="body">
               <span class="mt" id="mt-autenticar">autenticar()</span>
+              <div class="cur-method" id="cur-act-userdao">—</div>
             </div>
           </div>
 
-          <div class="zone" id="zone-infra-mb" style="left:26px;top:410px;width:720px;height:150px">
+          <div class="zone" id="zone-infra" style="left:26px;top:410px;width:720px;height:150px">
             <div class="zl">🔗 INFRAESTRUTURA</div>
           </div>
-          <div class="uml orange" style="left:44px;top:434px" id="cb-jpa-mb">
+          <div class="uml orange" style="left:44px;top:434px" id="cb-jpa">
             <div class="hd">JPAUtil</div>
             <div class="sep"></div>
             <div class="body">
               <span class="mt" id="mt-getEM">getEntityManager()</span>
+              <div class="cur-method" id="cur-act-jpa">—</div>
             </div>
           </div>
-          <div class="uml red" style="left:200px;top:434px" id="cb-db-mb">
+          <div class="uml red" style="left:200px;top:434px" id="cb-db">
             <div class="hd">PostgreSQL</div>
             <div class="sep"></div>
             <div class="body">
               <span class="mt" id="mt-select">SELECT / JOIN</span>
+              <div class="cur-method" id="cur-act-db">—</div>
             </div>
           </div>
         </div>
