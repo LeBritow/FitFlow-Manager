@@ -81,7 +81,7 @@ src/main/resources/
 
 ## Documentação completa
 
-Veja [DOCUMENTACAO.md](DOCUMENTACAO.md) para documentação técnica detalhada — arquitetura, modelo de domínio, fluxo de dados, banco de dados, EventBus, API mobile e perguntas frequentes.
+Veja [DOCUMENTACAO.md](DOCUMENTACAO.md) (ou [DOCUMENTACAO.pdf](DOCUMENTACAO.pdf)) para documentação técnica detalhada — arquitetura, modelo de domínio, fluxo de dados, banco de dados, EventBus, API mobile e perguntas frequentes.
 
 ## Banco de Dados
 
