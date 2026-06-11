@@ -1,0 +1,4 @@
+# GIPHY API key for exercise GIF search
+# Get yours at https://developers.giphy.com/
+# Copy this file to config.properties and replace the value
+giphy.api.key=SUA_CHAVE_AQUI

@@ -376,8 +376,8 @@ DDL: `hibernate.hbm2ddl.auto = update` (Hibernate cria/atualiza schema automatic
 | Arquivo | Função |
 |---------|--------|
 | `add_cascade.sql` | Adiciona `ON DELETE CASCADE` em todas as 11 FKs |
-| `SetupBanco.java` | Insere admin padrão (executar manualmente uma vez) |
-| `SeedData.java` | Povoa dados de exemplo (11 exercícios, 3 treinos, 1 aluno com 8 semanas) |
+| `persistence.xml.example` | Template de configuração do banco (copiar para `persistence.xml` e ajustar credenciais) |
+| `config.properties.example` | Template da chave da GIPHY API (copiar para `config.properties` e adicionar a chave) |
 
 ---
 

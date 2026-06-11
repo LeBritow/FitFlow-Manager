@@ -3,18 +3,37 @@ package com.mycompany.academia.core.config;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 public class GifSearchService {
 
-    private static final String GIPHY_API_KEY = System.getenv("GIPHY_API_KEY") != null
-        ? System.getenv("GIPHY_API_KEY")
-        : System.getProperty("giphy.api.key", "");
+    private static final String GIPHY_API_KEY = carregarChave();
+
+    private static String carregarChave() {
+        String env = System.getenv("GIPHY_API_KEY");
+        if (env != null && !env.isEmpty()) return env;
+
+        String prop = System.getProperty("giphy.api.key");
+        if (prop != null && !prop.isEmpty()) return prop;
+
+        try (InputStream in = GifSearchService.class.getClassLoader().getResourceAsStream("config.properties")) {
+            if (in != null) {
+                Properties p = new Properties();
+                p.load(in);
+                String file = p.getProperty("giphy.api.key");
+                if (file != null && !file.isEmpty() && !file.equals("SUA_CHAVE_AQUI")) return file;
+            }
+        } catch (Exception ignored) {}
+
+        return "";
+    }
     private static final String GIPHY_URL = "https://api.giphy.com/v1/gifs/search?api_key=%s&q=%s&limit=5&rating=g";
 
     private final HttpClient httpClient;
