@@ -463,33 +463,47 @@ src/main/resources/
 
 ---
 
-## 14. Perguntas Frequentes (para o professor)
+## 14. Fundamentação Técnica — Para Saber na Apresentação
 
-### Por que não usar Spring Boot?
+### 14.1. Por que usamos esta tecnologia?
 
-O projeto começou como um trabalho acadêmico focado em JavaFX + JPA puro. O servidor HTTP embutido (`com.sun.net.httpserver`) foi adicionado posteriormente para viabilizar o acesso mobile sem necessidade de um servidor de aplicação externo.
+#### Por que `@Inheritance(strategy = JOINED)` em vez de `SINGLE_TABLE`?
 
-### Por que `ON DELETE CASCADE` no banco e não nas entidades JPA?
+`SINGLE_TABLE` joga tudo numa tabela só com uma coluna `DTYPE`, mas obriga que colunas de subclasses sejam `NULL` — desperdício e sem integridade. `JOINED` normaliza: cada subclasse tem sua própria tabela só com suas colunas, e o banco garante a consistência via FK compartilhando o `id`.
 
-As entidades JPA não declaravam `CascadeType.REMOVE` nem orphan removal. A deleção em cascata foi implementada diretamente no banco via script SQL. Isso simplificou o código Java, que agora pode chamar `em.remove()` na entidade pai sem se preocupar com os filhos.
+#### Por que `com.sun.net.httpserver` em vez de Spring Boot ou Tomcat?
 
-### Como funciona o monitoramento em tempo real?
+O projeto é um trabalho acadêmico focado em **JavaFX puro + JPA**. Um servidor HTTP completo como Spring Boot adicionaria centenas de dependências e复杂idade. O `com.sun.net.httpserver` já vem embutido no JDK — zero dependência extra, suficiente para servir uma SPA mobile e uma API REST simples.
 
-O `EventBus` é um pub-sub em memória. Quando o celular faz uma requisição, cada camada (handler, DAO, JPA) emite eventos. O `SSEHandler` está inscrito no bus e transmite esses eventos via Server-Sent Events para a página `fluxo.html`, que os renderiza em um diagrama animado.
+#### Por que `Server-Sent Events` em vez de WebSocket para o monitoramento?
 
-### Por que as senhas não são hasheadas?
+O monitoramento é **unidirecional** (servidor → navegador). SSE é mais simples que WebSocket: usa HTTP comum, não precisa de handshake especial, funciona em qualquer proxy reverso e o JavaScript consome com `new EventSource(url)` sem bibliotecas extras. WebSocket só valeria a pena se houvesse comunicação bidirecional.
 
-É uma limitação conhecida. O sistema usa senha em texto puro. Em produção, seria necessário integrar BCrypt ou similar no `UsuarioDAO.autenticar()`.
+#### Por que `Platform.runLater()` em operações de banco?
 
-### Qual a diferença entre `ItemTreino` e `ItemRealizado`?
+O JavaFX tem uma **thread única** para renderizar a UI. Operações de banco (JPA) podem travar essa thread, congelando a tela. A solução: rodar JPA em uma thread separada e, quando terminar, usar `Platform.runLater()` para voltar à thread do JavaFX e atualizar a UI com segurança.
 
-`ItemTreino` é o planejado: um exercício com suas séries teóricas dentro de um treino. `ItemRealizado` é o executado: registra quanto o aluno realmente carregou, se fez ou pulou o exercício, tempos de execução/descanso.
+#### Por que `ObservableList` + `PropertyValueFactory` nas tabelas?
+
+O JavaFX TableView precisa **notificar a UI** quando os dados mudam. `ObservableList` dispara eventos de inserção/remoção automaticamente. `PropertyValueFactory` usa reflection para ligar cada coluna ao atributo do modelo — sem ele, precisaríamos escrever `setCellValueFactory` manualmente para cada coluna.
+
+#### Por que `CopyOnWriteArrayList` no EventBus?
+
+O EventBus é **thread-safe** — listeners podem se inscrever em qualquer thread, e eventos podem ser emitidos de qualquer thread (inclusive do servidor HTTP com pool de threads). `CopyOnWriteArrayList` é ideal para cenários com **muita leitura e pouca escrita** (nosso caso).
+
+#### Por que `AtomicInteger` nos contadores de GIF? (`ExerciciosController.java:119`)
+
+Várias threads disparam buscas de GIF ao mesmo tempo. Um `int` comum sofreria **race condition** (duas threads incrementando ao mesmo tempo perdem atualizações). `AtomicInteger` garante incremento atômico sem precisar de `synchronized`.
+
+#### Por que `EnumType.STRING` no `objetivo` do Treino?
+
+`EnumType.ORDINAL` salva o número do enum (0, 1, 2...). Se alguém reordenar os valores no código, os dados do banco ficam corrompidos. `STRING` salva o nome (`"HIPERTROFIA"`, `"EMAGRECIMENTO"`) — legível e resistente a reordenação.
 
 ---
 
-## 15. Perguntas Difíceis para a Apresentação
+### 14.2. Exemplos de conceitos Java no código
 
-### 15.1. Onde tem **sobrecarga (overloading)** no código?
+#### Sobrecarga (overloading)
 
 Dois métodos com **mesmo nome** mas **assinaturas diferentes**:
 
@@ -503,7 +517,7 @@ public void carregarDadosReais(Aluno aluno, Treino treino, LocalDateTime data, S
 public void carregarDadosReais(ComentarioTreino comentario) { ... }
 ```
 
-### 15.2. Onde tem **sobreposição (override)**?
+#### Sobreposição (override)
 
 Métodos que **reescrevem** o comportamento da classe pai com `@Override`:
 
@@ -519,7 +533,7 @@ static class LoginHandler implements HttpHandler {
 }
 ```
 
-### 15.3. Onde tem **herança**?
+#### Herança
 
 `Usuario` é classe **abstrata** com `@Inheritance(strategy = InheritanceType.JOINED)`:
 
@@ -533,7 +547,7 @@ public class Aluno extends Usuario { ... }
 
 No banco, isso gera uma tabela `usuario` com colunas comuns, e tabelas separadas `admin`, `instrutor`, `aluno` só com colunas específicas, compartilhando o mesmo `id`.
 
-### 15.4. Onde tem **polimorfismo**?
+#### Polimorfismo
 
 O método `handle(HttpExchange)` é implementado de **8 formas diferentes** em `ServidorMobile.java`. O servidor HTTP chama o mesmo método sem saber qual handler específico está sendo executado:
 
@@ -547,7 +561,7 @@ httpServer.createContext("/api/treino/finalizar", new FinalizarTreinoHandler());
 
 Outro exemplo: `StringConverter` tem implementações diferentes para `Aluno`, `ProgramacaoTreino`, `Treino` e `AvaliacaoFisica`, mas o JavaFX chama sempre o mesmo método `toString()`.
 
-### 15.5. Onde tem **generics**?
+#### Generics
 
 Em todo lugar. Os principais exemplos:
 
@@ -565,7 +579,7 @@ List<ProgramacaoTreino> r = em.createQuery("SELECT p FROM ProgramacaoTreino p ..
 public static void autoFitColumns(TableView<?> tableView) { ... }
 ```
 
-### 15.6. Onde tem **lambdas e streams**?
+#### Lambdas e streams
 
 Lambdas são usadas extensivamente em listeners do JavaFX:
 
@@ -588,7 +602,7 @@ List<Exercicio> semGif = todos.stream()
     .toList();
 ```
 
-### 15.7. Onde tem **programação concorrente (threads)**?
+#### Programação concorrente (threads)
 
 ```java
 // PainelPrincipalController.java:45 — servidor HTTP em background
@@ -607,9 +621,9 @@ servidorAtual.setExecutor(Executors.newCachedThreadPool());
 AtomicInteger sucesso = new AtomicInteger(0);
 ```
 
-### 15.8. Qual **padrão de projeto** é usado no EventBus?
+#### Padrões de projeto
 
-**Observer (pub-sub)**. O `EventBus` mantém uma lista de listeners e os notifica quando um evento ocorre:
+**Observer (pub-sub)** — O `EventBus` mantém uma lista de listeners e os notifica quando um evento ocorre:
 
 ```java
 // EventBus.java — singleton, thread-safe (CopyOnWriteArrayList)
@@ -625,31 +639,33 @@ EventBus.Listener listener = event -> { /* envia via SSE */ };
 EventBus.subscribe(listener);
 ```
 
-Outros padrões presentes: **DAO** (data access object em `AlunoDAO`, `TreinoDAO`, etc.), **Singleton** (`EventBus`, `JPAUtil`), **MVC** (controllers JavaFX como View-Controller, models JPA, DAOs como Model).
+Outros padrões: **DAO** (`AlunoDAO`, `TreinoDAO`), **Singleton** (`EventBus`, `JPAUtil`), **MVC** (controllers JavaFX, models JPA, DAOs).
 
-### 15.9. Onde tem **classes aninhadas (nested/inner classes)**?
-
-Classes estáticas dentro de outras classes, cada uma com uma responsabilidade específica:
+#### Classes aninhadas (nested/inner classes)
 
 ```java
 // ServidorMobile.java — 8 handlers como classes internas estáticas
 static class LoginHandler implements HttpHandler { ... }
-static class SSEHandler implements HttpHandler { ... }  // SSE em tempo real
+static class SSEHandler implements HttpHandler { ... }
 
 // EventBus.java — interface Listener e classe Event internas
 public static class Event { ... }
 public interface Listener { void onEvent(Event e); }
 
-// AnaliseAlunoController.java:592 — DTO interno para a lista de histórico
+// AnaliseAlunoController.java:592 — DTO interno
 public static class ItemHistorico { ... }
 
-// DetalhesTreinoRealizadoController.java:147 — DTO interno para tabela de execução
+// DetalhesTreinoRealizadoController.java:147 — DTO interno
 public static class LinhaExecucao { ... }
 ```
 
-### 15.10. Como funciona o **Server-Sent Events (SSE)**?
+---
 
-O servidor HTTP mantém uma **conexão aberta** com o navegador que está na página `fluxo.html`. O `SSEHandler` se inscreve no `EventBus` e, para cada evento recebido, escreve no OutputStream da conexão:
+### 14.3. Como funciona na prática?
+
+#### Server-Sent Events (SSE)
+
+O servidor HTTP mantém uma **conexão aberta** com o navegador. O `SSEHandler` se inscreve no `EventBus` e, para cada evento recebido, escreve no OutputStream da conexão:
 
 ```java
 // ServidorMobile.java:512-561
@@ -668,36 +684,15 @@ static class SSEHandler implements HttpHandler {
             }
         });
 
-        // Keepalive a cada 30s
         while (true) {
             Thread.sleep(30000);
-            synchronized (out) { /* envia comentário keepalive */ }
+            synchronized (out) { /* keepalive */ }
         }
     }
 }
 ```
 
-### 15.11. Como o **Hibernate** mapeia a herança de `Usuario`?
-
-`Usuario` usa `@Inheritance(strategy = InheritanceType.JOINED)`. Isso gera uma tabela `usuario` com os campos comuns (`id`, `nome`, `email`, `cpf`, `senha`) e tabelas separadas `admin`, `instrutor` e `aluno` apenas com os campos específicos de cada subclasse. Todas compartilham o mesmo `id`, que é PK na tabela filha e FK para `usuario(id)`.
-
-```java
-// Usuario.java
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Usuario { ... }
-
-// Admin.java — sem colunas extras
-public class Admin extends Usuario { ... }
-
-// Aluno.java — colunas específicas em tabela separada
-public class Aluno extends Usuario {
-    private float peso, altura, imc;
-    ...
-}
-```
-
-### 15.12. Por que `ItemTreino` usa `CascadeType.ALL` em `serieTreino` mas o banco usa `ON DELETE CASCADE`?
+#### CascadeType vs ON DELETE CASCADE
 
 ```java
 // ItemTreino.java
@@ -705,4 +700,8 @@ public class Aluno extends Usuario {
 private List<SerieTreino> seriesTreino = new ArrayList<>();
 ```
 
-O `CascadeType.ALL` no JPA garante que, ao **salvar** um `ItemTreino` com suas séries, tudo seja persistido em uma única chamada de `em.persist()`. Já o `ON DELETE CASCADE` no banco é um **plano B** para quando a deleção é feita via `em.remove()` diretamente no pai. As demais entidades (como `SessaoTreino` → `ItemRealizado`) dependem exclusivamente do CASCADE do banco, pois não declararam CascadeType nas anotações JPA.
+O `CascadeType.ALL` no JPA garante que, ao **salvar** um `ItemTreino` com séries, tudo seja persistido junto. O `ON DELETE CASCADE` no banco é o **plano B** para deleções via `em.remove()` no pai. As demais entidades (ex: `SessaoTreino` → `ItemRealizado`) dependem exclusivamente do CASCADE do banco, pois não têm CascadeType anotado.
+
+#### Diferença entre `ItemTreino` e `ItemRealizado`
+
+`ItemTreino` é o **planejado**: um exercício com séries teóricas dentro de um treino. `ItemRealizado` é o **executado**: registra a carga que o aluno usou, se fez ou pulou, tempos de execução/descanso. Um `ItemTreino` pode gerar zero ou muitos `ItemRealizado` ao longo do tempo.
