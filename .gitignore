@@ -19,5 +19,5 @@ src/main/resources/META-INF/persistence.xml
 Thumbs.db
 *.config.properties
 config.properties
-DOCUMENTACAO.pdf
-gerar_pdf.py
+docs/DOCUMENTACAO.pdf
+docs/gerar_pdf.py

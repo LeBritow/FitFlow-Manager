@@ -1,6 +1,6 @@
 # FitFlow Manager — Documentação Técnica
 
-> **Versão PDF:** gere com `python gerar_pdf.py` (ou abra [DOCUMENTACAO.pdf](DOCUMENTACAO.pdf) se disponível).
+> **Versão PDF:** gere com `python docs/gerar_pdf.py` (ou abra [DOCUMENTACAO.pdf](DOCUMENTACAO.pdf) se disponível).
 
 ## 1. Visão Geral
 
@@ -425,7 +425,7 @@ O servidor mobile inicia automaticamente na porta 8081 junto com a interface des
 
 ---
 
-## 13. Estrutura de Arquivos (após limpeza)
+## 13. Estrutura de Arquivos
 
 ```
 src/main/java/com/mycompany/academia/
@@ -463,7 +463,7 @@ src/main/resources/
 
 ---
 
-## 14. Fundamentação Técnica — Para Saber na Apresentação
+## 14. Fundamentação Técnica
 
 ### 14.1. Por que usamos esta tecnologia?
 
@@ -505,7 +505,9 @@ Várias threads disparam buscas de GIF ao mesmo tempo. Um `int` comum sofreria *
 
 #### Sobrecarga (overloading)
 
-Dois métodos com **mesmo nome** mas **assinaturas diferentes**:
+**O que é:** ter dois ou mais métodos com o **mesmo nome** mas com **parâmetros diferentes** (tipo, quantidade ou ordem).
+
+**Pra que serve:** evitar criar nomes diferentes para operações que fazem a mesma coisa, só que com dados de tipos diferentes. Em vez de `abrirModalPorSessao()` e `abrirModalPorComentario()`, usamos `abrirModalDetalhesTreino()` duas vezes, cada uma aceitando um tipo.
 
 ```java
 // AnaliseAlunoController.java:440 e 471
@@ -519,7 +521,9 @@ public void carregarDadosReais(ComentarioTreino comentario) { ... }
 
 #### Sobreposição (override)
 
-Métodos que **reescrevem** o comportamento da classe pai com `@Override`:
+**O que é:** reescrever um método que já existe na classe pai para dar um comportamento diferente.
+
+**Pra que serve:** o JavaFX define um método `start(Stage)` que é vazio. Nós o sobrescrevemos para carregar nossa tela de login. O servidor HTTP define `handle(HttpExchange)` — nós o sobrescrevemos 8 vezes, uma para cada endpoint da API.
 
 ```java
 // Academia.java:11 — sobrescreve o start() do JavaFX
@@ -535,7 +539,9 @@ static class LoginHandler implements HttpHandler {
 
 #### Herança
 
-`Usuario` é classe **abstrata** com `@Inheritance(strategy = InheritanceType.JOINED)`:
+**O que é:** uma classe filha reaproveitar atributos e métodos de uma classe pai, adicionando os seus próprios.
+
+**Pra que serve:** `Usuario` tem os campos `nome`, `email`, `cpf`, `senha` — comuns a todo mundo. `Admin`, `Instrutor` e `Aluno` herdam tudo isso e cada um adiciona só o que é específico (ex: `Aluno` adiciona `peso`, `altura`, `imc`). Evita repetir código.
 
 ```java
 // Usuario.java — classe base abstrata
@@ -545,25 +551,28 @@ public abstract class Usuario { ... }
 public class Aluno extends Usuario { ... }
 ```
 
-No banco, isso gera uma tabela `usuario` com colunas comuns, e tabelas separadas `admin`, `instrutor`, `aluno` só com colunas específicas, compartilhando o mesmo `id`.
+No banco (estratégia JOINED), isso gera uma tabela `usuario` com colunas comuns, e tabelas separadas `admin`, `instrutor`, `aluno` só com colunas específicas, compartilhando o mesmo `id`.
 
 #### Polimorfismo
 
-O método `handle(HttpExchange)` é implementado de **8 formas diferentes** em `ServidorMobile.java`. O servidor HTTP chama o mesmo método sem saber qual handler específico está sendo executado:
+**O que é:** um mesmo método se comportar de formas diferentes dependendo de qual classe o implementa.
+
+**Pra que serve:** o servidor HTTP não precisa saber qual handler está sendo chamado — ele só chama `handle()`. Quem decide o que fazer é a implementação concreta (login, buscar ficha, finalizar treino...). Se amanhã criarmos um novo endpoint, é só criar mais uma classe que implementa `HttpHandler` — o servidor não precisa mudar nada.
 
 ```java
 // ServidorMobile.java:88-112 — todos registrados como HttpHandler
 httpServer.createContext("/api/login", new LoginHandler());
 httpServer.createContext("/api/ficha", new BuscarFichaHandler());
 httpServer.createContext("/api/treino/finalizar", new FinalizarTreinoHandler());
-// + mais 5 handlers...
 ```
 
 Outro exemplo: `StringConverter` tem implementações diferentes para `Aluno`, `ProgramacaoTreino`, `Treino` e `AvaliacaoFisica`, mas o JavaFX chama sempre o mesmo método `toString()`.
 
-#### Generics
+#### Generics `<T>`
 
-Em todo lugar. Os principais exemplos:
+**O que é:** uma forma de escrever código que funciona com **qualquer tipo**, sem perder a segurança de tipo na compilação.
+
+**Pra que serve:** sem generics, uma `TableView` aceitaria qualquer objeto — e um erro de tipo só apareceria em execução. Com `TableView<LinhaExecucao>`, o compilador garante que só `LinhaExecucao` entra ali. O mesmo vale para `ObservableList<Aluno>`, `List<ProgramacaoTreino>`, etc.
 
 ```java
 // TableView tipada — DetalhesTreinoRealizadoController.java:19
@@ -573,18 +582,52 @@ Em todo lugar. Os principais exemplos:
 private ObservableList<Aluno> todosAlunos;
 
 // JPA queries com tipo explícito — TreinoDAO.java:104
-List<ProgramacaoTreino> r = em.createQuery("SELECT p FROM ProgramacaoTreino p ...", ProgramacaoTreino.class);
+List<ProgramacaoTreino> r = em.createQuery("...", ProgramacaoTreino.class);
 
-// Wildcard generics — TableUtils.java:7
+// Wildcard <?> — TableUtils.java:7 (qualquer tipo serve)
 public static void autoFitColumns(TableView<?> tableView) { ... }
 ```
 
-#### Lambdas e streams
+#### Interfaces
 
-Lambdas são usadas extensivamente em listeners do JavaFX:
+**O que é:** um contrato que define **o que** uma classe deve fazer, mas não **como**. A classe que "implementa" a interface é obrigada a fornecer o corpo dos métodos.
+
+**Pra que serve:** o servidor HTTP define a interface `HttpHandler` com o método `handle()`. Qualquer classe que implementar essa interface pode ser registrada como handler. O servidor não precisa conhecer a classe específica — ele só sabe que ela tem `handle()`. É a base do polimorfismo no Java.
 
 ```java
-// AnaliseAlunoController.java:63
+// ServidorMobile.java — 8 classes diferentes, mesma interface
+static class LoginHandler implements HttpHandler { ... }
+static class SSEHandler implements HttpHandler { ... }
+```
+
+Também criamos nossa própria interface:
+
+```java
+// EventBus.java:22 — interface funcional com um único método
+public interface Listener { void onEvent(Event e); }
+
+// Uso: qualquer lambda que receba um Event pode ser um Listener
+EventBus.subscribe(event -> { System.out.println(event.detail); });
+```
+
+#### Lambdas `() -> {}`
+
+**O que é:** uma forma concisa de escrever uma função anônima (um bloco de código que pode ser passado como parâmetro).
+
+**Pra que serve:** antes das lambdas, para passar um código para um listener, precisávamos criar uma classe anônima inteira:
+```java
+// SEM lambda (jeito antigo)
+comboBox.addListener(new ChangeListener() {
+    @Override public void changed(...) { /* código */ }
+});
+
+// COM lambda (jeito moderno)
+comboBox.addListener((obs, antigo, novo) -> { /* código */ });
+```
+A lambda reduz boilerplate e deixa o código mais legível. Usamos lambdas extensivamente em listeners de botões, comboBoxes, eventos de mouse e factories de célula.
+
+```java
+// AnaliseAlunoController.java:63 — listener de comboBox
 comboBuscaAluno.getSelectionModel().selectedItemProperty().addListener((obs, antigo, novo) -> {
     if (novo != null) {
         alunoSelecionado = novo;
@@ -593,16 +636,35 @@ comboBuscaAluno.getSelectionModel().selectedItemProperty().addListener((obs, ant
 });
 ```
 
-**Stream** para filtrar exercícios sem GIF:
+#### Streams
+
+**O que é:** uma sequência de dados que podemos transformar com operações como `filter` (filtrar), `map` (transformar), `forEach` (percorrer), etc., sem usar laços `for` tradicionais.
+
+**Pra que serve:** em vez de escrever um loop `for` com um `if` dentro para filtrar uma lista, usamos `stream().filter().toList()` — mais curto, mais expressivo e menos propenso a erros.
 
 ```java
-// ExerciciosController.java:105-107
+// SEM stream (jeito tradicional)
+List<Exercicio> semGif = new ArrayList<>();
+for (Exercicio e : todos) {
+    if (e.getUrlMidia() == null || e.getUrlMidia().isEmpty()) {
+        semGif.add(e);
+    }
+}
+
+// COM stream (jeito moderno) — ExerciciosController.java:105-107
 List<Exercicio> semGif = todos.stream()
     .filter(e -> e.getUrlMidia() == null || e.getUrlMidia().isEmpty())
     .toList();
 ```
 
 #### Programação concorrente (threads)
+
+**O que é:** executar mais de uma tarefa ao mesmo tempo, em paralelo. No Java, usamos a classe `Thread` ou pools de threads (`ExecutorService`).
+
+**Pra que serve:** três motivos principais:
+1. **Não travar a interface:** JavaFX congela se a thread da UI ficar ocupada. Operações lentas (banco de dados, HTTP) vão para uma thread separada.
+2. **Servidor HTTP:** precisa atender vários clientes ao mesmo tempo — cada requisição vai para uma thread do pool.
+3. **Busca de GIFs:** várias requisições à API do GIPHY podem ser disparadas em paralelo.
 
 ```java
 // PainelPrincipalController.java:45 — servidor HTTP em background
@@ -611,19 +673,21 @@ new Thread(() -> { ServidorMobile.iniciar(); }).start();
 // LoginController.java:76 — login assíncrono
 new Thread(() -> {
     Usuario u = usuarioDAO.autenticar(login, senha);
-    Platform.runLater(() -> { /* atualiza UI */ });  // volta pra thread do JavaFX
+    Platform.runLater(() -> { /* volta pra thread do JavaFX pra atualizar UI */ });
 }).start();
 
-// ServidorMobile.java:60 — pool de threads para requisições HTTP
+// ServidorMobile.java:60 — pool de threads
 servidorAtual.setExecutor(Executors.newCachedThreadPool());
 
-// ExerciciosController.java:119 — AtomicInteger para contadores thread-safe
+// ExerciciosController.java:119 — AtomicInteger thread-safe
 AtomicInteger sucesso = new AtomicInteger(0);
 ```
 
 #### Padrões de projeto
 
-**Observer (pub-sub)** — O `EventBus` mantém uma lista de listeners e os notifica quando um evento ocorre:
+**O que é:** soluções reutilizáveis para problemas comuns no desenvolvimento de software.
+
+**Observer (pub-sub):** o `EventBus` mantém uma lista de listeners e os notifica quando um evento ocorre. O emissor não precisa saber quem está ouvindo — ele só chama `EventBus.emit()`. Isso desacopla as camadas do sistema.
 
 ```java
 // EventBus.java — singleton, thread-safe (CopyOnWriteArrayList)
@@ -639,9 +703,16 @@ EventBus.Listener listener = event -> { /* envia via SSE */ };
 EventBus.subscribe(listener);
 ```
 
-Outros padrões: **DAO** (`AlunoDAO`, `TreinoDAO`), **Singleton** (`EventBus`, `JPAUtil`), **MVC** (controllers JavaFX, models JPA, DAOs).
+Outros padrões presentes:
+- **DAO** (`AlunoDAO`, `TreinoDAO`) — isola o acesso ao banco de dados do resto da aplicação
+- **Singleton** (`EventBus`, `JPAUtil`) — garante uma única instância de um recurso compartilhado
+- **MVC** — controllers JavaFX fazem o papel de View+Controller, models JPA são o Model, DAOs são a camada de acesso a dados
 
 #### Classes aninhadas (nested/inner classes)
+
+**O que é:** uma classe definida **dentro** de outra classe. Quando é `static`, funciona como uma classe independente que só usa o nome da classe externa como organização.
+
+**Pra que serve:** agrupar classes que só fazem sentido juntas. Os 8 handlers do servidor HTTP (`LoginHandler`, `SSEHandler`, etc.) estão dentro de `ServidorMobile` porque ninguém mais usa eles. Os `ItemHistorico` e `LinhaExecucao` são estruturas de dados internas dos controllers.
 
 ```java
 // ServidorMobile.java — 8 handlers como classes internas estáticas
@@ -654,9 +725,6 @@ public interface Listener { void onEvent(Event e); }
 
 // AnaliseAlunoController.java:592 — DTO interno
 public static class ItemHistorico { ... }
-
-// DetalhesTreinoRealizadoController.java:147 — DTO interno
-public static class LinhaExecucao { ... }
 ```
 
 ---
