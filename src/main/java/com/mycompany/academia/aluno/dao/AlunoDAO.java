@@ -10,17 +10,15 @@ import java.util.List;
 
 public class AlunoDAO {
 
-    // Salva um novo ou atualiza um existente
     public void salvarOuAtualizar(Aluno aluno) {
         EventBus.emit("AlunoDAO", "salvarOuAtualizar", "aluno=" + aluno.getNome());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            // CORREÇÃO: Como o ID é 'int', checamos se é igual a 0
             if (aluno.getId() == 0) {
-                em.persist(aluno); // Cria novo
+                em.persist(aluno);
             } else {
-                em.merge(aluno); // Atualiza existente
+                em.merge(aluno);
             }
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -60,14 +58,12 @@ public class AlunoDAO {
     }
 }
 
-    // Salva a nova avaliação garantindo que o Aluno seja reconhecido na transação atual
     public void salvarAvaliacaoFisica(com.mycompany.academia.aluno.model.AvaliacaoFisica avaliacao) {
         EventBus.emit("AlunoDAO", "salvarAvaliacaoFisica", "alunoId=" + avaliacao.getAluno().getId());
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
             
-            // Reanexa o aluno à sessão do banco antes de salvar para evitar erros de "Detached Entity"
             avaliacao.setAluno(em.merge(avaliacao.getAluno())); 
             
             em.persist(avaliacao);
@@ -87,7 +83,7 @@ public class AlunoDAO {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(avaliacao); // O merge atualiza o registro existente com base no ID
+            em.merge(avaliacao);
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
@@ -112,7 +108,6 @@ public class AlunoDAO {
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            // Dá um merge antes para garantir que o Hibernate sabe qual objeto estamos apagando
             avaliacao = em.merge(avaliacao); 
             em.remove(avaliacao);
             em.getTransaction().commit();

@@ -7,7 +7,6 @@ import com.mycompany.academia.admin.model.Usuario;
 import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.core.session.SessaoUsuario;
 import java.io.IOException;
-import java.util.function.Consumer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -85,7 +84,6 @@ public class PainelPrincipalController {
         carregarTelaCentro("Usuarios.fxml");
     }
 
-    // NOVO MÉTODO ADICIONADO AQUI SEGUINDO O SEU PADRÃO
     @FXML
     void abrirAnaliseAluno(ActionEvent event) {
         carregarTelaCentro("AnaliseAluno.fxml");

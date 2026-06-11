@@ -13,12 +13,24 @@ public class Aluno extends Usuario {
     public Aluno() {
     }
 
-    public float getPeso() { return peso; }
-    public void setPeso(float peso) { this.peso = peso; }
+    public float getPeso() {
+        return peso;
+    }
+    public void setPeso(float peso) {
+        this.peso = peso;
+    }
 
-    public float getAltura() { return altura; }
-    public void setAltura(float altura) { this.altura = altura; }
+    public float getAltura() {
+        return altura;
+    }
+    public void setAltura(float altura) {
+        this.altura = altura;
+    }
 
-    public float getImc() { return imc; }
-    public void setImc(float imc) { this.imc = imc; }
+    public float getImc() {
+        return imc;
+    }
+    public void setImc(float imc) {
+        this.imc = imc;
+    }
 }

@@ -39,7 +39,7 @@ public class FormUsuarioController {
         } else {
             comboTipoPerfil.getItems().addAll("Instrutor", "Aluno");
         }
-        comboTipoPerfil.setValue("Aluno"); // Padrão
+        comboTipoPerfil.setValue("Aluno");
         
         comboTipoPerfil.getSelectionModel().selectedItemProperty().addListener((obs, antigo, novo) -> {
             ajustarCamposDinamicos(novo);

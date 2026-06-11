@@ -29,7 +29,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -37,12 +36,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 public class ServidorMobile {
 
     private static HttpServer servidorAtual;
-    private static final Map<String, Integer> sessoesAtivas = new HashMap<>(); // token → alunoId
+    private static final Map<String, Integer> sessoesAtivas = new HashMap<>();
 
     public static void iniciar() {
         try {
@@ -57,13 +55,12 @@ public class ServidorMobile {
             servidorAtual.createContext("/api/aluno/perfil", new PerfilHandler());
             servidorAtual.createContext("/api/sse", new SSEHandler());
 
-            // Arquivos estáticos (SPA)
             servidorAtual.createContext("/", new StaticFileHandler());
 
             servidorAtual.setExecutor(Executors.newCachedThreadPool());
             servidorAtual.start();
-            System.out.println("🚀 Servidor Mobile rodando em http://localhost:8081");
-            System.out.println("📱 Acesse pelo celular com o IP da máquina: http://" + getLocalIp() + ":8081");
+            System.out.println(" Servidor Mobile rodando em http://localhost:8081");
+            System.out.println(" Acesse pelo celular com o IP da máquina: http://" + getLocalIp() + ":8081");
 
         } catch (IOException e) {
             System.err.println("Erro ao iniciar servidor mobile: " + e.getMessage());
@@ -85,7 +82,6 @@ public class ServidorMobile {
         }
     }
 
-    // ─── helpers ────────────────────────────────────────────────────────
 
     private static void cors(HttpExchange ex) {
         ex.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
@@ -166,8 +162,6 @@ public class ServidorMobile {
         }
     }
 
-    // ─── FICHA ──────────────────────────────────────────────────────────
-
     static class BuscarFichaHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange ex) throws IOException {
@@ -235,8 +229,6 @@ public class ServidorMobile {
             }
         }
     }
-
-    // ─── FINALIZAR TREINO ──────────────────────────────────────────────
 
     static class FinalizarTreinoHandler implements HttpHandler {
         @Override
@@ -361,7 +353,6 @@ public class ServidorMobile {
 
                 EventBus.emit("PostgreSQL", "SELECT COUNT FROM comentario_treino WHERE alunoId=" + alunoId, "count");
                 TreinoDAO dao = new TreinoDAO();
-                LocalDateTime inicioMes = LocalDate.now().withDayOfMonth(1).atStartOfDay();
                 EventBus.emit("ServidorMobile", "DashboardHandler", "Consultando métricas do aluno " + alunoId);
 
                 long treinosMes = dao.buscarQuantidadeTreinosMes(alunoId);
@@ -398,8 +389,6 @@ public class ServidorMobile {
             }
         }
     }
-
-    // ─── HISTÓRICO (Feed) ──────────────────────────────────────────────
 
     static class HistoricoHandler implements HttpHandler {
         @Override
@@ -519,7 +508,6 @@ public class ServidorMobile {
         }
     }
 
-    // ─── SSE (Server-Sent Events) ──────────────────────────────────────
 
     static class SSEHandler implements HttpHandler {
         @Override
@@ -531,7 +519,7 @@ public class ServidorMobile {
             ex.sendResponseHeaders(200, 0);
 
             OutputStream out = ex.getResponseBody();
-            // Envia evento inicial de conexão
+
             JsonObject connMsg = new JsonObject();
             connMsg.addProperty("type", "connected");
             connMsg.addProperty("message", "Conectado ao monitor de eventos!");
@@ -551,13 +539,11 @@ public class ServidorMobile {
                         out.flush();
                     }
                 } catch (IOException e) {
-                    // client disconnected
                 }
             };
 
             EventBus.subscribe(listener);
 
-            // Mantém conexão viva até o cliente desconectar
             try {
                 while (ex.getHttpContext() != null) {
                     Thread.sleep(30000);
@@ -575,7 +561,6 @@ public class ServidorMobile {
         }
     }
 
-    // ─── STATIC FILE SERVER ────────────────────────────────────────────
 
     static class StaticFileHandler implements HttpHandler {
         @Override
@@ -583,7 +568,6 @@ public class ServidorMobile {
             cors(ex);
             String path = ex.getRequestURI().getPath();
 
-            // Redirecionar URLs antigas para nova estrutura
             if (path == null || path.equals("/") || path.equals("/login.html") || path.equals("/index.html")) {
                 path = "/pages/login.html";
             } else if (path.equals("/app.html") || path.equals("/treino.html")) {

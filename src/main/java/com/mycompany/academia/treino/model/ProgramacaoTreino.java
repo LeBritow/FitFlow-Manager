@@ -31,21 +31,45 @@ public class ProgramacaoTreino {
     public ProgramacaoTreino() {
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public LocalDateTime getDataInicioSemanas() { return dataInicioSemanas; }
-    public void setDataInicioSemanas(LocalDateTime dataInicioSemanas) { this.dataInicioSemanas = dataInicioSemanas; }
+    public LocalDateTime getDataInicioSemanas() {
+        return dataInicioSemanas;
+    }
+    public void setDataInicioSemanas(LocalDateTime dataInicioSemanas) {
+        this.dataInicioSemanas = dataInicioSemanas;
+    }
 
-    public LocalDateTime getDataFimSemanas() { return dataFimSemanas; }
-    public void setDataFimSemanas(LocalDateTime dataFimSemanas) { this.dataFimSemanas = dataFimSemanas; }
+    public LocalDateTime getDataFimSemanas() {
+        return dataFimSemanas;
+    }
+    public void setDataFimSemanas(LocalDateTime dataFimSemanas) {
+        this.dataFimSemanas = dataFimSemanas;
+    }
 
-    public String getDiaDaSemana() { return diaDaSemana; }
-    public void setDiaDaSemana(String diaDaSemana) { this.diaDaSemana = diaDaSemana; }
+    public String getDiaDaSemana() {
+        return diaDaSemana;
+    }
+    public void setDiaDaSemana(String diaDaSemana) {
+        this.diaDaSemana = diaDaSemana;
+    }
 
-    public Aluno getAluno() { return aluno; }
-    public void setAluno(Aluno aluno) { this.aluno = aluno; }
+    public Aluno getAluno() {
+        return aluno;
+    }
+    public void setAluno(Aluno aluno) {
+        this.aluno = aluno;
+    }
 
-    public Treino getTreino() { return treino; }
-    public void setTreino(Treino treino) { this.treino = treino; }
+    public Treino getTreino() {
+        return treino;
+    }
+    public void setTreino(Treino treino) {
+        this.treino = treino;
+    }
 }

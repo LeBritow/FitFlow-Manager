@@ -5,7 +5,7 @@ import jakarta.persistence.Entity;
 @Entity
 public class Instrutor extends Usuario {
 
-    private String cref; // 
+    private String cref;
 
     public Instrutor() {
     }

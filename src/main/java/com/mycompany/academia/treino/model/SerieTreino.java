@@ -26,18 +26,38 @@ public class SerieTreino {
     }
 
     // Getters e Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getNumeroDaSerie() { return numeroDaSerie; }
-    public void setNumeroDaSerie(int numeroDaSerie) { this.numeroDaSerie = numeroDaSerie; }
+    public int getNumeroDaSerie() {
+        return numeroDaSerie;
+    }
+    public void setNumeroDaSerie(int numeroDaSerie) {
+        this.numeroDaSerie = numeroDaSerie;
+    }
 
-    public int getRepeticoes() { return repeticoes; }
-    public void setRepeticoes(int repeticoes) { this.repeticoes = repeticoes; }
+    public int getRepeticoes() {
+        return repeticoes;
+    }
+    public void setRepeticoes(int repeticoes) {
+        this.repeticoes = repeticoes;
+    }
 
-    public float getCarga() { return carga; }
-    public void setCarga(float carga) { this.carga = carga; }
+    public float getCarga() {
+        return carga;
+    }
+    public void setCarga(float carga) {
+        this.carga = carga;
+    }
 
-    public ItemTreino getItemTreino() { return itemTreino; }
-    public void setItemTreino(ItemTreino itemTreino) { this.itemTreino = itemTreino; }
+    public ItemTreino getItemTreino() {
+        return itemTreino;
+    }
+    public void setItemTreino(ItemTreino itemTreino) {
+        this.itemTreino = itemTreino;
+    }
 }

@@ -1,7 +1,5 @@
 package com.mycompany.academia.core.ui;
 
-import com.mycompany.academia.admin.model.Admin;
-import com.mycompany.academia.admin.model.Instrutor;
 import com.mycompany.academia.aluno.model.Aluno;
 import com.mycompany.academia.admin.model.Usuario;
 import com.mycompany.academia.core.config.EventBus;

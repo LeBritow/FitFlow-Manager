@@ -33,7 +33,7 @@ public class ItemRealizado {
     @Column(name = "tempo_execucao_segundos")
     private Integer tempoExecucaoSegundos = 0;
 
-    @Column(name = "status_carga") // "MANTEVE", "SUBIU" ou "DIMINUIU"
+    @Column(name = "status_carga")
     private String statusCarga;
 
     public ItemRealizado() {
@@ -42,24 +42,52 @@ public class ItemRealizado {
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
-    public float getCargaUtilizada() { return cargaUtilizada; }
-    public void setCargaUtilizada(float cargaUtilizada) { this.cargaUtilizada = cargaUtilizada; }
+    public float getCargaUtilizada() {
+        return cargaUtilizada;
+    }
+    public void setCargaUtilizada(float cargaUtilizada) {
+        this.cargaUtilizada = cargaUtilizada;
+    }
 
-    public boolean isFeito() { return feito; }
-    public void setFeito(boolean feito) { this.feito = feito; }
+    public boolean isFeito() {
+        return feito;
+    }
+    public void setFeito(boolean feito) {
+        this.feito = feito;
+    }
 
-    public SessaoTreino getSessaoTreino() { return sessaoTreino; }
-    public void setSessaoTreino(SessaoTreino sessaoTreino) { this.sessaoTreino = sessaoTreino; }
+    public SessaoTreino getSessaoTreino() {
+        return sessaoTreino;
+    }
+    public void setSessaoTreino(SessaoTreino sessaoTreino) {
+        this.sessaoTreino = sessaoTreino;
+    }
 
-    public ItemTreino getItemTreino() { return itemTreino; }
-    public void setItemTreino(ItemTreino itemTreino) { this.itemTreino = itemTreino; }
+    public ItemTreino getItemTreino() {
+        return itemTreino;
+    }
+    public void setItemTreino(ItemTreino itemTreino) {
+        this.itemTreino = itemTreino;
+    }
     
-    public Integer getTempoExecucaoSegundos() { return tempoExecucaoSegundos; }
-    public void setTempoExecucaoSegundos(Integer t) { this.tempoExecucaoSegundos = t; }
+    public Integer getTempoExecucaoSegundos() {
+        return tempoExecucaoSegundos;
+    }
+    public void setTempoExecucaoSegundos(Integer t) {
+        this.tempoExecucaoSegundos = t;
+    }
 
-    public Integer getTempoDescansoSegundos() { return tempoDescansoSegundos; }
-    public void setTempoDescansoSegundos(Integer t) { this.tempoDescansoSegundos = t; }
+    public Integer getTempoDescansoSegundos() {
+        return tempoDescansoSegundos;
+    }
+    public void setTempoDescansoSegundos(Integer t) {
+        this.tempoDescansoSegundos = t;
+    }
 
-    public String getStatusCarga() { return statusCarga; }
-    public void setStatusCarga(String s) { this.statusCarga = s; }
+    public String getStatusCarga() {
+        return statusCarga;
+    }
+    public void setStatusCarga(String s) {
+        this.statusCarga = s;
+    }
 }
