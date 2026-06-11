@@ -25,8 +25,12 @@ public class Treino {
     public Treino() {
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getNome() {
         return nome; 
@@ -43,8 +47,12 @@ public class Treino {
         this.objetivo = objetivo;
     }
 
-    public boolean isFichaPadrao() { return fichaPadrao; }
-    public void setFichaPadrao(boolean fichaPadrao) { this.fichaPadrao = fichaPadrao; }
+    public boolean isFichaPadrao() {
+        return fichaPadrao;
+    }
+    public void setFichaPadrao(boolean fichaPadrao) {
+        this.fichaPadrao = fichaPadrao;
+    }
 
     @Override
     public String toString() {

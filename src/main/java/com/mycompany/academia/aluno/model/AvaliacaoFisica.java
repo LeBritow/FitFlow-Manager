@@ -32,16 +32,37 @@ public class AvaliacaoFisica {
         this.dataAvaliacao = dataAvaliacao;
     }
 
-    // Getters e Setters
-    public Long getId() { return id; }
-    public Aluno getAluno() { return aluno; }
-    public void setAluno(Aluno aluno) { this.aluno = aluno; }
-    public float getPeso() { return peso; }
-    public void setPeso(float peso) { this.peso = peso; }
-    public float getAltura() { return altura; }
-    public void setAltura(float altura) { this.altura = altura; }
-    public float getImc() { return imc; }
-    public void setImc(float imc) { this.imc = imc; }
-    public LocalDate getDataAvaliacao() { return dataAvaliacao; }
-    public void setDataAvaliacao(LocalDate dataAvaliacao) { this.dataAvaliacao = dataAvaliacao; }
+    public Long getId() {
+        return id;
+    }
+    public Aluno getAluno() {
+        return aluno;
+    }
+    public void setAluno(Aluno aluno) {
+        this.aluno = aluno;
+    }
+    public float getPeso() {
+        return peso;
+    }
+    public void setPeso(float peso) {
+        this.peso = peso;
+    }
+    public float getAltura() {
+        return altura;
+    }
+    public void setAltura(float altura) {
+        this.altura = altura;
+    }
+    public float getImc() {
+        return imc;
+    }
+    public void setImc(float imc) {
+        this.imc = imc;
+    }
+    public LocalDate getDataAvaliacao() {
+        return dataAvaliacao;
+    }
+    public void setDataAvaliacao(LocalDate dataAvaliacao) {
+        this.dataAvaliacao = dataAvaliacao;
+        }
 }

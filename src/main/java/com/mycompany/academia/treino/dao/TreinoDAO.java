@@ -321,7 +321,6 @@ public class TreinoDAO {
             Treino treino = prog.getTreino();
             boolean isFichaExclusiva = !treino.isFichaPadrao();
             
-            // DB com ON DELETE CASCADE resolve as FKs automaticamente
             em.remove(prog);
             
             if (isFichaExclusiva) {

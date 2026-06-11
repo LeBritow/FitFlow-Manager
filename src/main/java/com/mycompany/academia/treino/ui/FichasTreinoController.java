@@ -9,7 +9,7 @@ import com.mycompany.academia.treino.model.ItemTreino;
 import com.mycompany.academia.treino.model.ProgramacaoTreino;
 import com.mycompany.academia.treino.model.SerieTreino;
 import com.mycompany.academia.treino.model.Treino;
-import com.mycompany.academia.treino.enums.ObjetivoTreino; // 1. IMPORT DO ENUM
+import com.mycompany.academia.treino.enums.ObjetivoTreino;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class FichasTreinoController {
     @FXML private ComboBox<Aluno> comboAlunos;
     @FXML private ComboBox<ProgramacaoTreino> comboTreinosExistentes;
     @FXML private TextField campoNomeTreino;
-    @FXML private ComboBox<ObjetivoTreino> comboObjetivo; // 2. TROCADO DE TEXTFIELD PARA COMBOBOX
+    @FXML private ComboBox<ObjetivoTreino> comboObjetivo;
     @FXML private CheckBox checkFichaPadrao;
     
     @FXML private TableView<Exercicio> tabelaCatalogo;
@@ -74,7 +74,6 @@ public class FichasTreinoController {
         carregarAlunos();
         carregarTemplates();
         
-        // 3. POPULAR O COMBOBOX DE OBJETIVOS
         comboObjetivo.setItems(FXCollections.observableArrayList(ObjetivoTreino.values()));
         
         listaCatalogo = FXCollections.observableArrayList(exercicioDAO.listarTodos());
@@ -127,7 +126,7 @@ public class FichasTreinoController {
         if (prog != null && prog.getTreino() != null) {
             treinoEmEdicao = prog.getTreino();
             campoNomeTreino.setText(treinoEmEdicao.getNome());
-            comboObjetivo.setValue(treinoEmEdicao.getObjetivo()); // SETAR VALOR DO ENUM
+            comboObjetivo.setValue(treinoEmEdicao.getObjetivo());
             checkFichaPadrao.setSelected(false);
             listaFicha.setAll(treinoDAO.listarItensPorTreino(treinoEmEdicao.getId()));
         }
@@ -148,7 +147,7 @@ public class FichasTreinoController {
         if (result.isPresent() && result.get() == btnImportar) {
             treinoEmEdicao = null; 
             campoNomeTreino.setText(template.getNome());
-            comboObjetivo.setValue(template.getObjetivo()); // SETAR VALOR DO ENUM
+            comboObjetivo.setValue(template.getObjetivo());
             checkFichaPadrao.setSelected(false); 
             listaFicha.clear();
             
@@ -171,7 +170,7 @@ public class FichasTreinoController {
         } else if (result.isPresent() && result.get() == btnEditar) {
             treinoEmEdicao = template;
             campoNomeTreino.setText(template.getNome());
-            comboObjetivo.setValue(template.getObjetivo()); // SETAR VALOR DO ENUM
+            comboObjetivo.setValue(template.getObjetivo());
             checkFichaPadrao.setSelected(true); 
             comboAlunos.getSelectionModel().clearSelection(); 
             listaFicha.clear();
@@ -478,7 +477,7 @@ public class FichasTreinoController {
         
         Treino treino = (treinoEmEdicao != null) ? treinoEmEdicao : new Treino();
         treino.setNome(nomeTreino);
-        treino.setObjetivo(comboObjetivo.getValue()); // 5. SALVAR O VALOR DO ENUM DIRETAMENTE
+        treino.setObjetivo(comboObjetivo.getValue());
         treino.setFichaPadrao(isTemplate);
         
         Treino treinoSalvo = treinoDAO.salvarTreino(treino);
@@ -507,7 +506,7 @@ public class FichasTreinoController {
     private void limparEcra() {
         treinoEmEdicao = null;
         campoNomeTreino.clear(); 
-        comboObjetivo.getSelectionModel().clearSelection(); // 6. LIMPAR SELEÇÃO DO COMBO
+        comboObjetivo.getSelectionModel().clearSelection();
         listaFicha.clear();
         comboAlunos.getSelectionModel().clearSelection();
         comboTreinosExistentes.getItems().clear();

@@ -41,21 +41,45 @@ public class ItemTreino {
         serie.setItemTreino(this);
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public float getIntervaloDescanso() { return intervaloDescanso; }
-    public void setIntervaloDescanso(float intervaloDescanso) { this.intervaloDescanso = intervaloDescanso; }
+    public float getIntervaloDescanso() {
+        return intervaloDescanso;
+    }
+    public void setIntervaloDescanso(float intervaloDescanso) {
+        this.intervaloDescanso = intervaloDescanso;
+    }
 
-    public boolean isProgressaoCarga() { return progressaoCarga; }
-    public void setProgressaoCarga(boolean progressaoCarga) { this.progressaoCarga = progressaoCarga; }
+    public boolean isProgressaoCarga() {
+        return progressaoCarga;
+    }
+    public void setProgressaoCarga(boolean progressaoCarga) {
+        this.progressaoCarga = progressaoCarga;
+    }
 
-    public Treino getTreino() { return treino; }
-    public void setTreino(Treino treino) { this.treino = treino; }
+    public Treino getTreino() {
+        return treino;
+    }
+    public void setTreino(Treino treino) {
+        this.treino = treino;
+    }
 
-    public Exercicio getExercicio() { return exercicio; }
-    public void setExercicio(Exercicio exercicio) { this.exercicio = exercicio; }
+    public Exercicio getExercicio() {
+        return exercicio;
+    }
+    public void setExercicio(Exercicio exercicio) {
+        this.exercicio = exercicio;
+    }
 
-    public List<SerieTreino> getSeriesTreino() { return seriesTreino; }
-    public void setSeriesTreino(List<SerieTreino> seriesTreino) { this.seriesTreino = seriesTreino; }
+    public List<SerieTreino> getSeriesTreino() {
+        return seriesTreino;
+    }
+    public void setSeriesTreino(List<SerieTreino> seriesTreino) {
+        this.seriesTreino = seriesTreino;
+    }
 }

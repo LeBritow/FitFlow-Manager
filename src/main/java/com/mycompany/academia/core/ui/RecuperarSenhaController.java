@@ -19,7 +19,7 @@ public class RecuperarSenhaController {
     @FXML private TextField txtD1, txtD2, txtD3, txtD4, txtD5, txtD6;
 
     private String emailUsuario;
-    private String codigoReal; // código gerado aleatoriamente
+    private String codigoReal;
 
     @FXML
     public void initialize() {
