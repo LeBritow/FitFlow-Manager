@@ -36,9 +36,9 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-        Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
-        String usuarioSalvo = prefs.get("usuario", null);
-        String senhaSalvaBase64 = prefs.get("senha", null);
+        Preferences oPrefs = Preferences.userNodeForPackage(LoginController.class);
+        String usuarioSalvo = oPrefs.get("usuario", null);
+        String senhaSalvaBase64 = oPrefs.get("senha", null);
 
         if (usuarioSalvo != null && senhaSalvaBase64 != null) {
             campoLogin.setText(usuarioSalvo);
@@ -78,29 +78,29 @@ public class LoginController {
                 Platform.runLater(() -> labelStatus.setText("Verificando credenciais..."));
 
                 EventBus.emit("Desktop", "LoginController.autenticar", "login=" + login);
-                UsuarioDAO dao = new UsuarioDAO();
-                Usuario usuarioLogado = dao.autenticar(login, senha);
+                UsuarioDAO oDao = new UsuarioDAO();
+                Usuario oUsuarioLogado = oDao.autenticar(login, senha);
 
                 Platform.runLater(() -> {
-                    if (usuarioLogado != null) {
-                        if (usuarioLogado instanceof Aluno) {
+                    if (oUsuarioLogado != null) {
+                        if (oUsuarioLogado instanceof Aluno) {
                             restaurarTelaLogin();
                             mostrarAlerta("Acesso Negado", "Alunos devem acessar pelo aplicativo mobile. O sistema web não está disponível para este perfil.");
                             return;
                         }
 
-                        Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
+                        Preferences oPrefs = Preferences.userNodeForPackage(LoginController.class);
                         if (checkManterLogin.isSelected()) {
-                            prefs.put("usuario", login);
+                            oPrefs.put("usuario", login);
                             String senhaBase64 = Base64.getEncoder().encodeToString(senha.getBytes());
-                            prefs.put("senha", senhaBase64);
+                            oPrefs.put("senha", senhaBase64);
                         } else {
-                            prefs.remove("usuario");
-                            prefs.remove("senha");
+                            oPrefs.remove("usuario");
+                            oPrefs.remove("senha");
                         }
 
                         labelStatus.setText("Acesso liberado! Iniciando...");
-                        abrirTelaPrincipal(usuarioLogado);
+                        abrirTelaPrincipal(oUsuarioLogado);
                     } else {
                         restaurarTelaLogin();
                         mostrarAlerta("Erro de Autenticação", "CPF/Email ou senha incorretos.");
@@ -117,27 +117,27 @@ public class LoginController {
         }).start();
     }
 
-    private void abrirTelaPrincipal(Usuario usuarioLogado) {
+    private void abrirTelaPrincipal(Usuario pUsuarioLogado) {
         try {
-            SessaoUsuario.getInstancia().setUsuarioLogado(usuarioLogado);
+            SessaoUsuario.getInstancia().setUsuarioLogado(pUsuarioLogado);
 
             String telaParaAbrir = "/fxml/PainelPrincipal.fxml";
             String tituloJanela = "Sistema de Academia - Dashboard";
 
-            if (usuarioLogado.getSenha().equals("123456")) {
+            if (pUsuarioLogado.getSenha().equals("123456")) {
                 telaParaAbrir = "/fxml/TrocarSenhaObrigatoria.fxml";
                 tituloJanela = "Troca de Senha Obrigatória";
             }
 
-            javafx.scene.Parent raiz = javafx.fxml.FXMLLoader.load(getClass().getResource(telaParaAbrir));
+            javafx.scene.Parent oRaiz = javafx.fxml.FXMLLoader.load(getClass().getResource(telaParaAbrir));
             
-            javafx.stage.Stage novoPalco = new javafx.stage.Stage();
-            novoPalco.setTitle(tituloJanela);
-            novoPalco.setScene(new javafx.scene.Scene(raiz));
-            novoPalco.show();
+            javafx.stage.Stage oNovoPalco = new javafx.stage.Stage();
+            oNovoPalco.setTitle(tituloJanela);
+            oNovoPalco.setScene(new javafx.scene.Scene(oRaiz));
+            oNovoPalco.show();
 
-            javafx.stage.Stage palcoLogin = (javafx.stage.Stage) campoLogin.getScene().getWindow();
-            palcoLogin.close();
+            javafx.stage.Stage oPalcoLogin = (javafx.stage.Stage) campoLogin.getScene().getWindow();
+            oPalcoLogin.close();
 
         } catch (Exception e) {
             restaurarTelaLogin();
@@ -168,17 +168,17 @@ public class LoginController {
         }
 
         try {
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/RecuperarSenha.fxml"));
-            javafx.scene.Parent raiz = loader.load();
+            javafx.fxml.FXMLLoader oLoader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/RecuperarSenha.fxml"));
+            javafx.scene.Parent oRaiz = oLoader.load();
 
-            RecuperarSenhaController controller = loader.getController();
-            controller.inicializarComEmail(emailDigitado);
+            RecuperarSenhaController oController = oLoader.getController();
+            oController.inicializarComEmail(emailDigitado);
 
-            javafx.stage.Stage palcoRecuperacao = new javafx.stage.Stage();
-            palcoRecuperacao.setTitle("Recuperação de Senha");
-            palcoRecuperacao.setScene(new javafx.scene.Scene(raiz));
-            palcoRecuperacao.setResizable(false);
-            palcoRecuperacao.show();
+            javafx.stage.Stage oPalcoRecuperacao = new javafx.stage.Stage();
+            oPalcoRecuperacao.setTitle("Recuperação de Senha");
+            oPalcoRecuperacao.setScene(new javafx.scene.Scene(oRaiz));
+            oPalcoRecuperacao.setResizable(false);
+            oPalcoRecuperacao.show();
 
         } catch (Exception e) {
             mostrarAlerta("Erro", "Não foi possível abrir a tela de recuperação.");
@@ -187,10 +187,10 @@ public class LoginController {
     }
 
     private void mostrarAlerta(String titulo, String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
+        Alert oAlert = new Alert(Alert.AlertType.INFORMATION);
+        oAlert.setTitle(titulo);
+        oAlert.setHeaderText(null);
+        oAlert.setContentText(mensagem);
+        oAlert.showAndWait();
     }
 }

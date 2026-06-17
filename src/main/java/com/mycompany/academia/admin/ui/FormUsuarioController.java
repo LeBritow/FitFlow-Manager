@@ -33,8 +33,8 @@ public class FormUsuarioController {
     @FXML
     public void initialize() {
         EventBus.emit("Desktop", "FormUsuarioController.salvar", "Abrindo formulário de usuário");
-        Usuario atual = SessaoUsuario.getInstancia().getUsuarioLogado();
-        if (atual instanceof Admin) {
+        Usuario oAtual = SessaoUsuario.getInstancia().getUsuarioLogado();
+        if (oAtual instanceof Admin) {
             comboTipoPerfil.getItems().addAll("Admin", "Instrutor", "Aluno");
         } else {
             comboTipoPerfil.getItems().addAll("Instrutor", "Aluno");
@@ -56,23 +56,23 @@ public class FormUsuarioController {
         caixaInstrutor.setManaged(tipo.equals("Instrutor"));
     }
 
-    public void preencherParaEdicao(Usuario u) {
-        this.usuarioParaEditar = u;
+    public void preencherParaEdicao(Usuario pUsuario) {
+        this.usuarioParaEditar = pUsuario;
         labelTitulo.setText("Editar Usuário");
         
-        campoNome.setText(u.getNome());
-        campoCpf.setText(u.getCpf());
-        campoEmail.setText(u.getEmail());
+        campoNome.setText(pUsuario.getNome());
+        campoCpf.setText(pUsuario.getCpf());
+        campoEmail.setText(pUsuario.getEmail());
         
         comboTipoPerfil.setDisable(true); 
         
-        if (u instanceof Aluno) {
+        if (pUsuario instanceof Aluno) {
             comboTipoPerfil.setValue("Aluno");
-            campoPeso.setText(String.valueOf(((Aluno) u).getPeso()));
-            campoAltura.setText(String.valueOf(((Aluno) u).getAltura()));
-        } else if (u instanceof Instrutor) {
+            campoPeso.setText(String.valueOf(((Aluno) pUsuario).getPeso()));
+            campoAltura.setText(String.valueOf(((Aluno) pUsuario).getAltura()));
+        } else if (pUsuario instanceof Instrutor) {
             comboTipoPerfil.setValue("Instrutor");
-            campoCref.setText(((Instrutor) u).getCref());
+            campoCref.setText(((Instrutor) pUsuario).getCref());
         } else {
             comboTipoPerfil.setValue("Admin");
         }
@@ -81,42 +81,42 @@ public class FormUsuarioController {
     @FXML
     void clicouSalvar(ActionEvent event) {
         String tipo = comboTipoPerfil.getValue();
-        Usuario objSalvar = usuarioParaEditar;
+        Usuario oObjSalvar = usuarioParaEditar;
         
-        if (objSalvar == null) {
-            if (tipo.equals("Aluno")) objSalvar = new Aluno();
-            else if (tipo.equals("Instrutor")) objSalvar = new Instrutor();
-            else objSalvar = new Admin();
+        if (oObjSalvar == null) {
+            if (tipo.equals("Aluno")) oObjSalvar = new Aluno();
+            else if (tipo.equals("Instrutor")) oObjSalvar = new Instrutor();
+            else oObjSalvar = new Admin();
             
-            objSalvar.setSenha("123456");
+            oObjSalvar.setSenha("123456");
         }
         
-        objSalvar.setNome(campoNome.getText());
-        objSalvar.setCpf(campoCpf.getText());
-        objSalvar.setEmail(campoEmail.getText());
+        oObjSalvar.setNome(campoNome.getText());
+        oObjSalvar.setCpf(campoCpf.getText());
+        oObjSalvar.setEmail(campoEmail.getText());
         
         try {
-            if (objSalvar instanceof Aluno) {
+            if (oObjSalvar instanceof Aluno) {
                 float p = Float.parseFloat(campoPeso.getText());
                 float a = Float.parseFloat(campoAltura.getText());
-                ((Aluno) objSalvar).setPeso(p);
-                ((Aluno) objSalvar).setAltura(a);
-                ((Aluno) objSalvar).setImc(p / (a * a));
-            } else if (objSalvar instanceof Instrutor) {
-                ((Instrutor) objSalvar).setCref(campoCref.getText());
+                ((Aluno) oObjSalvar).setPeso(p);
+                ((Aluno) oObjSalvar).setAltura(a);
+                ((Aluno) oObjSalvar).setImc(p / (a * a));
+            } else if (oObjSalvar instanceof Instrutor) {
+                ((Instrutor) oObjSalvar).setCref(campoCref.getText());
             }
         } catch (NumberFormatException e) {
-            Alert a = new Alert(Alert.AlertType.ERROR, "Peso e Altura devem ser números válidos (ex: 75.5)");
-            a.showAndWait();
+            Alert oA = new Alert(Alert.AlertType.ERROR, "Peso e Altura devem ser números válidos (ex: 75.5)");
+            oA.showAndWait();
             return;
         }
         
-        UsuarioDAO dao = new UsuarioDAO();
-        if (dao.salvar(objSalvar)) {
+        UsuarioDAO oDao = new UsuarioDAO();
+        if (oDao.inserir(oObjSalvar)) {
             fecharJanela();
         } else {
-            Alert a = new Alert(Alert.AlertType.ERROR, "Erro ao salvar no banco de dados.");
-            a.showAndWait();
+            Alert oA = new Alert(Alert.AlertType.ERROR, "Erro ao salvar no banco de dados.");
+            oA.showAndWait();
         }
     }
 
@@ -126,7 +126,7 @@ public class FormUsuarioController {
     }
 
     private void fecharJanela() {
-        Stage palco = (Stage) campoNome.getScene().getWindow();
-        palco.close();
+        Stage oPalco = (Stage) campoNome.getScene().getWindow();
+        oPalco.close();
     }
 }

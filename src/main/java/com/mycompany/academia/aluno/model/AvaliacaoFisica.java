@@ -24,12 +24,12 @@ public class AvaliacaoFisica {
 
     public AvaliacaoFisica() {}
 
-    public AvaliacaoFisica(Aluno aluno, float peso, float altura, float imc, LocalDate dataAvaliacao) {
-        this.aluno = aluno;
-        this.peso = peso;
-        this.altura = altura;
-        this.imc = imc;
-        this.dataAvaliacao = dataAvaliacao;
+    public AvaliacaoFisica(Aluno pAluno, float pPeso, float pAltura, float pImc, LocalDate pDataAvaliacao) {
+        this.aluno = pAluno;
+        this.peso = pPeso;
+        this.altura = pAltura;
+        this.imc = pImc;
+        this.dataAvaliacao = pDataAvaliacao;
     }
 
     public Long getId() {

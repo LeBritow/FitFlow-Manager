@@ -24,29 +24,29 @@ public class FormExercicioController {
     private Exercicio exercicioEdicao = null;
     private GifSearchService gifService = new GifSearchService();
 
-    public void preencherParaEdicao(Exercicio e) {
-        this.exercicioEdicao = e;
+    public void preencherParaEdicao(Exercicio pExercicio) {
+        this.exercicioEdicao = pExercicio;
         labelTitulo.setText("Editar Exercício");
-        campoNome.setText(e.getNome());
-        campoGrupo.setText(e.getGrupoMuscular());
-        campoUrl.setText(e.getUrlMidia());
-        campoDescricao.setText(e.getDescricao());
+        campoNome.setText(pExercicio.getNome());
+        campoGrupo.setText(pExercicio.getGrupoMuscular());
+        campoUrl.setText(pExercicio.getUrlMidia());
+        campoDescricao.setText(pExercicio.getDescricao());
     }
 
     @FXML
     void clicouSalvar(ActionEvent event) {
-        Exercicio e = exercicioEdicao;
-        if (e == null) {
-            e = new Exercicio();
+        Exercicio oE = exercicioEdicao;
+        if (oE == null) {
+            oE = new Exercicio();
         }
 
-        e.setNome(campoNome.getText());
-        e.setGrupoMuscular(campoGrupo.getText());
-        e.setUrlMidia(campoUrl.getText());
-        e.setDescricao(campoDescricao.getText());
+        oE.setNome(campoNome.getText());
+        oE.setGrupoMuscular(campoGrupo.getText());
+        oE.setUrlMidia(campoUrl.getText());
+        oE.setDescricao(campoDescricao.getText());
 
-        ExercicioDAO dao = new ExercicioDAO();
-        if (dao.salvar(e)) {
+        ExercicioDAO oDao = new ExercicioDAO();
+        if (oDao.inserir(oE)) {
             fecharJanela();
         }
     }
@@ -60,11 +60,11 @@ public class FormExercicioController {
     void clicouBuscarGif(ActionEvent event) {
         String nome = campoNome.getText().trim();
         if (nome.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Aviso");
-            alert.setHeaderText(null);
-            alert.setContentText("Preencha o nome do exercício primeiro.");
-            alert.showAndWait();
+            Alert oAlert = new Alert(Alert.AlertType.WARNING);
+            oAlert.setTitle("Aviso");
+            oAlert.setHeaderText(null);
+            oAlert.setContentText("Preencha o nome do exercício primeiro.");
+            oAlert.showAndWait();
             return;
         }
 
@@ -83,18 +83,18 @@ public class FormExercicioController {
                 if (url != null) {
                     campoUrl.setText(url);
                 } else {
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Resultado");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Nenhum GIF encontrado para \"" + nome + "\". Configure uma chave de API do Giphy em GifSearchService.java ou insira a URL manualmente.");
-                    alert.showAndWait();
+                    Alert oAlert = new Alert(Alert.AlertType.INFORMATION);
+                    oAlert.setTitle("Resultado");
+                    oAlert.setHeaderText(null);
+                    oAlert.setContentText("Nenhum GIF encontrado para \"" + nome + "\". Configure uma chave de API do Giphy em GifSearchService.java ou insira a URL manualmente.");
+                    oAlert.showAndWait();
                 }
             });
         }).start();
     }
 
     private void fecharJanela() {
-        Stage stage = (Stage) campoNome.getScene().getWindow();
-        stage.close();
+        Stage oStage = (Stage) campoNome.getScene().getWindow();
+        oStage.close();
     }
 }

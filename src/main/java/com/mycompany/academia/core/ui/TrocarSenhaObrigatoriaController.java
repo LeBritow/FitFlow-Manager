@@ -36,23 +36,23 @@ public class TrocarSenhaObrigatoriaController {
             return;
         }
 
-        Usuario usuarioAtual = SessaoUsuario.getInstancia().getUsuarioLogado();
+        Usuario oUsuarioAtual = SessaoUsuario.getInstancia().getUsuarioLogado();
         
-        UsuarioDAO dao = new UsuarioDAO();
-        boolean sucesso = dao.atualizarSenhaPorEmail(usuarioAtual.getEmail(), novaSenha);
+        UsuarioDAO oDao = new UsuarioDAO();
+        boolean sucesso = oDao.atualizarSenhaPorEmail(oUsuarioAtual.getEmail(), novaSenha);
 
         if (sucesso) {
-            usuarioAtual.setSenha(novaSenha);
+            oUsuarioAtual.setSenha(novaSenha);
             
             try {
-                javafx.scene.Parent raiz = javafx.fxml.FXMLLoader.load(getClass().getResource("/fxml/PainelPrincipal.fxml"));
-                Stage novoPalco = new Stage();
-                novoPalco.setTitle("Sistema de Academia - Dashboard");
-                novoPalco.setScene(new javafx.scene.Scene(raiz));
-                novoPalco.show();
+                javafx.scene.Parent oRaiz = javafx.fxml.FXMLLoader.load(getClass().getResource("/fxml/PainelPrincipal.fxml"));
+                Stage oNovoPalco = new Stage();
+                oNovoPalco.setTitle("Sistema de Academia - Dashboard");
+                oNovoPalco.setScene(new javafx.scene.Scene(oRaiz));
+                oNovoPalco.show();
 
-                Stage palcoAtual = (Stage) campoNovaSenha.getScene().getWindow();
-                palcoAtual.close();
+                Stage oPalcoAtual = (Stage) campoNovaSenha.getScene().getWindow();
+                oPalcoAtual.close();
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -63,10 +63,10 @@ public class TrocarSenhaObrigatoriaController {
     }
 
     private void mostrarAlerta(String titulo, String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
+        Alert oAlert = new Alert(Alert.AlertType.INFORMATION);
+        oAlert.setTitle(titulo);
+        oAlert.setHeaderText(null);
+        oAlert.setContentText(mensagem);
+        oAlert.showAndWait();
     }
 }

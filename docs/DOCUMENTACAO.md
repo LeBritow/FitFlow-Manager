@@ -61,7 +61,29 @@ Sistema desktop + mobile para gestão de academias. Um instrutor ou administrado
 
 ![Arquitetura do Sistema — visão geral desktop + servidor + banco](screenshots/01-arquitetura.png)
 
-### 3.2. Organização por Domínio
+### 3.2. Convenções de Código
+
+O código segue as convenções ensinadas em aula para facilitar a correção e manter consistência com os exercícios práticos:
+
+| Convenção | Regra | Exemplo |
+|-----------|-------|---------|
+| **Notação Húngara** — objetos | Variáveis locais que armazenam objetos recebem prefixo `o` | `Aluno oAluno`, `Treino oTreino`, `List<Aluno> oLista` |
+| **Notação Húngara** — parâmetros | Parâmetros de métodos e construtores recebem prefixo `p` | `public void inserir(Aluno pAluno)`, `new AvaliacaoFisica(Aluno pAluno, float pPeso)` |
+| **Nomes em português** | Métodos de DAO e controller seguem o vocabulário dos exercícios | `inserir()`, `atualizar()`, `excluir()`, `listarTodos()`, `autenticar()` |
+| **Interface `IEntidadeNomeada`** | Analogia à interface `IForma` dos exercícios — garante que toda entidade nomeável implemente `getNome()` | `class Aluno implements IEntidadeNomeada` |
+| **Herança com `JOINED`** | `Usuario` (base) → `Admin`, `Instrutor`, `Aluno` (subclasses), com `instanceof` para verificação de tipo | `if (oUsuario instanceof Aluno)` |
+
+**Diferenças intencionais** em relação aos exercícios de aula:
+
+| Item | Exercícios (JDBC puro) | FitFlow (JPA) | Motivo |
+|------|----------------------|---------------|--------|
+| ORM | `Connection` + `PreparedStatement` | `EntityManager` + JPA | Professor autorizou JPA/Hibernate |
+| UI | Swing (`JFrame`, `JTable`) | JavaFX + FXML | Professor autorizou JavaFX |
+| DAO | DAO recebe entidade no construtor (`new ClienteDAO(new Cliente(...))`) | DAO recebe entidade como parâmetro de método (`dao.inserir(oAluno)`) | Padrão mais flexível — mesma instância do DAO reutilizada para múltiplas entidades; ambos corretos |
+| Singleton | Não utilizado | `SessaoUsuario` | Necessário para manter sessão entre telas JavaFX sem banco de sessão |
+| Log de depuração | `System.out.println()` | `EventBus.emit()` | Mecanismo interno de auditoria; não altera lógica de negócio |
+
+### 3.3. Organização por Domínio
 
 Pacotes raiz sob `com.mycompany.academia`:
 

@@ -1,12 +1,13 @@
 package com.mycompany.academia.treino.model;
 
+import com.mycompany.academia.core.config.IEntidadeNomeada;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class Exercicio {
+public class Exercicio implements IEntidadeNomeada {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

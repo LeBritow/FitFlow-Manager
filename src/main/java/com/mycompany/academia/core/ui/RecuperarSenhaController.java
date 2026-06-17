@@ -73,14 +73,14 @@ public class RecuperarSenhaController {
             return;
         }
 
-        UsuarioDAO dao = new UsuarioDAO();
-        boolean sucesso = dao.atualizarSenhaPorEmail(emailUsuario, novaSenha);
+        UsuarioDAO oDao = new UsuarioDAO();
+        boolean sucesso = oDao.atualizarSenhaPorEmail(emailUsuario, novaSenha);
 
         if (sucesso) {
             mostrarAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Senha alterada com sucesso! Você já pode fazer login.");
             
-            Stage palco = (Stage) campoNovaSenha.getScene().getWindow();
-            palco.close();
+            Stage oPalco = (Stage) campoNovaSenha.getScene().getWindow();
+            oPalco.close();
         } else {
             mostrarAlerta(Alert.AlertType.ERROR, "Erro", "Não foi possível atualizar a senha no banco de dados.");
         }
@@ -97,10 +97,10 @@ public class RecuperarSenhaController {
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensagem) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
+        Alert oAlert = new Alert(tipo);
+        oAlert.setTitle(titulo);
+        oAlert.setHeaderText(null);
+        oAlert.setContentText(mensagem);
+        oAlert.showAndWait();
     }
 }

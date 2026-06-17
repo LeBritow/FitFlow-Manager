@@ -184,7 +184,7 @@ public class ServidorMobile {
                 EventBus.emit("Entities", "ProgramacaoTreino+Treino loaded", "alunoId=" + alunoId);
                 TreinoDAO dao = new TreinoDAO();
                 EventBus.emit("ServidorMobile", "BuscarFichaHandler", "Buscando programação do aluno " + alunoId);
-                List<ProgramacaoTreino> progs = dao.listarProgramacoesPorAluno(alunoId);
+                List<ProgramacaoTreino> progs = dao.listarProgramacoesDoAluno(alunoId);
                 if (progs.isEmpty()) { json(ex, 404, "{\"erro\":\"Nenhuma ficha ativa.\"}"); return; }
 
                 ProgramacaoTreino ficha = progs.get(0);
@@ -192,7 +192,7 @@ public class ServidorMobile {
                 EventBus.emit("PostgreSQL", "SELECT FROM item_treino JOIN exercicio WHERE treinoId=" + treino.getId(), "BuscarFichaHandler");
                 EventBus.emit("Entities", "ItemTreino+Exercicio loaded", "treinoId=" + treino.getId());
                 EventBus.emit("ServidorMobile", "BuscarFichaHandler", "Buscando itens do treino " + treino.getId());
-                List<ItemTreino> itens = dao.listarItensPorTreino(treino.getId());
+                List<ItemTreino> itens = dao.listarItensDoTreino(treino.getId());
 
                 JsonObject j = new JsonObject();
                 j.addProperty("idProgramacao", ficha.getId());
@@ -214,7 +214,7 @@ public class ServidorMobile {
                         String gifUrl = new GifSearchService().buscarMelhorGif(exercicio.getNome(), exercicio.getGrupoMuscular());
                         if (gifUrl != null) {
                             exercicio.setUrlMidia(gifUrl);
-                            new ExercicioDAO().salvar(exercicio);
+                            new ExercicioDAO().inserir(exercicio);
                             urlMidia = gifUrl;
                         }
                     }
@@ -366,13 +366,13 @@ public class ServidorMobile {
                 TreinoDAO dao = new TreinoDAO();
                 EventBus.emit("ServidorMobile", "DashboardHandler", "Consultando métricas do aluno " + alunoId);
 
-                long treinosMes = dao.buscarQuantidadeTreinosMes(alunoId);
+                long treinosMes = dao.contarTreinosNoMes(alunoId);
                 EventBus.emit("PostgreSQL", "SELECT COUNT FROM comentario_treino WHERE alunoId=" + alunoId, "count");
-                long totalTreinos = dao.buscarTotalTreinos(alunoId);
+                long totalTreinos = dao.contarTotalTreinos(alunoId);
                 EventBus.emit("PostgreSQL", "SELECT MAX(dataCriacao) FROM comentario_treino WHERE alunoId=" + alunoId, "select");
                 String ultimoTreino = dao.buscarDataUltimoTreino(alunoId);
                 EventBus.emit("PostgreSQL", "SELECT DISTINCT data FROM sessao_treino WHERE alunoId=" + alunoId, "select");
-                long streak = dao.buscarStreakAtual(alunoId);
+                long streak = dao.buscarSequenciaAtual(alunoId);
 
                 JsonObject j = new JsonObject();
                 j.addProperty("treinosMes", treinosMes);
@@ -381,7 +381,7 @@ public class ServidorMobile {
                 j.addProperty("streak", streak);
                 j.addProperty("fichaAtiva", dao.buscarNomeFichaAtiva(alunoId));
 
-                java.util.Map<Integer, Long> semanaMap = dao.buscarTreinosPorSemana(alunoId, 4);
+                java.util.Map<Integer, Long> semanaMap = dao.listarTreinosPorSemana(alunoId, 4);
                 JsonArray semanasArr = new JsonArray();
                 for (java.util.Map.Entry<Integer, Long> e : semanaMap.entrySet()) {
                     JsonObject wo = new JsonObject();
@@ -418,7 +418,7 @@ public class ServidorMobile {
                 EventBus.emit("PostgreSQL", "SELECT FROM comentario_treino JOIN treino WHERE alunoId=" + alunoId, "select");
                 TreinoDAO dao = new TreinoDAO();
                 EventBus.emit("ServidorMobile", "HistoricoHandler", "Buscando histórico do aluno " + alunoId);
-                List<ComentarioTreino> comentarios = dao.buscarComentariosPorAluno(alunoId);
+                List<ComentarioTreino> comentarios = dao.listarComentariosDoAluno(alunoId);
 
                 JsonArray arr = new JsonArray();
                 for (ComentarioTreino c : comentarios) {
@@ -472,7 +472,7 @@ public class ServidorMobile {
                     AlunoDAO alunoDAO = new AlunoDAO();
                     EventBus.emit("ServidorMobile", "PerfilHandler", "Buscando avaliações físicas do aluno " + alunoId);
                     EventBus.emit("PostgreSQL", "SELECT FROM avaliacao_fisica WHERE alunoId=" + alunoId, "select");
-                    List<AvaliacaoFisica> avals = alunoDAO.buscarAvaliacoesPorAluno(alunoId);
+                    List<AvaliacaoFisica> avals = alunoDAO.listarAvaliacoesDoAluno(alunoId);
                     JsonArray avArr = new JsonArray();
                     for (var av : avals) {
                         JsonObject ao = new JsonObject();

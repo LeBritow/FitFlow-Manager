@@ -27,16 +27,16 @@ public class PainelPrincipalController {
     @FXML
     public void initialize() {
         EventBus.emit("Desktop", "PainelPrincipalController.carregarDash", "Painel principal carregado");
-        Usuario usuario = SessaoUsuario.getInstancia().getUsuarioLogado();
+        Usuario oUsuario = SessaoUsuario.getInstancia().getUsuarioLogado();
         
-        if (usuario != null) {
-            labelNomeUser.setText(usuario.getNome().split(" ")[0]);
+        if (oUsuario != null) {
+            labelNomeUser.setText(oUsuario.getNome().split(" ")[0]);
             
-            if (usuario instanceof Admin) {
+            if (oUsuario instanceof Admin) {
                 labelTipoUser.setText("Administrador");
-            } else if (usuario instanceof Instrutor) {
+            } else if (oUsuario instanceof Instrutor) {
                 labelTipoUser.setText("Instrutor");
-            } else if (usuario instanceof Aluno) {
+            } else if (oUsuario instanceof Aluno) {
                 labelTipoUser.setText("Aluno (Acesso Mobile)");
                 btnUsuarios.setVisible(false);
                 btnUsuarios.setManaged(false);
@@ -49,9 +49,9 @@ public class PainelPrincipalController {
 
     private void carregarTelaCentro(String arquivoFxml) {
         try {
-            Parent novaTela = FXMLLoader.load(getClass().getResource("/fxml/" + arquivoFxml));
+            Parent oNovaTela = FXMLLoader.load(getClass().getResource("/fxml/" + arquivoFxml));
             areaConteudo.getChildren().clear();
-            areaConteudo.getChildren().add(novaTela);
+            areaConteudo.getChildren().add(oNovaTela);
         } catch (IOException e) {
             System.err.println("Erro ao tentar carregar a tela: " + arquivoFxml);
             e.printStackTrace();
@@ -61,10 +61,10 @@ public class PainelPrincipalController {
     @FXML
     void abrirInicio(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DashboardInicio.fxml"));
-            Parent dashboard = loader.load();
-            DashboardInicioController controller = loader.getController();
-            controller.setOnNavegar((String destino) -> {
+            FXMLLoader oLoader = new FXMLLoader(getClass().getResource("/fxml/DashboardInicio.fxml"));
+            Parent oDashboard = oLoader.load();
+            DashboardInicioController oController = oLoader.getController();
+            oController.setOnNavegar((String destino) -> {
                 switch (destino) {
                     case "usuarios" -> abrirUsuarios(event);
                     case "exercicios" -> abrirExercicios(event);
@@ -73,7 +73,7 @@ public class PainelPrincipalController {
                 }
             });
             areaConteudo.getChildren().clear();
-            areaConteudo.getChildren().add(dashboard);
+            areaConteudo.getChildren().add(oDashboard);
         } catch (IOException e) {
             System.err.println("Erro ao carregar dashboard: " + e.getMessage());
         }
@@ -103,15 +103,15 @@ public class PainelPrincipalController {
     void sairSistema(ActionEvent event) {
         SessaoUsuario.getInstancia().encerrarSessao();
         try {
-            Parent login = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
-            Stage palco = new Stage();
-            palco.setTitle("Sistema de Academias - Login");
-            palco.setScene(new Scene(login));
-            palco.setResizable(false);
-            palco.show();
+            Parent oLogin = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
+            Stage oPalco = new Stage();
+            oPalco.setTitle("Sistema de Academias - Login");
+            oPalco.setScene(new Scene(oLogin));
+            oPalco.setResizable(false);
+            oPalco.show();
             
-            Stage palcoAtual = (Stage) btnUsuarios.getScene().getWindow();
-            palcoAtual.close();
+            Stage oPalcoAtual = (Stage) btnUsuarios.getScene().getWindow();
+            oPalcoAtual.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

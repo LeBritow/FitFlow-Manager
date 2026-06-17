@@ -10,15 +10,15 @@ import java.util.List;
 
 public class AlunoDAO {
 
-    public void salvarOuAtualizar(Aluno aluno) {
-        EventBus.emit("AlunoDAO", "salvarOuAtualizar", "aluno=" + aluno.getNome());
+    public void inserirOuAtualizar(Aluno pAluno) {
+        EventBus.emit("AlunoDAO", "inserirOuAtualizar", "aluno=" + pAluno.getNome());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            if (aluno.getId() == 0) {
-                em.persist(aluno);
+            if (pAluno.getId() == 0) {
+                em.persist(pAluno);
             } else {
-                em.merge(aluno);
+                em.merge(pAluno);
             }
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -32,8 +32,8 @@ public class AlunoDAO {
     }
 
     // Busca todos os alunos cadastrados
-    public List<Aluno> buscarTodos() {
-        EventBus.emit("AlunoDAO", "buscarTodos", "");
+    public List<Aluno> listarTodos() {
+        EventBus.emit("AlunoDAO", "listarTodos", "");
         EntityManager em = JPAUtil.getEntityManager();
         try {
             String jpql = "SELECT a FROM Aluno a";
@@ -44,29 +44,29 @@ public class AlunoDAO {
         }
     }
 
-    public List<AvaliacaoFisica> buscarAvaliacoesPorAluno(int alunoId) {
-        EventBus.emit("AlunoDAO", "buscarAvaliacoesPorAluno", "alunoId=" + alunoId);
+    public List<AvaliacaoFisica> listarAvaliacoesDoAluno(int pAlunoId) {
+        EventBus.emit("AlunoDAO", "listarAvaliacoesDoAluno", "alunoId=" + pAlunoId);
         EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
     try {
         String jpql = "SELECT a FROM AvaliacaoFisica a WHERE a.aluno.id = :alunoId ORDER BY a.dataAvaliacao ASC";
         TypedQuery<AvaliacaoFisica> query = em.createQuery(jpql, AvaliacaoFisica.class);
-        query.setParameter("alunoId", alunoId);
-        EventBus.emit("JPA", "JPQL Query", "AvaliacaoFisica WHERE alunoId=" + alunoId);
+        query.setParameter("alunoId", pAlunoId);
+        EventBus.emit("JPA", "JPQL Query", "AvaliacaoFisica WHERE alunoId=" + pAlunoId);
         return query.getResultList();
     } finally {
         em.close();
     }
 }
 
-    public void salvarAvaliacaoFisica(com.mycompany.academia.aluno.model.AvaliacaoFisica avaliacao) {
-        EventBus.emit("AlunoDAO", "salvarAvaliacaoFisica", "alunoId=" + avaliacao.getAluno().getId());
+    public void inserirAvaliacaoFisica(com.mycompany.academia.aluno.model.AvaliacaoFisica pAvaliacao) {
+        EventBus.emit("AlunoDAO", "inserirAvaliacaoFisica", "alunoId=" + pAvaliacao.getAluno().getId());
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
             
-            avaliacao.setAluno(em.merge(avaliacao.getAluno())); 
+            pAvaliacao.setAluno(em.merge(pAvaliacao.getAluno())); 
             
-            em.persist(avaliacao);
+            em.persist(pAvaliacao);
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
@@ -78,12 +78,12 @@ public class AlunoDAO {
         }
     }
     
-    public void atualizarAvaliacaoFisica(com.mycompany.academia.aluno.model.AvaliacaoFisica avaliacao) {
-        EventBus.emit("AlunoDAO", "atualizarAvaliacaoFisica", "alunoId=" + avaliacao.getAluno().getId());
+    public void atualizarAvaliacaoFisica(com.mycompany.academia.aluno.model.AvaliacaoFisica pAvaliacao) {
+        EventBus.emit("AlunoDAO", "atualizarAvaliacaoFisica", "alunoId=" + pAvaliacao.getAluno().getId());
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(avaliacao);
+            em.merge(pAvaliacao);
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
@@ -103,13 +103,13 @@ public class AlunoDAO {
         }
     }
 
-    public void deletarAvaliacaoFisica(com.mycompany.academia.aluno.model.AvaliacaoFisica avaliacao) {
-        EventBus.emit("AlunoDAO", "deletarAvaliacaoFisica", "avaliacaoId=" + avaliacao.getId());
+    public void excluirAvaliacaoFisica(com.mycompany.academia.aluno.model.AvaliacaoFisica pAvaliacao) {
+        EventBus.emit("AlunoDAO", "excluirAvaliacaoFisica", "avaliacaoId=" + pAvaliacao.getId());
         jakarta.persistence.EntityManager em = com.mycompany.academia.core.config.JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            avaliacao = em.merge(avaliacao); 
-            em.remove(avaliacao);
+            pAvaliacao = em.merge(pAvaliacao); 
+            em.remove(pAvaliacao);
             em.getTransaction().commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive()) em.getTransaction().rollback();

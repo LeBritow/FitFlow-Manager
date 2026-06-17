@@ -42,23 +42,23 @@ public class DetalhesTreinoRealizadoController {
         colTendenciaCarga.setCellValueFactory(cellData -> cellData.getValue().tendenciaCarga);
     }
 
-    public void carregarDadosReais(com.mycompany.academia.aluno.model.Aluno aluno, com.mycompany.academia.treino.model.Treino treino, java.time.LocalDateTime dataSessao, String comentarioTexto) {
-        labelTituloTreino.setText(treino.getNome() + " (" + treino.getObjetivo() + ")");
+    public void carregarDadosReais(com.mycompany.academia.aluno.model.Aluno pAluno, com.mycompany.academia.treino.model.Treino pTreino, java.time.LocalDateTime pDataSessao, String pComentarioTexto) {
+        labelTituloTreino.setText(pTreino.getNome() + " (" + pTreino.getObjetivo() + ")");
 
         java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
-        labelDataFinalizacao.setText("Finalizado em: " + dataSessao.format(formatador));
-        labelComentarioAluno.setText(comentarioTexto != null && !comentarioTexto.isEmpty() ? "\"" + comentarioTexto + "\"" : "Sem feedback do aluno");
+        labelDataFinalizacao.setText("Finalizado em: " + pDataSessao.format(formatador));
+        labelComentarioAluno.setText(pComentarioTexto != null && !pComentarioTexto.isEmpty() ? "\"" + pComentarioTexto + "\"" : "Sem feedback do aluno");
         labelNotaGeral.setText("Análise de Ritmo e Carga Ativa");
 
-        List<com.mycompany.academia.treino.model.ItemRealizado> realizados = treinoDAO.buscarItensRealizados(
-            aluno.getId(),
-            treino.getId(),
-            dataSessao
+        List<com.mycompany.academia.treino.model.ItemRealizado> oRealizados = treinoDAO.listarItensRealizados(
+            pAluno.getId(),
+            pTreino.getId(),
+            pDataSessao
         );
 
-        ObservableList<LinhaExecucao> dados = FXCollections.observableArrayList();
+        ObservableList<LinhaExecucao> oDados = FXCollections.observableArrayList();
 
-        for (com.mycompany.academia.treino.model.ItemRealizado ir : realizados) {
+        for (com.mycompany.academia.treino.model.ItemRealizado ir : oRealizados) {
             int totalSeries = ir.getItemTreino().getSeriesTreino().size();
             String planejado = totalSeries + "x ";
             if (!ir.getItemTreino().getSeriesTreino().isEmpty()) {
@@ -76,7 +76,7 @@ public class DetalhesTreinoRealizadoController {
             if ("DIMINUIU".equalsIgnoreCase(ir.getStatusCarga())) tendencia = "🔻 Diminuiu";
             if (!ir.isFeito()) tendencia = "❌ Pulado";
 
-            dados.add(new LinhaExecucao(
+            oDados.add(new LinhaExecucao(
                 ir.getItemTreino().getExercicio().getNome(),
                 planejado,
                 realizado,
@@ -86,27 +86,27 @@ public class DetalhesTreinoRealizadoController {
             ));
         }
 
-        tabelaExecucao.setItems(dados);
+        tabelaExecucao.setItems(oDados);
         TableUtils.autoFitColumns(tabelaExecucao);
     }
 
-    public void carregarDadosReais(com.mycompany.academia.treino.model.ComentarioTreino comentario) {
-        labelTituloTreino.setText(comentario.getTreino().getNome() + " (" + comentario.getTreino().getObjetivo() + ")");
+    public void carregarDadosReais(com.mycompany.academia.treino.model.ComentarioTreino pComentario) {
+        labelTituloTreino.setText(pComentario.getTreino().getNome() + " (" + pComentario.getTreino().getObjetivo() + ")");
         
         java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
-        labelDataFinalizacao.setText("Finalizado em: " + comentario.getDataCriacao().format(formatador));
-        labelComentarioAluno.setText("\"" + comentario.getTexto() + "\"");
+        labelDataFinalizacao.setText("Finalizado em: " + pComentario.getDataCriacao().format(formatador));
+        labelComentarioAluno.setText("\"" + pComentario.getTexto() + "\"");
         labelNotaGeral.setText("Análise de Ritmo e Carga Ativa");
 
-        List<com.mycompany.academia.treino.model.ItemRealizado> realizados = treinoDAO.buscarItensRealizados(
-            comentario.getAluno().getId(), 
-            comentario.getTreino().getId(), 
-            comentario.getDataCriacao()
+        List<com.mycompany.academia.treino.model.ItemRealizado> oRealizados = treinoDAO.listarItensRealizados(
+            pComentario.getAluno().getId(), 
+            pComentario.getTreino().getId(), 
+            pComentario.getDataCriacao()
         );
 
-        ObservableList<LinhaExecucao> dados = FXCollections.observableArrayList();
+        ObservableList<LinhaExecucao> oDados = FXCollections.observableArrayList();
         
-        for (com.mycompany.academia.treino.model.ItemRealizado ir : realizados) {
+        for (com.mycompany.academia.treino.model.ItemRealizado ir : oRealizados) {
             int totalSeries = ir.getItemTreino().getSeriesTreino().size();
             String planejado = totalSeries + "x ";
             if (!ir.getItemTreino().getSeriesTreino().isEmpty()) {
@@ -124,7 +124,7 @@ public class DetalhesTreinoRealizadoController {
             if ("DIMINUIU".equalsIgnoreCase(ir.getStatusCarga())) tendencia = "🔻 Diminuiu";
             if (!ir.isFeito()) tendencia = "❌ Pulado";
 
-            dados.add(new LinhaExecucao(
+            oDados.add(new LinhaExecucao(
                 ir.getItemTreino().getExercicio().getNome(), 
                 planejado, 
                 realizado, 
@@ -134,7 +134,7 @@ public class DetalhesTreinoRealizadoController {
             ));
         }
         
-        tabelaExecucao.setItems(dados);
+        tabelaExecucao.setItems(oDados);
         TableUtils.autoFitColumns(tabelaExecucao);
     }
 

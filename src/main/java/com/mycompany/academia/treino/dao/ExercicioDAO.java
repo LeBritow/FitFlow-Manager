@@ -8,15 +8,15 @@ import java.util.List;
 
 public class ExercicioDAO {
 
-    public boolean salvar(Exercicio exercicio) {
-        EventBus.emit("ExercicioDAO", "salvar", "exercicio=" + exercicio.getNome());
+    public boolean inserir(Exercicio pExercicio) {
+        EventBus.emit("ExercicioDAO", "salvar", "exercicio=" + pExercicio.getNome());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            if (exercicio.getId() == 0) {
-                em.persist(exercicio);
+            if (pExercicio.getId() == 0) {
+                em.persist(pExercicio);
             } else {
-                em.merge(exercicio);
+                em.merge(pExercicio);
             }
             em.getTransaction().commit();
             return true;
@@ -41,13 +41,13 @@ public class ExercicioDAO {
         }
     }
 
-    public boolean excluir(Exercicio exercicio) {
-        EventBus.emit("ExercicioDAO", "excluir", "exercicio=" + exercicio.getNome());
+    public boolean excluir(Exercicio pExercicio) {
+        EventBus.emit("ExercicioDAO", "excluir", "exercicio=" + pExercicio.getNome());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            exercicio = em.merge(exercicio);
-            em.remove(exercicio);
+            pExercicio = em.merge(pExercicio);
+            em.remove(pExercicio);
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
@@ -71,12 +71,12 @@ public class ExercicioDAO {
         }
     }
 
-    public List<Exercicio> buscarPorGrupoMuscular(String grupo) {
-        EventBus.emit("ExercicioDAO", "buscarPorGrupoMuscular", "grupo=" + grupo);
+    public List<Exercicio> listarPorGrupoMuscular(String pGrupo) {
+        EventBus.emit("ExercicioDAO", "listarPorGrupoMuscular", "grupo=" + pGrupo);
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.createQuery("SELECT e FROM Exercicio e WHERE e.grupoMuscular = :grupo", Exercicio.class)
-                     .setParameter("grupo", grupo)
+                     .setParameter("grupo", pGrupo)
                      .getResultList();
         } finally {
             em.close();

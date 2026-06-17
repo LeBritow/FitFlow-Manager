@@ -1,5 +1,6 @@
 package com.mycompany.academia.treino.model;
 
+import com.mycompany.academia.core.config.IEntidadeNomeada;
 import com.mycompany.academia.treino.enums.ObjetivoTreino;
 
 import jakarta.persistence.Entity;
@@ -10,7 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class Treino {
+public class Treino implements IEntidadeNomeada {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

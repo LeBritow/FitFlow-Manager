@@ -26,16 +26,16 @@ public class UsuariosController {
 
     @FXML
     public void initialize() {
-        Usuario atual = SessaoUsuario.getInstancia().getUsuarioLogado();
-        usuarioLogadoEhAdmin = atual instanceof Admin;
+        Usuario oAtual = SessaoUsuario.getInstancia().getUsuarioLogado();
+        usuarioLogadoEhAdmin = oAtual instanceof Admin;
         EventBus.emit("Desktop", "UsuariosController.listarUsuarios", "Carregando gerenciamento de usuários");
         carregarDadosTabela();
     }
 
     private void carregarDadosTabela() {
-        List<Usuario> usuariosBanco = dao.listarTodos();
+        List<Usuario> oUsuariosBanco = dao.listarTodos();
         
-        listaUsuariosOb = FXCollections.observableArrayList(usuariosBanco);
+        listaUsuariosOb = FXCollections.observableArrayList(oUsuariosBanco);
         
         tabelaUsuarios.setItems(listaUsuariosOb);
         TableUtils.autoFitColumns(tabelaUsuarios);
@@ -48,34 +48,34 @@ public class UsuariosController {
 
     @FXML
     void clicouEditar(ActionEvent event) {
-        Usuario selecionado = tabelaUsuarios.getSelectionModel().getSelectedItem();
-        if (selecionado == null) {
+        Usuario oSelecionado = tabelaUsuarios.getSelectionModel().getSelectedItem();
+        if (oSelecionado == null) {
             mostrarAlerta(Alert.AlertType.WARNING, "Atenção", "Selecione um usuário para editar.");
             return;
         }
-        if (!usuarioLogadoEhAdmin && selecionado instanceof Admin) {
+        if (!usuarioLogadoEhAdmin && oSelecionado instanceof Admin) {
             mostrarAlerta(Alert.AlertType.ERROR, "Acesso Negado", "Apenas administradores podem editar outros administradores.");
             return;
         }
-        abrirFormulario(selecionado);
+        abrirFormulario(oSelecionado);
     }
 
-    private void abrirFormulario(Usuario usuario) {
+    private void abrirFormulario(Usuario pUsuario) {
         try {
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/FormUsuario.fxml"));
-            javafx.scene.Parent raiz = loader.load();
+            javafx.fxml.FXMLLoader oLoader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/FormUsuario.fxml"));
+            javafx.scene.Parent oRaiz = oLoader.load();
             
-            if (usuario != null) {
-                FormUsuarioController controller = loader.getController();
-                controller.preencherParaEdicao(usuario);
+            if (pUsuario != null) {
+                FormUsuarioController oController = oLoader.getController();
+                oController.preencherParaEdicao(pUsuario);
             }
             
-            javafx.stage.Stage palcoModal = new javafx.stage.Stage();
-            palcoModal.setTitle(usuario == null ? "Novo Usuário" : "Editar Usuário");
-            palcoModal.setScene(new javafx.scene.Scene(raiz));
+            javafx.stage.Stage oPalcoModal = new javafx.stage.Stage();
+            oPalcoModal.setTitle(pUsuario == null ? "Novo Usuário" : "Editar Usuário");
+            oPalcoModal.setScene(new javafx.scene.Scene(oRaiz));
             
-            palcoModal.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            palcoModal.showAndWait();
+            oPalcoModal.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            oPalcoModal.showAndWait();
             
             carregarDadosTabela();
             
@@ -87,25 +87,25 @@ public class UsuariosController {
 
     @FXML
     void clicouExcluir(ActionEvent event) {
-        Usuario selecionado = tabelaUsuarios.getSelectionModel().getSelectedItem();
+        Usuario oSelecionado = tabelaUsuarios.getSelectionModel().getSelectedItem();
         
-        if (selecionado == null) {
+        if (oSelecionado == null) {
             mostrarAlerta(Alert.AlertType.WARNING, "Atenção", "Você precisa clicar em um usuário na tabela antes de excluir.");
             return;
         }
         
-        if (!usuarioLogadoEhAdmin && selecionado instanceof Admin) {
+        if (!usuarioLogadoEhAdmin && oSelecionado instanceof Admin) {
             mostrarAlerta(Alert.AlertType.ERROR, "Acesso Negado", "Apenas administradores podem excluir outros administradores.");
             return;
         }
         
-        Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacao.setTitle("Confirmação de Exclusão");
-        confirmacao.setHeaderText("Você está prestes a deletar: " + selecionado.getNome());
-        confirmacao.setContentText("Tem certeza disso? Essa ação não pode ser desfeita.");
+        Alert oConfirmacao = new Alert(Alert.AlertType.CONFIRMATION);
+        oConfirmacao.setTitle("Confirmação de Exclusão");
+        oConfirmacao.setHeaderText("Você está prestes a deletar: " + oSelecionado.getNome());
+        oConfirmacao.setContentText("Tem certeza disso? Essa ação não pode ser desfeita.");
         
-        if (confirmacao.showAndWait().get() == javafx.scene.control.ButtonType.OK) {
-            boolean sucesso = dao.excluir(selecionado);
+        if (oConfirmacao.showAndWait().get() == javafx.scene.control.ButtonType.OK) {
+            boolean sucesso = dao.excluir(oSelecionado);
             if (sucesso) {
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Usuário excluído com sucesso!");
                 carregarDadosTabela();
@@ -117,25 +117,25 @@ public class UsuariosController {
 
     @FXML
     void clicouResetarSenha(ActionEvent event) {
-        Usuario selecionado = tabelaUsuarios.getSelectionModel().getSelectedItem();
+        Usuario oSelecionado = tabelaUsuarios.getSelectionModel().getSelectedItem();
         
-        if (selecionado == null) {
+        if (oSelecionado == null) {
             mostrarAlerta(Alert.AlertType.WARNING, "Atenção", "Você precisa clicar em um usuário na tabela para resetar a senha.");
             return;
         }
         
-        if (!usuarioLogadoEhAdmin && selecionado instanceof Admin) {
+        if (!usuarioLogadoEhAdmin && oSelecionado instanceof Admin) {
             mostrarAlerta(Alert.AlertType.ERROR, "Acesso Negado", "Apenas administradores podem resetar a senha de outros administradores.");
             return;
         }
 
-        Alert confirmacao = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacao.setTitle("Resetar Senha");
-        confirmacao.setHeaderText("Resetar senha de " + selecionado.getNome() + "?");
-        confirmacao.setContentText("A senha será alterada para o padrão '123456'. O usuário deverá trocá-la depois.");
+        Alert oConfirmacao = new Alert(Alert.AlertType.CONFIRMATION);
+        oConfirmacao.setTitle("Resetar Senha");
+        oConfirmacao.setHeaderText("Resetar senha de " + oSelecionado.getNome() + "?");
+        oConfirmacao.setContentText("A senha será alterada para o padrão '123456'. O usuário deverá trocá-la depois.");
 
-        if (confirmacao.showAndWait().get() == javafx.scene.control.ButtonType.OK) {
-            boolean sucesso = dao.atualizarSenhaPorEmail(selecionado.getEmail(), "123456");
+        if (oConfirmacao.showAndWait().get() == javafx.scene.control.ButtonType.OK) {
+            boolean sucesso = dao.atualizarSenhaPorEmail(oSelecionado.getEmail(), "123456");
             
             if (sucesso) {
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Sucesso", "A senha foi resetada para 123456.");
@@ -146,10 +146,10 @@ public class UsuariosController {
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensagem) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
+        Alert oAlert = new Alert(tipo);
+        oAlert.setTitle(titulo);
+        oAlert.setHeaderText(null);
+        oAlert.setContentText(mensagem);
+        oAlert.showAndWait();
     }
 }

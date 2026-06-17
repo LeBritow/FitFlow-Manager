@@ -1,5 +1,6 @@
 package com.mycompany.academia.admin.model;
 
+import com.mycompany.academia.core.config.IEntidadeNomeada;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,7 +10,7 @@ import jakarta.persistence.InheritanceType;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Usuario {
+public abstract class Usuario implements IEntidadeNomeada {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

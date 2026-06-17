@@ -10,16 +10,16 @@ import jakarta.persistence.TypedQuery;
 
 public class UsuarioDAO {
 
-    public Usuario autenticar(String login, String senha) {
-        EventBus.emit("UsuarioDAO", "autenticar", "login=" + login);
+    public Usuario autenticar(String pLogin, String pSenha) {
+        EventBus.emit("UsuarioDAO", "autenticar", "login=" + pLogin);
         EntityManager em = JPAUtil.getEntityManager();
         
         try {
             String jpql = "SELECT u FROM Usuario u WHERE (u.email = :login OR u.cpf = :login) AND u.senha = :senha";
             TypedQuery<Usuario> query = em.createQuery(jpql, Usuario.class);
             
-            query.setParameter("login", login);
-            query.setParameter("senha", senha);
+            query.setParameter("login", pLogin);
+            query.setParameter("senha", pSenha);
             EventBus.emit("JPA", "JPQL Query", "SELECT Usuario WHERE email OR cpf = :login");
             
             return query.getSingleResult();
@@ -31,22 +31,22 @@ public class UsuarioDAO {
         }
     }
     
-    public boolean atualizarSenhaPorEmail(String email, String novaSenha) {
-        EventBus.emit("UsuarioDAO", "atualizarSenhaPorEmail", "email=" + email);
+    public boolean atualizarSenhaPorEmail(String pEmail, String pNovaSenha) {
+        EventBus.emit("UsuarioDAO", "atualizarSenhaPorEmail", "email=" + pEmail);
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
             
             String jpql = "SELECT u FROM Usuario u WHERE u.email = :email";
             TypedQuery<Usuario> query = em.createQuery(jpql, Usuario.class);
-            query.setParameter("email", email);
+            query.setParameter("email", pEmail);
             
             query.setMaxResults(1); 
             
-            Usuario usuario = query.getSingleResult();
+            Usuario oUsuario = query.getSingleResult();
             
-            usuario.setSenha(novaSenha);
-            em.merge(usuario);
+            oUsuario.setSenha(pNovaSenha);
+            em.merge(oUsuario);
             
             em.getTransaction().commit();
             return true;
@@ -74,14 +74,14 @@ public class UsuarioDAO {
         }
     }
     
-    public boolean excluir(Usuario usuario) {
-        EventBus.emit("UsuarioDAO", "excluir", "usuario=" + usuario.getNome());
+    public boolean excluir(Usuario pUsuario) {
+        EventBus.emit("UsuarioDAO", "excluir", "usuario=" + pUsuario.getNome());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            usuario = em.merge(usuario);
+            pUsuario = em.merge(pUsuario);
 
-            em.remove(usuario);
+            em.remove(pUsuario);
             em.getTransaction().commit();
             return true;
         } catch (Exception e) {
@@ -95,16 +95,16 @@ public class UsuarioDAO {
         }
     }
     
-    public boolean salvar(Usuario usuario) {
-        EventBus.emit("UsuarioDAO", "salvar", "usuario=" + usuario.getNome());
+    public boolean inserir(Usuario pUsuario) {
+        EventBus.emit("UsuarioDAO", "inserir", "usuario=" + pUsuario.getNome());
         EntityManager em = JPAUtil.getEntityManager();
         try {
             em.getTransaction().begin();
             
-            if (usuario.getId() == 0) {
-                em.persist(usuario);
+            if (pUsuario.getId() == 0) {
+                em.persist(pUsuario);
             } else {
-                em.merge(usuario);
+                em.merge(pUsuario);
             }
             
             em.getTransaction().commit();

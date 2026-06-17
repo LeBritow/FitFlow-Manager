@@ -354,6 +354,36 @@ A diferença do `graficoCarga` é que ele não usa `AvaliacaoFisica` — os dado
 
 ---
 
+### Padrões e Convenções de Código
+
+**P: Por que o código usa notação húngara (prefixos `o` e `p`)? Não é considerado antiquado?**
+
+R: O código segue as convenções ensinadas em aula, onde os exercícios práticos utilizam:
+- `o` para variáveis locais que armazenam objetos (`oAluno`, `oTreino`, `oDao`)
+- `p` para parâmetros de métodos e construtores (`pAluno`, `pNome`, `pSenha`)
+
+A notação húngara tem a vantagem de tornar imediatamente visível o **tipo de escopo** de cada variável durante a leitura do código — essencial em métodos longos com múltiplas variáveis. Mantivemos a convenção para facilitar a correção e demonstrar domínio dos padrões apresentados em aula.
+
+---
+
+**P: Por que os métodos dos DAOs têm nomes em português (`inserir`, `atualizar`, `excluir`) enquanto os getters/setters do JPA estão em inglês?**
+
+R: Os métodos de negócio (DAO e controller) seguem o vocabulário dos exercícios de aula, que usam português para operações de banco. Os getters/setters (`getNome()`, `setPeso()`) permanecem em inglês porque são gerados pela IDE e seguem a convenção JavaBeans, que o JPA exige para mapeamento. É uma separação clara: o que é regra de negócio fica em português; o que é infraestrutura do Java/JPA fica em inglês.
+
+---
+
+**P: O que é `IEntidadeNomeada` e por que ela existe? Não seria mais simples usar uma classe abstrata?**
+
+R: `IEntidadeNomeada` é análoga à interface `IForma` dos exercícios de aula. Ela define o contrato `getNome()` para toda entidade que precisa ser exibida em ComboBoxes, labels e buscas. Optamos por interface (não classe abstrata) porque as entidades já estendem `Object` e são anotadas com `@Entity`. Uma interface permite que qualquer classe — inclusive as que já têm outra hierarquia — implemente o contrato sem conflito de herança.
+
+---
+
+**P: Por que o DAO recebe a entidade como parâmetro do método (`dao.inserir(oAluno)`) em vez de receber no construtor (`new AlunoDAO(oAluno)`) como nos exercícios?**
+
+R: Nos exercícios de aula, o DAO recebe a entidade no construtor e a armazena em um campo, pois cada DAO trabalha com apenas uma entidade por vez. No FitFlow, preferimos passar a entidade como parâmetro do método porque isso permite reutilizar a mesma instância do DAO para múltiplas operações com diferentes entidades — sem precisar instanciar um novo DAO a cada chamada. Ambos os padrões estão corretos; a diferença é que o nosso é mais adequado para cenários com muitas operações encadeadas.
+
+---
+
 ### Concorrência e Segurança
 
 **P: As senhas estão em texto puro. Qual o custo de implementar BCrypt? O que precisaria mudar?**

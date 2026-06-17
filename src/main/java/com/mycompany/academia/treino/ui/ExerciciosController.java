@@ -43,20 +43,20 @@ public class ExerciciosController {
     }
 
     private void carregarDadosTabela() {
-        List<Exercicio> exercicios = dao.listarTodos();
-        listaExerciciosOb = FXCollections.observableArrayList(exercicios);
+        List<Exercicio> oExercicios = dao.listarTodos();
+        listaExerciciosOb = FXCollections.observableArrayList(oExercicios);
         tabelaExercicios.setItems(listaExerciciosOb);
         TableUtils.autoFitColumns(tabelaExercicios);
     }
 
-    private void mostrarDetalhesExercicio(Exercicio e) {
-        if (e != null) {
-            lblNomeExercicio.setText(e.getNome() + " (" + e.getGrupoMuscular() + ")");
-            lblDescricao.setText(e.getDescricao() != null ? e.getDescricao() : "Sem descrição técnica.");
+    private void mostrarDetalhesExercicio(Exercicio pExercicio) {
+        if (pExercicio != null) {
+            lblNomeExercicio.setText(pExercicio.getNome() + " (" + pExercicio.getGrupoMuscular() + ")");
+            lblDescricao.setText(pExercicio.getDescricao() != null ? pExercicio.getDescricao() : "Sem descrição técnica.");
 
-            if (e.getUrlMidia() != null && !e.getUrlMidia().isEmpty()) {
+            if (pExercicio.getUrlMidia() != null && !pExercicio.getUrlMidia().isEmpty()) {
                 try {
-                    Image imagemGif = new Image(e.getUrlMidia(), true);
+                    Image imagemGif = new Image(pExercicio.getUrlMidia(), true);
                     imgPreview.setImage(imagemGif);
                 } catch (Exception ex) {
                     imgPreview.setImage(null);
@@ -78,35 +78,35 @@ public class ExerciciosController {
 
     @FXML
     void clicouEditar(ActionEvent event) {
-        Exercicio selecionado = tabelaExercicios.getSelectionModel().getSelectedItem();
-        if (selecionado == null) {
+        Exercicio oSelecionado = tabelaExercicios.getSelectionModel().getSelectedItem();
+        if (oSelecionado == null) {
             mostrarAlerta("Aviso", "Selecione um exercício para editar.");
             return;
         }
-        abrirFormulario(selecionado);
+        abrirFormulario(oSelecionado);
     }
 
     @FXML
     void clicouExcluir(ActionEvent event) {
-        Exercicio selecionado = tabelaExercicios.getSelectionModel().getSelectedItem();
-        if (selecionado == null) {
+        Exercicio oSelecionado = tabelaExercicios.getSelectionModel().getSelectedItem();
+        if (oSelecionado == null) {
             mostrarAlerta("Aviso", "Selecione um exercício para excluir.");
             return;
         }
 
-        if (dao.excluir(selecionado)) {
+        if (dao.excluir(oSelecionado)) {
             carregarDadosTabela();
         }
     }
 
     @FXML
     void clicouBuscarGifsMassa(ActionEvent event) {
-        List<Exercicio> todos = dao.listarTodos();
-        List<Exercicio> semGif = todos.stream()
+        List<Exercicio> oTodos = dao.listarTodos();
+        List<Exercicio> oSemGif = oTodos.stream()
                 .filter(e -> e.getUrlMidia() == null || e.getUrlMidia().isEmpty())
                 .toList();
 
-        if (semGif.isEmpty()) {
+        if (oSemGif.isEmpty()) {
             mostrarAlertaInfo("Todos os exercícios já possuem GIF.");
             return;
         }
@@ -115,17 +115,17 @@ public class ExerciciosController {
         lblProgresso.setVisible(true);
 
         new Thread(() -> {
-            int total = semGif.size();
+            int total = oSemGif.size();
             AtomicInteger sucesso = new AtomicInteger(0);
             AtomicInteger falha = new AtomicInteger(0);
 
             for (int i = 0; i < total; i++) {
-                Exercicio e = semGif.get(i);
+                Exercicio e = oSemGif.get(i);
                 String url = gifService.buscarMelhorGif(e.getNome(), e.getGrupoMuscular());
 
                 if (url != null) {
                     e.setUrlMidia(url);
-                    dao.salvar(e);
+                    dao.inserir(e);
                     sucesso.incrementAndGet();
                 } else {
                     falha.incrementAndGet();
@@ -142,30 +142,30 @@ public class ExerciciosController {
                 lblProgresso.setVisible(false);
                 carregarDadosTabela();
 
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Busca em Massa Concluída");
-                alert.setHeaderText(null);
-                alert.setContentText(sucesso.get() + " GIFs encontrados e salvos.\n" + falha.get() + " exercícios sem resultado.");
-                alert.showAndWait();
+                Alert oAlert = new Alert(Alert.AlertType.INFORMATION);
+                oAlert.setTitle("Busca em Massa Concluída");
+                oAlert.setHeaderText(null);
+                oAlert.setContentText(sucesso.get() + " GIFs encontrados e salvos.\n" + falha.get() + " exercícios sem resultado.");
+                oAlert.showAndWait();
             });
         }).start();
     }
 
-    private void abrirFormulario(Exercicio e) {
+    private void abrirFormulario(Exercicio pExercicio) {
         try {
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/FormExercicio.fxml"));
-            javafx.scene.Parent raiz = loader.load();
+            javafx.fxml.FXMLLoader oLoader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/FormExercicio.fxml"));
+            javafx.scene.Parent oRaiz = oLoader.load();
 
-            if (e != null) {
-                FormExercicioController contr = loader.getController();
-                contr.preencherParaEdicao(e);
+            if (pExercicio != null) {
+                FormExercicioController oContr = oLoader.getController();
+                oContr.preencherParaEdicao(pExercicio);
             }
 
-            javafx.stage.Stage palcoModal = new javafx.stage.Stage();
-            palcoModal.setTitle(e == null ? "Novo Exercício" : "Editar Exercício");
-            palcoModal.setScene(new javafx.scene.Scene(raiz));
-            palcoModal.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            palcoModal.showAndWait();
+            javafx.stage.Stage oPalcoModal = new javafx.stage.Stage();
+            oPalcoModal.setTitle(pExercicio == null ? "Novo Exercício" : "Editar Exercício");
+            oPalcoModal.setScene(new javafx.scene.Scene(oRaiz));
+            oPalcoModal.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            oPalcoModal.showAndWait();
 
             carregarDadosTabela();
         } catch (Exception ex) {
@@ -174,18 +174,18 @@ public class ExerciciosController {
     }
 
     private void mostrarAlerta(String titulo, String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
+        Alert oAlert = new Alert(Alert.AlertType.WARNING);
+        oAlert.setTitle(titulo);
+        oAlert.setHeaderText(null);
+        oAlert.setContentText(mensagem);
+        oAlert.showAndWait();
     }
 
     private void mostrarAlertaInfo(String mensagem) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Informação");
-        alert.setHeaderText(null);
-        alert.setContentText(mensagem);
-        alert.showAndWait();
+        Alert oAlert = new Alert(Alert.AlertType.INFORMATION);
+        oAlert.setTitle("Informação");
+        oAlert.setHeaderText(null);
+        oAlert.setContentText(mensagem);
+        oAlert.showAndWait();
     }
 }
