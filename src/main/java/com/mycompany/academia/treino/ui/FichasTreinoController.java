@@ -10,7 +10,8 @@ import com.mycompany.academia.treino.model.ItemTreino;
 import com.mycompany.academia.treino.model.ProgramacaoTreino;
 import com.mycompany.academia.treino.model.SerieTreino;
 import com.mycompany.academia.treino.model.Treino;
-import com.mycompany.academia.treino.enums.ObjetivoTreino;
+import com.mycompany.academia.treino.model.Objetivo;
+import com.mycompany.academia.treino.dao.ObjetivoDAO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,6 +35,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -50,7 +53,8 @@ public class FichasTreinoController {
     @FXML private ComboBox<Aluno> comboAlunos;
     @FXML private ComboBox<ProgramacaoTreino> comboTreinosExistentes;
     @FXML private TextField campoNomeTreino;
-    @FXML private ComboBox<ObjetivoTreino> comboObjetivo;
+    @FXML private ComboBox<Objetivo> comboObjetivo;
+    @FXML private Button botaoAdicionarObjetivo;
     @FXML private CheckBox checkFichaPadrao;
     
     @FXML private TableView<Exercicio> tabelaCatalogo;
@@ -64,6 +68,7 @@ public class FichasTreinoController {
 
     private TreinoDAO treinoDAO = new TreinoDAO();
     private ExercicioDAO exercicioDAO = new ExercicioDAO();
+    private ObjetivoDAO objetivoDAO = new ObjetivoDAO();
     
     private ObservableList<Exercicio> listaCatalogo;
     private ObservableList<ItemTreino> listaFicha;
@@ -76,7 +81,7 @@ public class FichasTreinoController {
         carregarAlunos();
         carregarTemplates();
         
-        comboObjetivo.setItems(FXCollections.observableArrayList(ObjetivoTreino.values()));
+        comboObjetivo.setItems(FXCollections.observableArrayList(objetivoDAO.listarTodos()));
         
         listaCatalogo = FXCollections.observableArrayList(exercicioDAO.listarTodos());
         tabelaCatalogo.setItems(listaCatalogo);
@@ -532,6 +537,24 @@ public class FichasTreinoController {
         }
     }
     
+    @FXML
+    private void adicionarObjetivo() {
+        TextInputDialog oDialog = new TextInputDialog();
+        oDialog.setTitle("Novo Objetivo");
+        oDialog.setHeaderText("Adicionar novo objetivo de treino");
+        oDialog.setContentText("Nome do objetivo:");
+        Optional<String> oResultado = oDialog.showAndWait();
+        if (oResultado.isPresent()) {
+            String oNome = oResultado.get().trim();
+            if (!oNome.isEmpty()) {
+                Objetivo oObjetivo = new Objetivo(oNome);
+                objetivoDAO.inserir(oObjetivo);
+                comboObjetivo.setItems(FXCollections.observableArrayList(objetivoDAO.listarTodos()));
+                comboObjetivo.setValue(oObjetivo);
+            }
+        }
+    }
+
     private void limparEcra() {
         treinoEmEdicao = null;
         campoNomeTreino.clear(); 

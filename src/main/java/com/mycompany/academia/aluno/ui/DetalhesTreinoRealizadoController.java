@@ -48,7 +48,7 @@ public class DetalhesTreinoRealizadoController {
     }
 
     public void carregarDadosReais(com.mycompany.academia.aluno.model.Aluno aluno, com.mycompany.academia.treino.model.Treino treino, java.time.LocalDateTime dataSessao, String comentarioTexto) {
-        labelTituloTreino.setText(treino.getNome() + " (" + treino.getObjetivo() + ")");
+        labelTituloTreino.setText(treino.getNome() + " (" + treino.getObjetivo().getNome() + ")");
 
         java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
         labelDataFinalizacao.setText("Finalizado em: " + dataSessao.format(formatador));
@@ -130,7 +130,7 @@ public class DetalhesTreinoRealizadoController {
 
     public void carregarDadosReais(com.mycompany.academia.treino.model.ComentarioTreino comentario) {
         Treino oTreino = comentario.getTreino();
-        labelTituloTreino.setText(oTreino.getNome() + " (" + oTreino.getObjetivo() + ")");
+        labelTituloTreino.setText(oTreino.getNome() + " (" + oTreino.getObjetivo().getNome() + ")");
         
         java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
         labelDataFinalizacao.setText("Finalizado em: " + comentario.getDataCriacao().format(formatador));

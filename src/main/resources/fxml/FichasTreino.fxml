@@ -53,11 +53,17 @@
                         <TextField fx:id="campoNomeTreino" />
                      </children>
                   </VBox>
-                  <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                     <children>
-                        <Label text="Objetivo (Ex: Hipertrofia):" />
-                        <ComboBox fx:id="comboObjetivo" /> </children>
-                  </VBox>
+                   <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                      <children>
+                         <Label text="Objetivo (Ex: Hipertrofia):" />
+                         <HBox spacing="5.0">
+                            <children>
+                               <ComboBox fx:id="comboObjetivo" HBox.hgrow="ALWAYS" prefWidth="250.0" />
+                               <Button fx:id="botaoAdicionarObjetivo" text="Adicionar" onAction="#adicionarObjetivo" />
+                            </children>
+                         </HBox>
+                      </children>
+                   </VBox>
                </children>
             </HBox>
          </children>

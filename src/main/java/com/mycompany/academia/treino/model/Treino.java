@@ -1,14 +1,11 @@
 package com.mycompany.academia.treino.model;
 
 import com.mycompany.academia.core.config.IEntidadeNomeada;
-import com.mycompany.academia.treino.enums.ObjetivoTreino;
-
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Treino implements IEntidadeNomeada {
@@ -19,9 +16,9 @@ public class Treino implements IEntidadeNomeada {
 
   private String nome;
 
-  @Enumerated(EnumType.STRING)
-  private ObjetivoTreino objetivo;
-  private boolean fichaPadrao; 
+  @ManyToOne
+  private Objetivo objetivo;
+  private boolean fichaPadrao;
 
   public Treino() {
   }
@@ -34,17 +31,17 @@ public class Treino implements IEntidadeNomeada {
   }
 
   public String getNome() {
-    return nome; 
-  }
-  
-  public void setNome(String nome) {
-    this.nome = nome; 
+    return nome;
   }
 
-  public ObjetivoTreino getObjetivo() { 
-    return objetivo; 
+  public void setNome(String nome) {
+    this.nome = nome;
   }
-  public void setObjetivo(ObjetivoTreino objetivo) {
+
+  public Objetivo getObjetivo() {
+    return objetivo;
+  }
+  public void setObjetivo(Objetivo objetivo) {
     this.objetivo = objetivo;
   }
 

@@ -200,7 +200,7 @@ public class ServidorMobile {
                 j.addProperty("nomeTreino", oTreino.getNome());
                 String oObjetivoTreino = "";
 if (oTreino.getObjetivo() != null) {
-    oObjetivoTreino = oTreino.getObjetivo().name();
+    oObjetivoTreino = oTreino.getObjetivo().getNome();
 }
 j.addProperty("objetivo", oObjetivoTreino);
 
