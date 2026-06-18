@@ -5,7 +5,7 @@ Fico muito feliz que você tenha interesse em contribuir com o **FitFlow**! Para
 ### Requisitos de Ambiente
 
 - **Java 25** (ou superior)
-- **Maven** instalado e configurado
+- **Maven** instalado e configurado 
 - **PostgreSQL** instalado e rodando
 
 ### Fluxo de Trabalho
