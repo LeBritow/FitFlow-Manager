@@ -34,7 +34,7 @@
             <Label text="Link do GIF / Imagem de Execução:" />
             <HBox spacing="5.0">
                <children>
-                  <TextField fx:id="campoUrl" HBox.hgrow="ALWAYS" promptText="https://linkdaweb.com/exercicio.gif" />
+                  <TextField fx:id="campoUrl" HBox.hgrow="ALWAYS" promptText="https://link.com/exercicio.gif" />
                   <Button fx:id="btnBuscarGif" mnemonicParsing="false" onAction="#clicouBuscarGif" prefHeight="30.0" style="-fx-background-color: #5bc0de; -fx-text-fill: white; -fx-font-weight: bold;" text="Buscar GIF" />
                </children>
             </HBox>

@@ -14,7 +14,7 @@
             <Font name="System Bold" size="24.0" />
          </font>
       </Label>
-      <Label text="Por motivos de segurança, você deve alterar a&#10;sua senha padrão antes de acessar o sistema." textAlignment="CENTER">
+      <Label text="Por motivos de segurança, você deve alterar a sua senha padrão antes de acessar o sistema." textAlignment="CENTER">
          <font>
             <Font size="14.0" />
          </font>

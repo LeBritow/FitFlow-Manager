@@ -28,7 +28,7 @@ public class GifSearchService {
         Properties p = new Properties();
         p.load(in);
         String file = p.getProperty("giphy.api.key");
-        if (file != null && !file.isEmpty() && !file.equals("SUA_CHAVE_AQUI")) return file;
+        if (file != null && !file.isEmpty()) return file;
       }
     } catch (Exception ignored) {}
 
