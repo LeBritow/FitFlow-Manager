@@ -8,78 +8,78 @@ import java.util.List;
 
 public class ExercicioDAO {
 
-    public boolean inserir(Exercicio pExercicio) {
-        EventBus.emit("ExercicioDAO", "salvar", "exercicio=" + pExercicio.getNome());
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            em.getTransaction().begin();
-            if (pExercicio.getId() == 0) {
-                em.persist(pExercicio);
-            } else {
-                em.merge(pExercicio);
-            }
-            em.getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            e.printStackTrace();
-            return false;
-        } finally {
-            em.close();
-        }
+  public boolean inserir(Exercicio exercicio) {
+    EventBus.emit("ExercicioDAO", "salvar", "exercicio=" + exercicio.getNome());
+    EntityManager em = JPAUtil.getEntityManager();
+    try {
+      em.getTransaction().begin();
+      if (exercicio.getId() == 0) {
+        em.persist(exercicio);
+      } else {
+        em.merge(exercicio);
+      }
+      em.getTransaction().commit();
+      return true;
+    } catch (Exception e) {
+      if (em.getTransaction().isActive()) {
+        em.getTransaction().rollback();
+      }
+      e.printStackTrace();
+      return false;
+    } finally {
+      em.close();
     }
+  }
 
-    public List<Exercicio> listarTodos() {
-        EventBus.emit("ExercicioDAO", "listarTodos", "");
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT e FROM Exercicio e ORDER BY e.grupoMuscular, e.nome", Exercicio.class).getResultList();
-        } finally {
-            em.close();
-        }
+  public List<Exercicio> listarTodos() {
+    EventBus.emit("ExercicioDAO", "listarTodos", "");
+    EntityManager em = JPAUtil.getEntityManager();
+    try {
+      return em.createQuery("SELECT e FROM Exercicio e ORDER BY e.grupoMuscular, e.nome", Exercicio.class).getResultList();
+    } finally {
+      em.close();
     }
+  }
 
-    public boolean excluir(Exercicio pExercicio) {
-        EventBus.emit("ExercicioDAO", "excluir", "exercicio=" + pExercicio.getNome());
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            em.getTransaction().begin();
-            pExercicio = em.merge(pExercicio);
-            em.remove(pExercicio);
-            em.getTransaction().commit();
-            return true;
-        } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            e.printStackTrace();
-            return false;
-        } finally {
-            em.close();
-        }
+  public boolean excluir(Exercicio exercicio) {
+    EventBus.emit("ExercicioDAO", "excluir", "exercicio=" + exercicio.getNome());
+    EntityManager em = JPAUtil.getEntityManager();
+    try {
+      em.getTransaction().begin();
+      exercicio = em.merge(exercicio);
+      em.remove(exercicio);
+      em.getTransaction().commit();
+      return true;
+    } catch (Exception e) {
+      if (em.getTransaction().isActive()) {
+        em.getTransaction().rollback();
+      }
+      e.printStackTrace();
+      return false;
+    } finally {
+      em.close();
     }
-    
-    public long contarExercicios() {
-        EventBus.emit("ExercicioDAO", "contarExercicios", "");
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT COUNT(e) FROM Exercicio e", Long.class).getSingleResult();
-        } finally {
-            em.close();
-        }
+  }
+  
+  public long contarExercicios() {
+    EventBus.emit("ExercicioDAO", "contarExercicios", "");
+    EntityManager em = JPAUtil.getEntityManager();
+    try {
+      return em.createQuery("SELECT COUNT(e) FROM Exercicio e", Long.class).getSingleResult();
+    } finally {
+      em.close();
     }
+  }
 
-    public List<Exercicio> listarPorGrupoMuscular(String pGrupo) {
-        EventBus.emit("ExercicioDAO", "listarPorGrupoMuscular", "grupo=" + pGrupo);
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery("SELECT e FROM Exercicio e WHERE e.grupoMuscular = :grupo", Exercicio.class)
-                     .setParameter("grupo", pGrupo)
-                     .getResultList();
-        } finally {
-            em.close();
-        }
+  public List<Exercicio> listarPorGrupoMuscular(String grupo) {
+    EventBus.emit("ExercicioDAO", "listarPorGrupoMuscular", "grupo=" + grupo);
+    EntityManager em = JPAUtil.getEntityManager();
+    try {
+      return em.createQuery("SELECT e FROM Exercicio e WHERE e.grupoMuscular = :grupo", Exercicio.class)
+           .setParameter("grupo", grupo)
+           .getResultList();
+    } finally {
+      em.close();
     }
+  }
 }

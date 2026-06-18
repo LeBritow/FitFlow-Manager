@@ -7,62 +7,62 @@ import java.time.LocalDate;
 @Table(name = "avaliacao_fisica")
 public class AvaliacaoFisica {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "aluno_id", nullable = false)
-    private Aluno aluno;
+  @ManyToOne
+  @JoinColumn(name = "aluno_id", nullable = false)
+  private Aluno aluno;
 
-    private float peso;
-    private float altura;
-    private float imc;
-    
-    @Column(name = "data_avaliacao")
-    private LocalDate dataAvaliacao;
+  private float peso;
+  private float altura;
+  private float imc;
+  
+  @Column(name = "data_avaliacao")
+  private LocalDate dataAvaliacao;
 
-    public AvaliacaoFisica() {}
+  public AvaliacaoFisica() {}
 
-    public AvaliacaoFisica(Aluno pAluno, float pPeso, float pAltura, float pImc, LocalDate pDataAvaliacao) {
-        this.aluno = pAluno;
-        this.peso = pPeso;
-        this.altura = pAltura;
-        this.imc = pImc;
-        this.dataAvaliacao = pDataAvaliacao;
-    }
+  public AvaliacaoFisica(Aluno aluno, float peso, float altura, float imc, LocalDate dataAvaliacao) {
+    this.aluno = aluno;
+    this.peso = peso;
+    this.altura = altura;
+    this.imc = imc;
+    this.dataAvaliacao = dataAvaliacao;
+  }
 
-    public Long getId() {
-        return id;
+  public Long getId() {
+    return id;
+  }
+  public Aluno getAluno() {
+    return aluno;
+  }
+  public void setAluno(Aluno aluno) {
+    this.aluno = aluno;
+  }
+  public float getPeso() {
+    return peso;
+  }
+  public void setPeso(float peso) {
+    this.peso = peso;
+  }
+  public float getAltura() {
+    return altura;
+  }
+  public void setAltura(float altura) {
+    this.altura = altura;
+  }
+  public float getImc() {
+    return imc;
+  }
+  public void setImc(float imc) {
+    this.imc = imc;
+  }
+  public LocalDate getDataAvaliacao() {
+    return dataAvaliacao;
+  }
+  public void setDataAvaliacao(LocalDate dataAvaliacao) {
+    this.dataAvaliacao = dataAvaliacao;
     }
-    public Aluno getAluno() {
-        return aluno;
-    }
-    public void setAluno(Aluno aluno) {
-        this.aluno = aluno;
-    }
-    public float getPeso() {
-        return peso;
-    }
-    public void setPeso(float peso) {
-        this.peso = peso;
-    }
-    public float getAltura() {
-        return altura;
-    }
-    public void setAltura(float altura) {
-        this.altura = altura;
-    }
-    public float getImc() {
-        return imc;
-    }
-    public void setImc(float imc) {
-        this.imc = imc;
-    }
-    public LocalDate getDataAvaliacao() {
-        return dataAvaliacao;
-    }
-    public void setDataAvaliacao(LocalDate dataAvaliacao) {
-        this.dataAvaliacao = dataAvaliacao;
-        }
 }

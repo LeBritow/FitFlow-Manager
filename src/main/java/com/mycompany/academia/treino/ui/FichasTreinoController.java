@@ -97,11 +97,18 @@ public class FichasTreinoController {
     private void carregarAlunos() {
         comboAlunos.setItems(FXCollections.observableArrayList(treinoDAO.listarAlunos()));
         comboAlunos.setConverter(new StringConverter<Aluno>() {
-            @Override public String toString(Aluno a) { return a != null ? a.getNome() : ""; }
+            @Override public String toString(Aluno a) {
+                if (a == null) return "";
+                return a.getNome();
+            }
             @Override public Aluno fromString(String s) { return null; }
         });
         comboTreinosExistentes.setConverter(new StringConverter<ProgramacaoTreino>() {
-            @Override public String toString(ProgramacaoTreino p) { return p != null ? p.getTreino().getNome() : ""; }
+            @Override public String toString(ProgramacaoTreino p) {
+                if (p == null) return "";
+                Treino oTreinoP = p.getTreino();
+                return oTreinoP.getNome();
+            }
             @Override public ProgramacaoTreino fromString(String s) { return null; }
         });
     }
@@ -109,14 +116,17 @@ public class FichasTreinoController {
     private void carregarTemplates() {
         comboTemplates.setItems(FXCollections.observableArrayList(treinoDAO.listarFichasPadrao()));
         comboTemplates.setConverter(new StringConverter<Treino>() {
-            @Override public String toString(Treino t) { return t != null ? t.getNome() : ""; }
+            @Override public String toString(Treino t) {
+                if (t == null) return "";
+                return t.getNome();
+            }
             @Override public Treino fromString(String s) { return null; }
         });
     }
 
-    private void atualizarComboTreinosDoAluno(Aluno pAluno) {
-        if (pAluno != null) {
-            List<ProgramacaoTreino> oProgs = treinoDAO.listarProgramacoesDoAluno(pAluno.getId());
+    private void atualizarComboTreinosDoAluno(Aluno aluno) {
+        if (aluno != null) {
+            List<ProgramacaoTreino> oProgs = treinoDAO.listarProgramacoesDoAluno(aluno.getId());
             comboTreinosExistentes.setItems(FXCollections.observableArrayList(oProgs));
             checkFichaPadrao.setSelected(false);
         } else {
@@ -124,9 +134,9 @@ public class FichasTreinoController {
         }
     }
 
-    private void carregarTreinoParaEdicao(ProgramacaoTreino pProg) {
-        if (pProg != null && pProg.getTreino() != null) {
-            treinoEmEdicao = pProg.getTreino();
+    private void carregarTreinoParaEdicao(ProgramacaoTreino prog) {
+        if (prog != null && prog.getTreino() != null) {
+            treinoEmEdicao = prog.getTreino();
             campoNomeTreino.setText(treinoEmEdicao.getNome());
             comboObjetivo.setValue(treinoEmEdicao.getObjetivo());
             checkFichaPadrao.setSelected(false);
@@ -134,11 +144,11 @@ public class FichasTreinoController {
         }
     }
 
-    private void importarTemplate(Treino pTemplate) {
-        if (pTemplate == null) return;
+    private void importarTemplate(Treino template) {
+        if (template == null) return;
         Alert oAlert = new Alert(Alert.AlertType.CONFIRMATION);
         oAlert.setTitle("Opções de Template");
-        oAlert.setHeaderText("Ficha: " + pTemplate.getNome());
+        oAlert.setHeaderText("Ficha: " + template.getNome());
         oAlert.setContentText("O que deseja fazer com esta ficha padrão?");
         ButtonType oBtnImportar = new ButtonType("Importar Cópia para Aluno");
         ButtonType oBtnEditar = new ButtonType("Editar Template Original");
@@ -148,35 +158,35 @@ public class FichasTreinoController {
 
         if (oResult.isPresent() && oResult.get() == oBtnImportar) {
             treinoEmEdicao = null; 
-            campoNomeTreino.setText(pTemplate.getNome());
-            comboObjetivo.setValue(pTemplate.getObjetivo());
+            campoNomeTreino.setText(template.getNome());
+            comboObjetivo.setValue(template.getObjetivo());
             checkFichaPadrao.setSelected(false); 
             listaFicha.clear();
             
-            List<ItemTreino> oItensTemplate = treinoDAO.listarItensDoTreino(pTemplate.getId());
-            for (ItemTreino it : oItensTemplate) {
+            List<ItemTreino> oItensTemplate = treinoDAO.listarItensDoTreino(template.getId());
+            for (ItemTreino oIt : oItensTemplate) {
                 ItemTreino oNovoItem = new ItemTreino();
-                oNovoItem.setExercicio(it.getExercicio());
-                oNovoItem.setIntervaloDescanso(it.getIntervaloDescanso());
-                oNovoItem.setProgressaoCarga(it.isProgressaoCarga());
+                oNovoItem.setExercicio(oIt.getExercicio());
+                oNovoItem.setIntervaloDescanso(oIt.getIntervaloDescanso());
+                oNovoItem.setProgressaoCarga(oIt.isProgressaoCarga());
                 
-                for (SerieTreino sOrig : it.getSeriesTreino()) {
+                for (SerieTreino oSOrig : oIt.getSeriesTreino()) {
                     SerieTreino oNovaSerie = new SerieTreino();
-                    oNovaSerie.setNumeroDaSerie(sOrig.getNumeroDaSerie());
-                    oNovaSerie.setRepeticoes(sOrig.getRepeticoes());
-                    oNovaSerie.setCarga(sOrig.getCarga());
+                    oNovaSerie.setNumeroDaSerie(oSOrig.getNumeroDaSerie());
+                    oNovaSerie.setRepeticoes(oSOrig.getRepeticoes());
+                    oNovaSerie.setCarga(oSOrig.getCarga());
                     oNovoItem.adicionarSerie(oNovaSerie);
                 }
                 listaFicha.add(oNovoItem);
             }
         } else if (oResult.isPresent() && oResult.get() == oBtnEditar) {
-            treinoEmEdicao = pTemplate;
-            campoNomeTreino.setText(pTemplate.getNome());
-            comboObjetivo.setValue(pTemplate.getObjetivo());
+            treinoEmEdicao = template;
+            campoNomeTreino.setText(template.getNome());
+            comboObjetivo.setValue(template.getObjetivo());
             checkFichaPadrao.setSelected(true); 
             comboAlunos.getSelectionModel().clearSelection(); 
             listaFicha.clear();
-            listaFicha.setAll(treinoDAO.listarItensDoTreino(pTemplate.getId()));
+            listaFicha.setAll(treinoDAO.listarItensDoTreino(template.getId()));
         } else {
             Platform.runLater(() -> comboTemplates.getSelectionModel().clearSelection());
         }
@@ -287,9 +297,9 @@ public class FichasTreinoController {
             oSelecionados.addAll(sortearExercicios("Triceps", qtdOutraMetade));
         }
         
-        for (Exercicio ex : oSelecionados) {
+        for (Exercicio oEx : oSelecionados) {
             ItemTreino oItem = new ItemTreino();
-            oItem.setExercicio(ex);
+            oItem.setExercicio(oEx);
             oItem.setProgressaoCarga(progredir);
             oItem.setIntervaloDescanso(45.0f + (oRand.nextInt(4) * 5.0f));
             
@@ -335,17 +345,25 @@ public class FichasTreinoController {
     } 
     
     private void configurarColunasDaFicha() {
-        colunaExercicioFicha.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getExercicio().getNome()));
-        colunaSeries.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getSeriesTreino().size()).asObject());
+        colunaExercicioFicha.setCellValueFactory(cellData -> {
+            ItemTreino oItem = cellData.getValue();
+            Exercicio oExercicio = oItem.getExercicio();
+            return new SimpleStringProperty(oExercicio.getNome());
+        });
+        colunaSeries.setCellValueFactory(cellData -> {
+            ItemTreino oItem = cellData.getValue();
+            return new SimpleIntegerProperty(oItem.getSeriesTreino().size()).asObject();
+        });
         
         colunaReps.setCellValueFactory(cellData -> {
             ItemTreino oItem = cellData.getValue();
             if (oItem.getSeriesTreino().isEmpty()) return new SimpleStringProperty("-");
-            if (!oItem.isProgressaoCarga() && oItem.getSeriesTreino().get(0).getRepeticoes() == oItem.getSeriesTreino().get(oItem.getSeriesTreino().size()-1).getRepeticoes()) {
-                return new SimpleStringProperty(String.valueOf(oItem.getSeriesTreino().get(0).getRepeticoes()));
+            List<SerieTreino> oSeries = oItem.getSeriesTreino();
+            if (!oItem.isProgressaoCarga() && oSeries.get(0).getRepeticoes() == oSeries.get(oSeries.size()-1).getRepeticoes()) {
+                return new SimpleStringProperty(String.valueOf(oSeries.get(0).getRepeticoes()));
             }
             StringBuilder reps = new StringBuilder();
-            for (SerieTreino s : oItem.getSeriesTreino()) reps.append(s.getRepeticoes()).append("-");
+            for (SerieTreino oS : oItem.getSeriesTreino()) reps.append(oS.getRepeticoes()).append("-");
             return new SimpleStringProperty(reps.substring(0, reps.length() - 1));
         });
         colunaReps.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -356,13 +374,14 @@ public class FichasTreinoController {
             if (parts.length == 1) {
                 try {
                     int rep = Integer.parseInt(parts[0].trim());
-                    for (SerieTreino s : oItem.getSeriesTreino()) s.setRepeticoes(rep);
+                    for (SerieTreino oS : oItem.getSeriesTreino()) oS.setRepeticoes(rep);
                     oItem.setProgressaoCarga(false);
                 } catch (Exception e) {}
             } else {
                 oItem.setProgressaoCarga(true);
-                for (int i = 0; i < Math.min(parts.length, oItem.getSeriesTreino().size()); i++) {
-                    try { oItem.getSeriesTreino().get(i).setRepeticoes(Integer.parseInt(parts[i].trim())); } catch (Exception e) {}
+                List<SerieTreino> oSeries = oItem.getSeriesTreino();
+                for (int i = 0; i < Math.min(parts.length, oSeries.size()); i++) {
+                    try { oSeries.get(i).setRepeticoes(Integer.parseInt(parts[i].trim())); } catch (Exception e) {}
                 }
             }
             tabelaFicha.refresh();
@@ -372,10 +391,11 @@ public class FichasTreinoController {
             ItemTreino oItem = cellData.getValue();
             if (oItem.getSeriesTreino().isEmpty()) return new SimpleStringProperty("-");
             if (!oItem.isProgressaoCarga()) {
-                return new SimpleStringProperty(oItem.getSeriesTreino().get(0).getCarga() + "kg");
+                SerieTreino oPrimeiraSerie = oItem.getSeriesTreino().get(0);
+                return new SimpleStringProperty(oPrimeiraSerie.getCarga() + "kg");
             }
             StringBuilder cargas = new StringBuilder();
-            for (SerieTreino s : oItem.getSeriesTreino()) cargas.append(s.getCarga()).append("/");
+            for (SerieTreino oS : oItem.getSeriesTreino()) cargas.append(oS.getCarga()).append("/");
             return new SimpleStringProperty(cargas.substring(0, cargas.length() - 1) + "kg");
         });
         colunaCarga.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -387,11 +407,12 @@ public class FichasTreinoController {
             if (parts.length == 1) {
                 try {
                     float carga = Float.parseFloat(parts[0].trim());
-                    for (SerieTreino s : oItem.getSeriesTreino()) s.setCarga(carga);
+                    for (SerieTreino oS : oItem.getSeriesTreino()) oS.setCarga(carga);
                 } catch (Exception e) {}
             } else {
-                for (int i = 0; i < Math.min(parts.length, oItem.getSeriesTreino().size()); i++) {
-                    try { oItem.getSeriesTreino().get(i).setCarga(Float.parseFloat(parts[i].trim())); } catch (Exception e) {}
+                List<SerieTreino> oSeries = oItem.getSeriesTreino();
+                for (int i = 0; i < Math.min(parts.length, oSeries.size()); i++) {
+                    try { oSeries.get(i).setCarga(Float.parseFloat(parts[i].trim())); } catch (Exception e) {}
                 }
             }
             tabelaFicha.refresh();
@@ -424,7 +445,8 @@ public class FichasTreinoController {
         
         Alert oConfirmacao = new Alert(Alert.AlertType.CONFIRMATION);
         oConfirmacao.setTitle("Excluir Ficha");
-        oConfirmacao.setHeaderText("Atenção: Você está prestes a apagar a ficha '" + oProgSelecionada.getTreino().getNome() + "'");
+        Treino oTreinoProg = oProgSelecionada.getTreino();
+        oConfirmacao.setHeaderText("Atenção: Você está prestes a apagar a ficha '" + oTreinoProg.getNome() + "'");
         oConfirmacao.setContentText("Tem certeza? O aluno não verá mais esse treino no aplicativo.");
         
         if (oConfirmacao.showAndWait().get() == ButtonType.OK) {
@@ -477,17 +499,22 @@ public class FichasTreinoController {
             return;
         }
         
-        Treino oTreino = (treinoEmEdicao != null) ? treinoEmEdicao : new Treino();
+        Treino oTreino;
+        if (treinoEmEdicao != null) {
+            oTreino = treinoEmEdicao;
+        } else {
+            oTreino = new Treino();
+        }
         oTreino.setNome(nomeTreino);
         oTreino.setObjetivo(comboObjetivo.getValue());
         oTreino.setFichaPadrao(isTemplate);
         
         Treino oTreinoSalvo = treinoDAO.inserirTreino(oTreino);
         if (oTreinoSalvo != null) {
-            for (ItemTreino item : listaFicha) {
-                if (treinoEmEdicao == null) item.setId(0); 
-                item.setTreino(oTreinoSalvo);
-                treinoDAO.inserirItemTreino(item);
+            for (ItemTreino oItem : listaFicha) {
+                if (treinoEmEdicao == null) oItem.setId(0); 
+                oItem.setTreino(oTreinoSalvo);
+                treinoDAO.inserirItemTreino(oItem);
             }
             if (!isTemplate && treinoEmEdicao == null) {
                 ProgramacaoTreino oProg = new ProgramacaoTreino();

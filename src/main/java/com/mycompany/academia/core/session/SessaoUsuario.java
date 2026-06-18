@@ -4,28 +4,28 @@ import com.mycompany.academia.admin.model.Usuario;
 
 public class SessaoUsuario {
 
-    private static SessaoUsuario instancia;
-    private Usuario usuarioLogado;
+  private static SessaoUsuario instancia;
+  private Usuario usuarioLogado;
 
-    private SessaoUsuario() {
-    }
+  private SessaoUsuario() {
+  }
 
-    public static SessaoUsuario getInstancia() {
-        if (instancia == null) {
-            instancia = new SessaoUsuario();
-        }
-        return instancia;
+  public static SessaoUsuario getInstancia() {
+    if (instancia == null) {
+      instancia = new SessaoUsuario();
     }
+    return instancia;
+  }
 
-    public Usuario getUsuarioLogado() {
-        return usuarioLogado;
-    }
+  public Usuario getUsuarioLogado() {
+    return usuarioLogado;
+  }
 
-    public void setUsuarioLogado(Usuario usuarioLogado) {
-        this.usuarioLogado = usuarioLogado;
-    }
+  public void setUsuarioLogado(Usuario usuarioLogado) {
+    this.usuarioLogado = usuarioLogado;
+  }
 
-    public void encerrarSessao() {
-        this.usuarioLogado = null;
-    }
+  public void encerrarSessao() {
+    this.usuarioLogado = null;
+  }
 }

@@ -14,72 +14,72 @@ import java.util.List;
 @Entity
 public class ItemTreino {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private int id;
 
-    private float intervaloDescanso; 
-    
-    private boolean progressaoCarga; 
+  private float intervaloDescanso; 
+  
+  private boolean progressaoCarga; 
 
-    @ManyToOne
-    @JoinColumn(name = "treino_id")
-    private Treino treino;
+  @ManyToOne
+  @JoinColumn(name = "treino_id")
+  private Treino treino;
 
-    @ManyToOne
-    @JoinColumn(name = "exercicio_id")
-    private Exercicio exercicio;
+  @ManyToOne
+  @JoinColumn(name = "exercicio_id")
+  private Exercicio exercicio;
 
-    @OneToMany(mappedBy = "itemTreino", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SerieTreino> seriesTreino = new ArrayList<>();
+  @OneToMany(mappedBy = "itemTreino", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<SerieTreino> seriesTreino = new ArrayList<>();
 
-    public ItemTreino() {
-    }
+  public ItemTreino() {
+  }
 
-    public void adicionarSerie(SerieTreino serie) {
-        seriesTreino.add(serie);
-        serie.setItemTreino(this);
-    }
+  public void adicionarSerie(SerieTreino serie) {
+    seriesTreino.add(serie);
+    serie.setItemTreino(this);
+  }
 
-    public int getId() {
-        return id;
-    }
-    public void setId(int id) {
-        this.id = id;
-    }
+  public int getId() {
+    return id;
+  }
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    public float getIntervaloDescanso() {
-        return intervaloDescanso;
-    }
-    public void setIntervaloDescanso(float intervaloDescanso) {
-        this.intervaloDescanso = intervaloDescanso;
-    }
+  public float getIntervaloDescanso() {
+    return intervaloDescanso;
+  }
+  public void setIntervaloDescanso(float intervaloDescanso) {
+    this.intervaloDescanso = intervaloDescanso;
+  }
 
-    public boolean isProgressaoCarga() {
-        return progressaoCarga;
-    }
-    public void setProgressaoCarga(boolean progressaoCarga) {
-        this.progressaoCarga = progressaoCarga;
-    }
+  public boolean isProgressaoCarga() {
+    return progressaoCarga;
+  }
+  public void setProgressaoCarga(boolean progressaoCarga) {
+    this.progressaoCarga = progressaoCarga;
+  }
 
-    public Treino getTreino() {
-        return treino;
-    }
-    public void setTreino(Treino treino) {
-        this.treino = treino;
-    }
+  public Treino getTreino() {
+    return treino;
+  }
+  public void setTreino(Treino treino) {
+    this.treino = treino;
+  }
 
-    public Exercicio getExercicio() {
-        return exercicio;
-    }
-    public void setExercicio(Exercicio exercicio) {
-        this.exercicio = exercicio;
-    }
+  public Exercicio getExercicio() {
+    return exercicio;
+  }
+  public void setExercicio(Exercicio exercicio) {
+    this.exercicio = exercicio;
+  }
 
-    public List<SerieTreino> getSeriesTreino() {
-        return seriesTreino;
-    }
-    public void setSeriesTreino(List<SerieTreino> seriesTreino) {
-        this.seriesTreino = seriesTreino;
-    }
+  public List<SerieTreino> getSeriesTreino() {
+    return seriesTreino;
+  }
+  public void setSeriesTreino(List<SerieTreino> seriesTreino) {
+    this.seriesTreino = seriesTreino;
+  }
 }

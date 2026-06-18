@@ -24,13 +24,13 @@ public class FormExercicioController {
     private Exercicio exercicioEdicao = null;
     private GifSearchService gifService = new GifSearchService();
 
-    public void preencherParaEdicao(Exercicio pExercicio) {
-        this.exercicioEdicao = pExercicio;
+    public void preencherParaEdicao(Exercicio exercicio) {
+        this.exercicioEdicao = exercicio;
         labelTitulo.setText("Editar Exercício");
-        campoNome.setText(pExercicio.getNome());
-        campoGrupo.setText(pExercicio.getGrupoMuscular());
-        campoUrl.setText(pExercicio.getUrlMidia());
-        campoDescricao.setText(pExercicio.getDescricao());
+        campoNome.setText(exercicio.getNome());
+        campoGrupo.setText(exercicio.getGrupoMuscular());
+        campoUrl.setText(exercicio.getUrlMidia());
+        campoDescricao.setText(exercicio.getDescricao());
     }
 
     @FXML

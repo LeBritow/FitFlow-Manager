@@ -68,7 +68,8 @@ O código segue as convenções ensinadas em aula para facilitar a correção e 
 | Convenção | Regra | Exemplo |
 |-----------|-------|---------|
 | **Notação Húngara** — objetos | Variáveis locais que armazenam objetos recebem prefixo `o` | `Aluno oAluno`, `Treino oTreino`, `List<Aluno> oLista` |
-| **Notação Húngara** — parâmetros | Parâmetros de métodos e construtores recebem prefixo `p` | `public void inserir(Aluno pAluno)`, `new AvaliacaoFisica(Aluno pAluno, float pPeso)` |
+| **Sem prefixo em parâmetros** | Parâmetros de métodos e construtores NÃO usam prefixo (estilo do professor) | `public void inserir(Aluno aluno)`, `new AvaliacaoFisica(Aluno aluno, float peso)` |
+| **Method chaining em entidades** | Cadeias de getters em entidades de negócio são quebradas em variáveis intermediárias | `Treino oTreino = oFicha.getTreino(); return oTreino.getNome();` em vez de `return oFicha.getTreino().getNome()` |
 | **Nomes em português** | Métodos de DAO e controller seguem o vocabulário dos exercícios | `inserir()`, `atualizar()`, `excluir()`, `listarTodos()`, `autenticar()` |
 | **Interface `IEntidadeNomeada`** | Analogia à interface `IForma` dos exercícios — garante que toda entidade nomeável implemente `getNome()` | `class Aluno implements IEntidadeNomeada` |
 | **Herança com `JOINED`** | `Usuario` (base) → `Admin`, `Instrutor`, `Aluno` (subclasses), com `instanceof` para verificação de tipo | `if (oUsuario instanceof Aluno)` |

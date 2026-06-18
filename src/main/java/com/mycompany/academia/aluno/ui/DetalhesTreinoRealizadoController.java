@@ -1,7 +1,12 @@
 package com.mycompany.academia.aluno.ui;
 
+import com.mycompany.academia.aluno.model.Aluno;
 import com.mycompany.academia.core.config.EventBus;
 import com.mycompany.academia.core.util.TableUtils;
+import com.mycompany.academia.treino.model.Exercicio;
+import com.mycompany.academia.treino.model.ItemTreino;
+import com.mycompany.academia.treino.model.SerieTreino;
+import com.mycompany.academia.treino.model.Treino;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -42,42 +47,75 @@ public class DetalhesTreinoRealizadoController {
         colTendenciaCarga.setCellValueFactory(cellData -> cellData.getValue().tendenciaCarga);
     }
 
-    public void carregarDadosReais(com.mycompany.academia.aluno.model.Aluno pAluno, com.mycompany.academia.treino.model.Treino pTreino, java.time.LocalDateTime pDataSessao, String pComentarioTexto) {
-        labelTituloTreino.setText(pTreino.getNome() + " (" + pTreino.getObjetivo() + ")");
+    public void carregarDadosReais(com.mycompany.academia.aluno.model.Aluno aluno, com.mycompany.academia.treino.model.Treino treino, java.time.LocalDateTime dataSessao, String comentarioTexto) {
+        labelTituloTreino.setText(treino.getNome() + " (" + treino.getObjetivo() + ")");
 
         java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
-        labelDataFinalizacao.setText("Finalizado em: " + pDataSessao.format(formatador));
-        labelComentarioAluno.setText(pComentarioTexto != null && !pComentarioTexto.isEmpty() ? "\"" + pComentarioTexto + "\"" : "Sem feedback do aluno");
+        labelDataFinalizacao.setText("Finalizado em: " + dataSessao.format(formatador));
+        if (comentarioTexto != null && !comentarioTexto.isEmpty()) {
+            labelComentarioAluno.setText("\"" + comentarioTexto + "\"");
+        } else {
+            labelComentarioAluno.setText("Sem feedback do aluno");
+        }
         labelNotaGeral.setText("Análise de Ritmo e Carga Ativa");
 
         List<com.mycompany.academia.treino.model.ItemRealizado> oRealizados = treinoDAO.listarItensRealizados(
-            pAluno.getId(),
-            pTreino.getId(),
-            pDataSessao
+            aluno.getId(),
+            treino.getId(),
+            dataSessao
         );
 
         ObservableList<LinhaExecucao> oDados = FXCollections.observableArrayList();
 
         for (com.mycompany.academia.treino.model.ItemRealizado ir : oRealizados) {
-            int totalSeries = ir.getItemTreino().getSeriesTreino().size();
+            ItemTreino oItemIr = ir.getItemTreino();
+            List<SerieTreino> oSeries = oItemIr.getSeriesTreino();
+            int totalSeries = oSeries.size();
             String planejado = totalSeries + "x ";
-            if (!ir.getItemTreino().getSeriesTreino().isEmpty()) {
-                planejado += ir.getItemTreino().getSeriesTreino().get(0).getRepeticoes() + " reps / " +
-                             ir.getItemTreino().getSeriesTreino().get(0).getCarga() + "kg";
+            if (!oSeries.isEmpty()) {
+                SerieTreino oPrimeiraSerie = oSeries.get(0);
+                planejado += oPrimeiraSerie.getRepeticoes() + " reps / " +
+                             oPrimeiraSerie.getCarga() + "kg";
             }
 
-            String realizado = ir.isFeito() ? String.format("%.1f kg", ir.getCargaUtilizada()) : "Não realizado";
+            String realizado;
+            if (ir.isFeito()) {
+                realizado = String.format("%.1f kg", ir.getCargaUtilizada());
+            } else {
+                realizado = "Não realizado";
+            }
 
-            String tempoExecFmt = ir.isFeito() ? formatarTempo(ir.getTempoExecucaoSegundos() != null ? ir.getTempoExecucaoSegundos() : 0) : "--:--";
-            String tempoDescFmt = ir.isFeito() ? formatarTempo(ir.getTempoDescansoSegundos() != null ? ir.getTempoDescansoSegundos() : 0) : "--:--";
+            String tempoExecFmt;
+            if (ir.isFeito()) {
+                Integer oTempoExecSegundos = ir.getTempoExecucaoSegundos();
+                int oTempoExecValor = 0;
+                if (oTempoExecSegundos != null) {
+                    oTempoExecValor = oTempoExecSegundos;
+                }
+                tempoExecFmt = formatarTempo(oTempoExecValor);
+            } else {
+                tempoExecFmt = "--:--";
+            }
+            String tempoDescFmt;
+            if (ir.isFeito()) {
+                Integer oTempoDescSegundos = ir.getTempoDescansoSegundos();
+                int oTempoDescValor = 0;
+                if (oTempoDescSegundos != null) {
+                    oTempoDescValor = oTempoDescSegundos;
+                }
+                tempoDescFmt = formatarTempo(oTempoDescValor);
+            } else {
+                tempoDescFmt = "--:--";
+            }
 
             String tendencia = "➡️ Manteve";
             if ("SUBIU".equalsIgnoreCase(ir.getStatusCarga())) tendencia = "🔺 Aumentou";
             if ("DIMINUIU".equalsIgnoreCase(ir.getStatusCarga())) tendencia = "🔻 Diminuiu";
             if (!ir.isFeito()) tendencia = "❌ Pulado";
 
+            Exercicio oExercicio = oItemIr.getExercicio();
             oDados.add(new LinhaExecucao(
-                ir.getItemTreino().getExercicio().getNome(),
+                oExercicio.getNome(),
                 planejado,
                 realizado,
                 tempoExecFmt,
@@ -90,42 +128,72 @@ public class DetalhesTreinoRealizadoController {
         TableUtils.autoFitColumns(tabelaExecucao);
     }
 
-    public void carregarDadosReais(com.mycompany.academia.treino.model.ComentarioTreino pComentario) {
-        labelTituloTreino.setText(pComentario.getTreino().getNome() + " (" + pComentario.getTreino().getObjetivo() + ")");
+    public void carregarDadosReais(com.mycompany.academia.treino.model.ComentarioTreino comentario) {
+        Treino oTreino = comentario.getTreino();
+        labelTituloTreino.setText(oTreino.getNome() + " (" + oTreino.getObjetivo() + ")");
         
         java.time.format.DateTimeFormatter formatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm");
-        labelDataFinalizacao.setText("Finalizado em: " + pComentario.getDataCriacao().format(formatador));
-        labelComentarioAluno.setText("\"" + pComentario.getTexto() + "\"");
+        labelDataFinalizacao.setText("Finalizado em: " + comentario.getDataCriacao().format(formatador));
+        labelComentarioAluno.setText("\"" + comentario.getTexto() + "\"");
         labelNotaGeral.setText("Análise de Ritmo e Carga Ativa");
 
+        Aluno oAluno = comentario.getAluno();
         List<com.mycompany.academia.treino.model.ItemRealizado> oRealizados = treinoDAO.listarItensRealizados(
-            pComentario.getAluno().getId(), 
-            pComentario.getTreino().getId(), 
-            pComentario.getDataCriacao()
+            oAluno.getId(), 
+            oTreino.getId(), 
+            comentario.getDataCriacao()
         );
 
         ObservableList<LinhaExecucao> oDados = FXCollections.observableArrayList();
         
         for (com.mycompany.academia.treino.model.ItemRealizado ir : oRealizados) {
-            int totalSeries = ir.getItemTreino().getSeriesTreino().size();
+            ItemTreino oItemTreino = ir.getItemTreino();
+            int totalSeries = oItemTreino.getSeriesTreino().size();
             String planejado = totalSeries + "x ";
-            if (!ir.getItemTreino().getSeriesTreino().isEmpty()) {
-                planejado += ir.getItemTreino().getSeriesTreino().get(0).getRepeticoes() + " reps / " + 
-                             ir.getItemTreino().getSeriesTreino().get(0).getCarga() + "kg";
+            if (!oItemTreino.getSeriesTreino().isEmpty()) {
+                SerieTreino oPrimeiraSerie = oItemTreino.getSeriesTreino().get(0);
+                planejado += oPrimeiraSerie.getRepeticoes() + " reps / " +
+                             oPrimeiraSerie.getCarga() + "kg";
             }
 
-            String realizado = ir.isFeito() ? String.format("%.1f kg", ir.getCargaUtilizada()) : "Não realizado";
+            String realizado;
+            if (ir.isFeito()) {
+                realizado = String.format("%.1f kg", ir.getCargaUtilizada());
+            } else {
+                realizado = "Não realizado";
+            }
 
-            String tempoExecFmt = ir.isFeito() ? formatarTempo(ir.getTempoExecucaoSegundos() != null ? ir.getTempoExecucaoSegundos() : 0) : "--:--";
-            String tempoDescFmt = ir.isFeito() ? formatarTempo(ir.getTempoDescansoSegundos() != null ? ir.getTempoDescansoSegundos() : 0) : "--:--";
+            String tempoExecFmt;
+            if (ir.isFeito()) {
+                Integer oTempoExecSegundos = ir.getTempoExecucaoSegundos();
+                int oTempoExecValor = 0;
+                if (oTempoExecSegundos != null) {
+                    oTempoExecValor = oTempoExecSegundos;
+                }
+                tempoExecFmt = formatarTempo(oTempoExecValor);
+            } else {
+                tempoExecFmt = "--:--";
+            }
+            String tempoDescFmt;
+            if (ir.isFeito()) {
+                Integer oTempoDescSegundos = ir.getTempoDescansoSegundos();
+                int oTempoDescValor = 0;
+                if (oTempoDescSegundos != null) {
+                    oTempoDescValor = oTempoDescSegundos;
+                }
+                tempoDescFmt = formatarTempo(oTempoDescValor);
+            } else {
+                tempoDescFmt = "--:--";
+            }
 
             String tendencia = "➡️ Manteve";
             if ("SUBIU".equalsIgnoreCase(ir.getStatusCarga())) tendencia = "🔺 Aumentou";
             if ("DIMINUIU".equalsIgnoreCase(ir.getStatusCarga())) tendencia = "🔻 Diminuiu";
             if (!ir.isFeito()) tendencia = "❌ Pulado";
 
+            Exercicio oExercicio = oItemTreino.getExercicio();
             oDados.add(new LinhaExecucao(
-                ir.getItemTreino().getExercicio().getNome(), 
+                oExercicio.getNome(), 
                 planejado, 
                 realizado, 
                 tempoExecFmt, 

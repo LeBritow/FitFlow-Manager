@@ -117,14 +117,14 @@ public class LoginController {
         }).start();
     }
 
-    private void abrirTelaPrincipal(Usuario pUsuarioLogado) {
+    private void abrirTelaPrincipal(Usuario usuarioLogado) {
         try {
-            SessaoUsuario.getInstancia().setUsuarioLogado(pUsuarioLogado);
+            SessaoUsuario.getInstancia().setUsuarioLogado(usuarioLogado);
 
             String telaParaAbrir = "/fxml/PainelPrincipal.fxml";
             String tituloJanela = "Sistema de Academia - Dashboard";
 
-            if (pUsuarioLogado.getSenha().equals("123456")) {
+            if (usuarioLogado.getSenha().equals("123456")) {
                 telaParaAbrir = "/fxml/TrocarSenhaObrigatoria.fxml";
                 tituloJanela = "Troca de Senha Obrigatória";
             }

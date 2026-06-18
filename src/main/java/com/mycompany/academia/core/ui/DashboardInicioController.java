@@ -61,7 +61,10 @@ public class DashboardInicioController {
                     javafx.scene.layout.HBox.setHgrow(oSpacer, javafx.scene.layout.Priority.ALWAYS);
                     oLinha1.getChildren().addAll(oLblAluno, oLblTreino, oSpacer, oLblData);
 
-                    String text = item.getTexto().length() > 100 ? item.getTexto().substring(0, 100) + "..." : item.getTexto();
+                    String text = item.getTexto();
+                    if (text.length() > 100) {
+                        text = text.substring(0, 100) + "...";
+                    }
                     Label oLblTexto = new javafx.scene.control.Label(text);
                     oLblTexto.setWrapText(true);
                     oLblTexto.setStyle("-fx-text-fill: #34495e; -fx-font-size: 12px; -fx-padding: 0 0 0 0;");

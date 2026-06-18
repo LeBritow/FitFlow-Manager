@@ -5,6 +5,6 @@ import jakarta.persistence.Entity;
 @Entity
 public class Admin extends Usuario {
 
-    public Admin() {
-    }
+  public Admin() {
+  }
 }

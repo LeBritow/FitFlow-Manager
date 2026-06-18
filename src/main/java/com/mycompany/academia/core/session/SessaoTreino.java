@@ -12,29 +12,29 @@ import java.time.LocalDateTime;
 @Entity
 public class SessaoTreino {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private int id;
 
-    private LocalDateTime data;
-    private boolean concluido;
+  private LocalDateTime data;
+  private boolean concluido;
 
-    @ManyToOne
-    @JoinColumn(name = "programacao_treino_id")
-    private ProgramacaoTreino programacaoTreino;
+  @ManyToOne
+  @JoinColumn(name = "programacao_treino_id")
+  private ProgramacaoTreino programacaoTreino;
 
-    public SessaoTreino() {
-    }
+  public SessaoTreino() {
+  }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+  public int getId() { return id; }
+  public void setId(int id) { this.id = id; }
 
-    public LocalDateTime getData() { return data; }
-    public void setData(LocalDateTime data) { this.data = data; }
+  public LocalDateTime getData() { return data; }
+  public void setData(LocalDateTime data) { this.data = data; }
 
-    public boolean isConcluido() { return concluido; }
-    public void setConcluido(boolean concluido) { this.concluido = concluido; }
+  public boolean isConcluido() { return concluido; }
+  public void setConcluido(boolean concluido) { this.concluido = concluido; }
 
-    public ProgramacaoTreino getProgramacaoTreino() { return programacaoTreino; }
-    public void setProgramacaoTreino(ProgramacaoTreino programacaoTreino) { this.programacaoTreino = programacaoTreino; }
+  public ProgramacaoTreino getProgramacaoTreino() { return programacaoTreino; }
+  public void setProgramacaoTreino(ProgramacaoTreino programacaoTreino) { this.programacaoTreino = programacaoTreino; }
 }

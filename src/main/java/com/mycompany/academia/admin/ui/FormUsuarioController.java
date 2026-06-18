@@ -56,23 +56,23 @@ public class FormUsuarioController {
         caixaInstrutor.setManaged(tipo.equals("Instrutor"));
     }
 
-    public void preencherParaEdicao(Usuario pUsuario) {
-        this.usuarioParaEditar = pUsuario;
+    public void preencherParaEdicao(Usuario usuario) {
+        this.usuarioParaEditar = usuario;
         labelTitulo.setText("Editar Usuário");
         
-        campoNome.setText(pUsuario.getNome());
-        campoCpf.setText(pUsuario.getCpf());
-        campoEmail.setText(pUsuario.getEmail());
+        campoNome.setText(usuario.getNome());
+        campoCpf.setText(usuario.getCpf());
+        campoEmail.setText(usuario.getEmail());
         
         comboTipoPerfil.setDisable(true); 
         
-        if (pUsuario instanceof Aluno) {
+        if (usuario instanceof Aluno) {
             comboTipoPerfil.setValue("Aluno");
-            campoPeso.setText(String.valueOf(((Aluno) pUsuario).getPeso()));
-            campoAltura.setText(String.valueOf(((Aluno) pUsuario).getAltura()));
-        } else if (pUsuario instanceof Instrutor) {
+            campoPeso.setText(String.valueOf(((Aluno) usuario).getPeso()));
+            campoAltura.setText(String.valueOf(((Aluno) usuario).getAltura()));
+        } else if (usuario instanceof Instrutor) {
             comboTipoPerfil.setValue("Instrutor");
-            campoCref.setText(((Instrutor) pUsuario).getCref());
+            campoCref.setText(((Instrutor) usuario).getCref());
         } else {
             comboTipoPerfil.setValue("Admin");
         }

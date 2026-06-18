@@ -6,9 +6,9 @@ import jakarta.persistence.Persistence;
 
 public class JPAUtil {
 
-    private static final EntityManagerFactory FACTORY = Persistence.createEntityManagerFactory("academia-pu");
+  private static final EntityManagerFactory FACTORY = Persistence.createEntityManagerFactory("academia-pu");
 
-    public static EntityManager getEntityManager() {
-        return FACTORY.createEntityManager();
-    }
+  public static EntityManager getEntityManager() {
+    return FACTORY.createEntityManager();
+  }
 }

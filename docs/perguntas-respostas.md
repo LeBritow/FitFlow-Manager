@@ -356,13 +356,11 @@ A diferença do `graficoCarga` é que ele não usa `AvaliacaoFisica` — os dado
 
 ### Padrões e Convenções de Código
 
-**P: Por que o código usa notação húngara (prefixos `o` e `p`)? Não é considerado antiquado?**
+**P: Por que o código usa prefixo `o` em variáveis locais? Não é considerado antiquado?**
 
-R: O código segue as convenções ensinadas em aula, onde os exercícios práticos utilizam:
-- `o` para variáveis locais que armazenam objetos (`oAluno`, `oTreino`, `oDao`)
-- `p` para parâmetros de métodos e construtores (`pAluno`, `pNome`, `pSenha`)
+R: O código segue as convenções ensinadas em aula, onde os exercícios práticos utilizam `o` para variáveis locais que armazenam objetos (`oAluno`, `oTreino`, `oDao`). Os parâmetros de métodos, entretanto, NÃO usam prefixo — seguindo o estilo real do professor visto nos exercícios originais (`prj_aula10_1`, `prj_aula5_2`).
 
-A notação húngara tem a vantagem de tornar imediatamente visível o **tipo de escopo** de cada variável durante a leitura do código — essencial em métodos longos com múltiplas variáveis. Mantivemos a convenção para facilitar a correção e demonstrar domínio dos padrões apresentados em aula.
+A notação húngara tem a vantagem de tornar imediatamente visível o **tipo de escopo** de cada variável durante a leitura do código — essencial em métodos longos com múltiplas variáveis. Mantivemos o `o` para facilitar a correção e demonstrar domínio dos padrões apresentados em aula, mas alinhamos os parâmetros ao estilo autêntico do professor.
 
 ---
 

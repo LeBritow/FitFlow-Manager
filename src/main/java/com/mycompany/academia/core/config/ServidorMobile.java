@@ -142,18 +142,18 @@ public class ServidorMobile {
                 EventBus.emit("PostgreSQL", "SELECT FROM usuario WHERE email OR cpf = :login", "find");
 
                 UsuarioDAO dao = new UsuarioDAO();
-                Usuario u = dao.autenticar(login, senha);
+                Usuario oU = dao.autenticar(login, senha);
 
-                if (u != null && u instanceof Aluno) {
+                if (oU != null && oU instanceof Aluno) {
                     String token = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
-                    sessoesAtivas.put(token, u.getId());
+                    sessoesAtivas.put(token, oU.getId());
 
                     JsonObject j = new JsonObject();
                     j.addProperty("status", "sucesso");
                     j.addProperty("token", token);
-                    j.addProperty("id", u.getId());
-                    j.addProperty("nome", u.getNome());
-                    j.addProperty("email", u.getEmail());
+                    j.addProperty("id", oU.getId());
+                    j.addProperty("nome", oU.getNome());
+                    j.addProperty("email", oU.getEmail());
                     json(ex, 200, j.toString());
                 } else {
                     json(ex, 401, "{\"status\":\"erro\",\"mensagem\":\"Credenciais inválidas ou perfil não autorizado.\"}");
@@ -187,45 +187,53 @@ public class ServidorMobile {
                 List<ProgramacaoTreino> progs = dao.listarProgramacoesDoAluno(alunoId);
                 if (progs.isEmpty()) { json(ex, 404, "{\"erro\":\"Nenhuma ficha ativa.\"}"); return; }
 
-                ProgramacaoTreino ficha = progs.get(0);
-                Treino treino = ficha.getTreino();
-                EventBus.emit("PostgreSQL", "SELECT FROM item_treino JOIN exercicio WHERE treinoId=" + treino.getId(), "BuscarFichaHandler");
-                EventBus.emit("Entities", "ItemTreino+Exercicio loaded", "treinoId=" + treino.getId());
-                EventBus.emit("ServidorMobile", "BuscarFichaHandler", "Buscando itens do treino " + treino.getId());
-                List<ItemTreino> itens = dao.listarItensDoTreino(treino.getId());
+                ProgramacaoTreino oFicha = progs.get(0);
+                Treino oTreino = oFicha.getTreino();
+                EventBus.emit("PostgreSQL", "SELECT FROM item_treino JOIN exercicio WHERE treinoId=" + oTreino.getId(), "BuscarFichaHandler");
+                EventBus.emit("Entities", "ItemTreino+Exercicio loaded", "treinoId=" + oTreino.getId());
+                EventBus.emit("ServidorMobile", "BuscarFichaHandler", "Buscando itens do treino " + oTreino.getId());
+                List<ItemTreino> itens = dao.listarItensDoTreino(oTreino.getId());
 
                 JsonObject j = new JsonObject();
-                j.addProperty("idProgramacao", ficha.getId());
-                j.addProperty("idFicha", treino.getId());
-                j.addProperty("nomeTreino", treino.getNome());
-                j.addProperty("objetivo", treino.getObjetivo() != null ? treino.getObjetivo().name() : "");
+                j.addProperty("idProgramacao", oFicha.getId());
+                j.addProperty("idFicha", oTreino.getId());
+                j.addProperty("nomeTreino", oTreino.getNome());
+                String oObjetivoTreino = "";
+if (oTreino.getObjetivo() != null) {
+    oObjetivoTreino = oTreino.getObjetivo().name();
+}
+j.addProperty("objetivo", oObjetivoTreino);
 
                 JsonArray exs = new JsonArray();
-                for (ItemTreino item : itens) {
+                for (ItemTreino oItem : itens) {
                     JsonObject o = new JsonObject();
-                    o.addProperty("idItem", item.getId());
-                    o.addProperty("nomeExercicio", item.getExercicio().getNome());
-                    o.addProperty("grupoMuscular", item.getExercicio().getGrupoMuscular());
-                    o.addProperty("descanso", item.getIntervaloDescanso());
-                    o.addProperty("progressaoCarga", item.isProgressaoCarga());
-                    Exercicio exercicio = item.getExercicio();
-                    String urlMidia = exercicio.getUrlMidia();
+                    o.addProperty("idItem", oItem.getId());
+                    Exercicio oExercicio = oItem.getExercicio();
+                    o.addProperty("nomeExercicio", oExercicio.getNome());
+                    o.addProperty("grupoMuscular", oExercicio.getGrupoMuscular());
+                    o.addProperty("descanso", oItem.getIntervaloDescanso());
+                    o.addProperty("progressaoCarga", oItem.isProgressaoCarga());
+                    String urlMidia = oExercicio.getUrlMidia();
                     if (urlMidia == null || urlMidia.isEmpty()) {
-                        String gifUrl = new GifSearchService().buscarMelhorGif(exercicio.getNome(), exercicio.getGrupoMuscular());
+                        String gifUrl = new GifSearchService().buscarMelhorGif(oExercicio.getNome(), oExercicio.getGrupoMuscular());
                         if (gifUrl != null) {
-                            exercicio.setUrlMidia(gifUrl);
-                            new ExercicioDAO().inserir(exercicio);
+                            oExercicio.setUrlMidia(gifUrl);
+                            new ExercicioDAO().inserir(oExercicio);
                             urlMidia = gifUrl;
                         }
                     }
-                    o.addProperty("urlMidia", urlMidia != null && !urlMidia.isEmpty() ? urlMidia : "");
+                    String oUrlMidiaFinal = "";
+if (urlMidia != null && !urlMidia.isEmpty()) {
+    oUrlMidiaFinal = urlMidia;
+}
+o.addProperty("urlMidia", oUrlMidiaFinal);
 
                     JsonArray ss = new JsonArray();
-                    for (SerieTreino s : item.getSeriesTreino()) {
+                    for (SerieTreino oS : oItem.getSeriesTreino()) {
                         JsonObject so = new JsonObject();
-                        so.addProperty("serie", s.getNumeroDaSerie());
-                        so.addProperty("reps", s.getRepeticoes());
-                        so.addProperty("carga", s.getCarga());
+                        so.addProperty("serie", oS.getNumeroDaSerie());
+                        so.addProperty("reps", oS.getRepeticoes());
+                        so.addProperty("carga", oS.getCarga());
                         ss.add(so);
                     }
                     o.add("series", ss);
@@ -254,17 +262,20 @@ public class ServidorMobile {
                 JsonObject body = bodyJson(ex);
                 int alunoId = body.get("alunoId").getAsInt();
                 int treinoId = body.get("treinoId").getAsInt();
-                String comentario = body.has("comentario") ? body.get("comentario").getAsString() : "Treino concluído.";
+                String comentario = "Treino concluído.";
+if (body.has("comentario")) {
+    comentario = body.get("comentario").getAsString();
+}
 
                 EventBus.emit("JPA", "EntityManager.find(Aluno)", "alunoId=" + alunoId);
                 EventBus.emit("PostgreSQL", "SELECT FROM aluno WHERE id=" + alunoId, "find");
                 EventBus.emit("Entities", "Aluno loaded", "alunoId=" + alunoId);
-                Aluno aluno = em.find(Aluno.class, alunoId);
+                Aluno oAluno = em.find(Aluno.class, alunoId);
                 EventBus.emit("JPA", "EntityManager.find(Treino)", "treinoId=" + treinoId);
                 EventBus.emit("PostgreSQL", "SELECT FROM treino WHERE id=" + treinoId, "find");
                 EventBus.emit("Entities", "Treino loaded", "treinoId=" + treinoId);
-                Treino treino = em.find(Treino.class, treinoId);
-                if (aluno == null || treino == null) {
+                Treino oTreino = em.find(Treino.class, treinoId);
+                if (oAluno == null || oTreino == null) {
                     json(ex, 404, "{\"status\":\"erro\",\"mensagem\":\"Aluno ou Treino não encontrados.\"}");
                     return;
                 }
@@ -279,15 +290,15 @@ public class ServidorMobile {
                     .setParameter("a", alunoId).setParameter("t", treinoId).getResultList();
 
                 if (!progs.isEmpty()) {
-                    ProgramacaoTreino prog = progs.get(0);
+                    ProgramacaoTreino oProg = progs.get(0);
                     EventBus.emit("JPA", "EntityManager.persist(SessaoTreino)", "Criando sessão de treino");
                     EventBus.emit("PostgreSQL", "INSERT INTO sessao_treino (alunoId=" + alunoId + ", treinoId=" + treinoId + ")", "persist");
                     EventBus.emit("Entities", "SessaoTreino created", "alunoId=" + alunoId);
-                    SessaoTreino sessao = new SessaoTreino();
-                    sessao.setProgramacaoTreino(prog);
-                    sessao.setData(LocalDateTime.now());
-                    sessao.setConcluido(true);
-                    em.persist(sessao);
+                    SessaoTreino oSessao = new SessaoTreino();
+                    oSessao.setProgramacaoTreino(oProg);
+                    oSessao.setData(LocalDateTime.now());
+                    oSessao.setConcluido(true);
+                    em.persist(oSessao);
 
                     if (body.has("itensRealizados")) {
                         for (var e : body.get("itensRealizados").getAsJsonArray()) {
@@ -295,27 +306,36 @@ public class ServidorMobile {
                             int idItem = o.get("itemTreinoId").getAsInt();
                             float carga = o.get("carga").getAsFloat();
                             boolean feito = o.get("feito").getAsBoolean();
-                            int tExec = o.has("tempoExecucao") ? o.get("tempoExecucao").getAsInt() : 0;
-                            int tDesc = o.has("tempoDescanso") ? o.get("tempoDescanso").getAsInt() : 0;
-                            String sc = o.has("statusCarga") ? o.get("statusCarga").getAsString() : "MANTEVE";
+                            int tExec = 0;
+                            if (o.has("tempoExecucao")) {
+                                tExec = o.get("tempoExecucao").getAsInt();
+                            }
+                            int tDesc = 0;
+                            if (o.has("tempoDescanso")) {
+                                tDesc = o.get("tempoDescanso").getAsInt();
+                            }
+                            String sc = "MANTEVE";
+                            if (o.has("statusCarga")) {
+                                sc = o.get("statusCarga").getAsString();
+                            }
 
                             EventBus.emit("JPA", "EntityManager.find(ItemTreino)", "itemTreinoId=" + idItem);
                             EventBus.emit("PostgreSQL", "SELECT FROM item_treino WHERE id=" + idItem, "find");
                             EventBus.emit("Entities", "ItemTreino loaded", "itemTreinoId=" + idItem);
-                            ItemTreino it = em.find(ItemTreino.class, idItem);
-                            if (it != null) {
-                                ItemRealizado ir = new ItemRealizado();
-                                ir.setSessaoTreino(sessao);
-                                ir.setItemTreino(it);
-                                ir.setCargaUtilizada(carga);
-                                ir.setFeito(feito);
-                                ir.setTempoExecucaoSegundos(tExec);
-                                ir.setTempoDescansoSegundos(tDesc);
-                                ir.setStatusCarga(sc);
+                            ItemTreino oIt = em.find(ItemTreino.class, idItem);
+                            if (oIt != null) {
+                                ItemRealizado oIr = new ItemRealizado();
+                                oIr.setSessaoTreino(oSessao);
+                                oIr.setItemTreino(oIt);
+                                oIr.setCargaUtilizada(carga);
+                                oIr.setFeito(feito);
+                                oIr.setTempoExecucaoSegundos(tExec);
+                                oIr.setTempoDescansoSegundos(tDesc);
+                                oIr.setStatusCarga(sc);
                                 EventBus.emit("JPA", "EntityManager.persist(ItemRealizado)", "feito=" + feito + ", carga=" + carga);
                                 EventBus.emit("PostgreSQL", "INSERT INTO item_realizado (itemTreinoId=" + idItem + ")", "persist");
                                 EventBus.emit("Entities", "ItemRealizado created", "feito=" + feito);
-                                em.persist(ir);
+                                em.persist(oIr);
                             }
                         }
                     }
@@ -324,13 +344,13 @@ public class ServidorMobile {
                 EventBus.emit("JPA", "EntityManager.persist(ComentarioTreino)", "Registrando feedback do treino");
                 EventBus.emit("PostgreSQL", "INSERT INTO comentario_treino (alunoId=" + alunoId + ")", "persist");
                 EventBus.emit("Entities", "ComentarioTreino created", "alunoId=" + alunoId);
-                ComentarioTreino c = new ComentarioTreino();
-                c.setAluno(aluno);
-                c.setTreino(treino);
-                c.setTexto(comentario);
-                c.setDataCriacao(LocalDateTime.now());
-                c.setLido(false);
-                em.persist(c);
+                ComentarioTreino oC = new ComentarioTreino();
+                oC.setAluno(oAluno);
+                oC.setTreino(oTreino);
+                oC.setTexto(comentario);
+                oC.setDataCriacao(LocalDateTime.now());
+                oC.setLido(false);
+                em.persist(oC);
 
                 em.getTransaction().commit();
                 EventBus.emit("ServidorMobile", "FinalizarTreinoHandler", "Treino finalizado com sucesso!");
@@ -421,12 +441,13 @@ public class ServidorMobile {
                 List<ComentarioTreino> comentarios = dao.listarComentariosDoAluno(alunoId);
 
                 JsonArray arr = new JsonArray();
-                for (ComentarioTreino c : comentarios) {
+                for (ComentarioTreino oC : comentarios) {
                     JsonObject o = new JsonObject();
-                    o.addProperty("data", c.getDataCriacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-                    o.addProperty("treinoNome", c.getTreino().getNome());
-                    o.addProperty("comentario", c.getTexto());
-                    o.addProperty("lido", c.isLido());
+                    o.addProperty("data", oC.getDataCriacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+                    Treino oTreinoC = oC.getTreino();
+                    o.addProperty("treinoNome", oTreinoC.getNome());
+                    o.addProperty("comentario", oC.getTexto());
+                    o.addProperty("lido", oC.isLido());
                     arr.add(o);
                 }
                 json(ex, 200, arr.toString());
@@ -456,18 +477,18 @@ public class ServidorMobile {
                     EntityManager em = JPAUtil.getEntityManager();
                     EventBus.emit("ServidorMobile", "PerfilHandler", "Buscando dados do aluno " + alunoId);
                     EventBus.emit("PostgreSQL", "SELECT FROM aluno WHERE id=" + alunoId, "select");
-                    Aluno a = em.find(Aluno.class, alunoId);
+                    Aluno oA = em.find(Aluno.class, alunoId);
                     em.close();
-                    if (a == null) { json(ex, 404, "{\"erro\":\"Aluno não encontrado.\"}"); return; }
+                    if (oA == null) { json(ex, 404, "{\"erro\":\"Aluno não encontrado.\"}"); return; }
 
                     JsonObject j = new JsonObject();
-                    j.addProperty("id", a.getId());
-                    j.addProperty("nome", a.getNome());
-                    j.addProperty("email", a.getEmail());
-                    j.addProperty("cpf", a.getCpf());
-                    j.addProperty("peso", a.getPeso());
-                    j.addProperty("altura", a.getAltura());
-                    j.addProperty("imc", a.getImc());
+                    j.addProperty("id", oA.getId());
+                    j.addProperty("nome", oA.getNome());
+                    j.addProperty("email", oA.getEmail());
+                    j.addProperty("cpf", oA.getCpf());
+                    j.addProperty("peso", oA.getPeso());
+                    j.addProperty("altura", oA.getAltura());
+                    j.addProperty("imc", oA.getImc());
 
                     AlunoDAO alunoDAO = new AlunoDAO();
                     EventBus.emit("ServidorMobile", "PerfilHandler", "Buscando avaliações físicas do aluno " + alunoId);
@@ -499,13 +520,13 @@ public class ServidorMobile {
                     em.getTransaction().begin();
                     EventBus.emit("ServidorMobile", "PerfilHandler", "Atualizando peso=" + peso + ", altura=" + altura + " do aluno " + alunoId);
                     EventBus.emit("PostgreSQL", "SELECT FROM aluno WHERE id=" + alunoId, "select");
-                    Aluno a = em.find(Aluno.class, alunoId);
-                    if (a != null) {
-                        a.setPeso(peso);
-                        a.setAltura(altura);
-                        a.setImc(peso / (altura * altura));
+                    Aluno oA = em.find(Aluno.class, alunoId);
+                    if (oA != null) {
+                        oA.setPeso(peso);
+                        oA.setAltura(altura);
+                        oA.setImc(peso / (altura * altura));
                         EventBus.emit("PostgreSQL", "UPDATE aluno SET peso=" + peso + " WHERE id=" + alunoId, "merge");
-                        em.merge(a);
+                        em.merge(oA);
                     }
                     em.getTransaction().commit();
                     em.close();

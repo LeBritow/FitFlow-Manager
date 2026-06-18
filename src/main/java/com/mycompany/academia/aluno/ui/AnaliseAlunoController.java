@@ -116,7 +116,8 @@ public class AnaliseAlunoController {
         comboBuscaAluno.setConverter(new StringConverter<Aluno>() {
             @Override
             public String toString(Aluno aluno) {
-                return aluno == null ? "" : aluno.getNome() + " (CPF: " + aluno.getCpf() + ")";
+                if (aluno == null) return "";
+                return aluno.getNome() + " (CPF: " + aluno.getCpf() + ")";
             }
             @Override
             public Aluno fromString(String string) {
@@ -130,9 +131,9 @@ public class AnaliseAlunoController {
                 !comboBuscaAluno.getConverter().toString(comboBuscaAluno.getSelectionModel().getSelectedItem()).equals(novo)) {
                 
                 ObservableList<Aluno> oFiltrados = FXCollections.observableArrayList();
-                for (Aluno a : todosAlunos) {
-                    if (a.getNome().toLowerCase().contains(novo.toLowerCase()) || a.getCpf().contains(novo)) {
-                        oFiltrados.add(a);
+                for (Aluno oA : todosAlunos) {
+                    if (oA.getNome().toLowerCase().contains(novo.toLowerCase()) || oA.getCpf().contains(novo)) {
+                        oFiltrados.add(oA);
                     }
                 }
                 comboBuscaAluno.setItems(oFiltrados);
@@ -141,16 +142,16 @@ public class AnaliseAlunoController {
         });
     }
 
-    private void mostrarDetalhesAluno(Aluno pAluno) {
-        EventBus.emit("Desktop", "AnaliseAlunoController.mostrarDetalhes", "alunoId=" + pAluno.getId());
-        labelNomeAluno.setText(pAluno.getNome());
-        atualizarLabelsMedidas(pAluno);
+    private void mostrarDetalhesAluno(Aluno aluno) {
+        EventBus.emit("Desktop", "AnaliseAlunoController.mostrarDetalhes", "alunoId=" + aluno.getId());
+        labelNomeAluno.setText(aluno.getNome());
+        atualizarLabelsMedidas(aluno);
         
-        labelFichaAtiva.setText(treinoDAO.buscarNomeFichaAtiva(pAluno.getId()));
-        labelUltimoTreino.setText(treinoDAO.buscarDataUltimoTreino(pAluno.getId()));
-        labelTreinosMes.setText(String.valueOf(treinoDAO.contarTreinosNoMes(pAluno.getId())));
+        labelFichaAtiva.setText(treinoDAO.buscarNomeFichaAtiva(aluno.getId()));
+        labelUltimoTreino.setText(treinoDAO.buscarDataUltimoTreino(aluno.getId()));
+        labelTreinosMes.setText(String.valueOf(treinoDAO.contarTreinosNoMes(aluno.getId())));
         
-        List<String> oExerciciosDoAluno = treinoDAO.listarNomesExerciciosDoAluno(pAluno.getId());
+        List<String> oExerciciosDoAluno = treinoDAO.listarNomesExerciciosDoAluno(aluno.getId());
         if (oExerciciosDoAluno.isEmpty()) {
             comboExercicioGrafico.setItems(FXCollections.observableArrayList("Nenhum treino cadastrado"));
             comboExercicioGrafico.setDisable(true);
@@ -159,30 +160,31 @@ public class AnaliseAlunoController {
             comboExercicioGrafico.setDisable(false);
         }
         
-        renderizarGraficoPesoImcReal(pAluno);
-        gerarAlertas(pAluno);
+        renderizarGraficoPesoImcReal(aluno);
+        gerarAlertas(aluno);
 
         List<ItemHistorico> oHistorico = new ArrayList<>();
 
-        for (com.mycompany.academia.treino.model.ComentarioTreino c : treinoDAO.listarComentariosDoAluno(pAluno.getId())) {
+        for (com.mycompany.academia.treino.model.ComentarioTreino oC : treinoDAO.listarComentariosDoAluno(aluno.getId())) {
+            com.mycompany.academia.treino.model.Treino oTreinoC = oC.getTreino();
             oHistorico.add(new ItemHistorico(
-                c.getDataCriacao(), "feedback", c.getTreino().getNome(),
-                c.getTexto(), c.isLido(), c, null, c.getAluno(), c.getTreino()
+                oC.getDataCriacao(), "feedback", oTreinoC.getNome(),
+                oC.getTexto(), oC.isLido(), oC, null, oC.getAluno(), oTreinoC
             ));
         }
 
-        for (com.mycompany.academia.core.session.SessaoTreino s : treinoDAO.listarSessoesDoAluno(pAluno.getId())) {
-            com.mycompany.academia.treino.model.Treino oT = s.getProgramacaoTreino().getTreino();
+        for (com.mycompany.academia.core.session.SessaoTreino oS : treinoDAO.listarSessoesDoAluno(aluno.getId())) {
+            com.mycompany.academia.treino.model.Treino oT = oS.getProgramacaoTreino().getTreino();
             String desc = "Treino realizado";
-            if (s.getData() != null) {
-                long dias = java.time.temporal.ChronoUnit.DAYS.between(s.getData().toLocalDate(), LocalDate.now());
+            if (oS.getData() != null) {
+                long dias = java.time.temporal.ChronoUnit.DAYS.between(oS.getData().toLocalDate(), LocalDate.now());
                 if (dias == 0) desc = "Treino realizado hoje";
                 else if (dias == 1) desc = "Treino realizado ontem";
                 else desc = "Treino realizado";
             }
             oHistorico.add(new ItemHistorico(
-                s.getData(), "treino", oT.getNome(),
-                desc, true, null, s, pAluno, oT
+                oS.getData(), "treino", oT.getNome(),
+                desc, true, null, oS, aluno, oT
             ));
         }
 
@@ -192,9 +194,9 @@ public class AnaliseAlunoController {
         listaComentarios.setItems(FXCollections.observableArrayList(oHistorico));
     }
 
-    private void atualizarLabelsMedidas(Aluno pAluno) {
-        float imc = pAluno.getImc();
-        float altura = pAluno.getAltura();
+    private void atualizarLabelsMedidas(Aluno aluno) {
+        float imc = aluno.getImc();
+        float altura = aluno.getAltura();
 
         String classificacao = "";
         if (imc > 0 && imc < 18.5) classificacao = "(Abaixo do Peso)";
@@ -207,19 +209,19 @@ public class AnaliseAlunoController {
         float pesoIdealMin = 18.5f * (altura * altura);
         float pesoIdealMax = 24.9f * (altura * altura);
 
-        if (pAluno.getPeso() > 0) {
+        if (aluno.getPeso() > 0) {
             labelImcAluno.setText(String.format("Peso: %.1f kg | Altura: %.2f m | IMC: %.1f %s | Alvo Ideal: %.1f kg a %.1f kg", 
-                    pAluno.getPeso(), altura, imc, classificacao, pesoIdealMin, pesoIdealMax));
+                    aluno.getPeso(), altura, imc, classificacao, pesoIdealMin, pesoIdealMax));
         } else {
             labelImcAluno.setText("Aluno sem medidas registradas. Realize a primeira avaliação física.");
         }
     }
 
-    private void renderizarGraficoPesoImcReal(Aluno pAluno) {
+    private void renderizarGraficoPesoImcReal(Aluno aluno) {
         graficoEvolucao.getData().clear();
         ((CategoryAxis) graficoEvolucao.getXAxis()).getCategories().clear(); 
 
-        List<AvaliacaoFisica> oHistorico = alunoDAO.listarAvaliacoesDoAluno(pAluno.getId());
+        List<AvaliacaoFisica> oHistorico = alunoDAO.listarAvaliacoesDoAluno(aluno.getId());
 
         XYChart.Series<String, Number> oSeriesPeso = new XYChart.Series<>();
         oSeriesPeso.setName("Peso Corporal (kg)");
@@ -229,15 +231,15 @@ public class AnaliseAlunoController {
 
         DateTimeFormatter oFormatador = DateTimeFormatter.ofPattern("dd/MM");
 
-        for (AvaliacaoFisica avaliacao : oHistorico) {
-            String dataEixoX = avaliacao.getDataAvaliacao().format(oFormatador);
-            oSeriesPeso.getData().add(new XYChart.Data<>(dataEixoX, avaliacao.getPeso()));
-            oSeriesImc.getData().add(new XYChart.Data<>(dataEixoX, avaliacao.getImc()));
+        for (AvaliacaoFisica oAvaliacao : oHistorico) {
+            String dataEixoX = oAvaliacao.getDataAvaliacao().format(oFormatador);
+            oSeriesPeso.getData().add(new XYChart.Data<>(dataEixoX, oAvaliacao.getPeso()));
+            oSeriesImc.getData().add(new XYChart.Data<>(dataEixoX, oAvaliacao.getImc()));
         }
-        if (oHistorico.isEmpty() && pAluno.getPeso() > 0) {
+        if (oHistorico.isEmpty() && aluno.getPeso() > 0) {
             String hoje = LocalDate.now().format(oFormatador);
-            oSeriesPeso.getData().add(new XYChart.Data<>(hoje, pAluno.getPeso()));
-            oSeriesImc.getData().add(new XYChart.Data<>(hoje, pAluno.getImc()));
+            oSeriesPeso.getData().add(new XYChart.Data<>(hoje, aluno.getPeso()));
+            oSeriesImc.getData().add(new XYChart.Data<>(hoje, aluno.getImc()));
             graficoEvolucao.getData().addAll(oSeriesPeso, oSeriesImc);
             configurarTooltips(oSeriesPeso, " kg");
             configurarTooltips(oSeriesImc, " IMC");
@@ -248,22 +250,23 @@ public class AnaliseAlunoController {
         }
     }
 
-    private void renderizarGraficoCargaExercicios(Aluno pAluno, String pNomeExercicio) {
+    private void renderizarGraficoCargaExercicios(Aluno aluno, String nomeExercicio) {
         graficoCargas.getData().clear();
         ((CategoryAxis) graficoCargas.getXAxis()).getCategories().clear();
 
         XYChart.Series<String, Number> oSeriesCarga = new XYChart.Series<>();
-        oSeriesCarga.setName("Carga Máxima (kg) - " + pNomeExercicio);
+        oSeriesCarga.setName("Carga Máxima (kg) - " + nomeExercicio);
 
-        List<com.mycompany.academia.treino.model.ItemRealizado> oHistorico = treinoDAO.listarHistoricoCargas(pAluno.getId(), pNomeExercicio);
+        List<com.mycompany.academia.treino.model.ItemRealizado> oHistorico = treinoDAO.listarHistoricoCargas(aluno.getId(), nomeExercicio);
         java.time.format.DateTimeFormatter oFormatador = java.time.format.DateTimeFormatter.ofPattern("dd/MM");
 
         Map<String, com.mycompany.academia.core.session.SessaoTreino> oMapaSessoes = new HashMap<>();
 
-        for (com.mycompany.academia.treino.model.ItemRealizado ir : oHistorico) {
-            String dataEixoX = ir.getSessaoTreino().getData().format(oFormatador);
-            oMapaSessoes.putIfAbsent(dataEixoX, ir.getSessaoTreino());
-            XYChart.Data<String, Number> ponto = new XYChart.Data<>(dataEixoX, ir.getCargaUtilizada());
+        for (com.mycompany.academia.treino.model.ItemRealizado oIr : oHistorico) {
+            com.mycompany.academia.core.session.SessaoTreino oSessaoIr = oIr.getSessaoTreino();
+            String dataEixoX = oSessaoIr.getData().format(oFormatador);
+            oMapaSessoes.putIfAbsent(dataEixoX, oSessaoIr);
+            XYChart.Data<String, Number> ponto = new XYChart.Data<>(dataEixoX, oIr.getCargaUtilizada());
             oSeriesCarga.getData().add(ponto);
         }
 
@@ -325,7 +328,8 @@ public class AnaliseAlunoController {
         oComboAvaliacoesAnteriores.setItems(FXCollections.observableArrayList(oHistorico));
         oComboAvaliacoesAnteriores.setConverter(new StringConverter<AvaliacaoFisica>() {
             @Override public String toString(AvaliacaoFisica af) { 
-                return af == null ? "" : af.getDataAvaliacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " (" + af.getPeso() + "kg)"; 
+                if (af == null) return "";
+                return af.getDataAvaliacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " (" + af.getPeso() + "kg)"; 
             }
             @Override public AvaliacaoFisica fromString(String str) { return null; }
         });
@@ -437,17 +441,17 @@ public class AnaliseAlunoController {
         });
     }
 
-    private void abrirModalDetalhesTreino(com.mycompany.academia.core.session.SessaoTreino pSessao) {
+    private void abrirModalDetalhesTreino(com.mycompany.academia.core.session.SessaoTreino sessao) {
         try {
             FXMLLoader oLoader = new FXMLLoader(getClass().getResource("/fxml/DetalhesTreinoRealizado.fxml"));
             Parent oRoot = oLoader.load();
 
             DetalhesTreinoRealizadoController oController = oLoader.getController();
-            com.mycompany.academia.treino.model.Treino oTreino = pSessao.getProgramacaoTreino().getTreino();
+            com.mycompany.academia.treino.model.Treino oTreino = sessao.getProgramacaoTreino().getTreino();
             oController.carregarDadosReais(
                 alunoSelecionado,
                 oTreino,
-                pSessao.getData(),
+                sessao.getData(),
                 null
             );
 
@@ -463,18 +467,22 @@ public class AnaliseAlunoController {
             Alert oAlert = new Alert(Alert.AlertType.ERROR);
             oAlert.setTitle("Erro");
             oAlert.setHeaderText("Não foi possível abrir os detalhes do treino.");
-            oAlert.setContentText(e.getCause() != null ? e.getCause().toString() : e.toString());
+            if (e.getCause() != null) {
+                oAlert.setContentText(e.getCause().toString());
+            } else {
+                oAlert.setContentText(e.toString());
+            }
             oAlert.showAndWait();
         }
     }
 
-    private void abrirModalDetalhesTreino(com.mycompany.academia.treino.model.ComentarioTreino pComentario) {
+    private void abrirModalDetalhesTreino(com.mycompany.academia.treino.model.ComentarioTreino comentario) {
         try {
             FXMLLoader oLoader = new FXMLLoader(getClass().getResource("/fxml/DetalhesTreinoRealizado.fxml"));
             Parent oRoot = oLoader.load();
 
             DetalhesTreinoRealizadoController oController = oLoader.getController();
-            oController.carregarDadosReais(pComentario);
+            oController.carregarDadosReais(comentario);
 
             Stage oModal = new Stage();
             oModal.setTitle("Detalhes da Execução do Treino");
@@ -484,6 +492,7 @@ public class AnaliseAlunoController {
             oModal.showAndWait();
 
             if (alunoSelecionado != null) {
+                treinoDAO.marcarComentariosComoLidos(alunoSelecionado.getId());
                 mostrarDetalhesAluno(alunoSelecionado);
             }
         } catch (Exception e) {
@@ -494,13 +503,18 @@ public class AnaliseAlunoController {
             oAlert.setTitle("Modo Investigação - Bug Capturado");
             oAlert.setHeaderText("Um erro oculto impediu a tela de abrir!");
 
-            String causa = e.getCause() != null ? e.getCause().toString() : e.toString();
+            String causa;
+            if (e.getCause() != null) {
+                causa = e.getCause().toString();
+            } else {
+                causa = e.toString();
+            }
             oAlert.setContentText("Motivo da falha:\n" + causa + "\n\nOlhe o console (Output) do NetBeans para ver a linha exata do código onde isso quebrou.");
             oAlert.showAndWait();
         }
     }
 
-    private void gerarAlertas(Aluno pAluno) {
+    private void gerarAlertas(Aluno aluno) {
         caixaAlertas.getChildren().clear();
 
         String fichaAtiva = labelFichaAtiva.getText();

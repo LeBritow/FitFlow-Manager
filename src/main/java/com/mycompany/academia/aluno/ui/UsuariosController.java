@@ -60,18 +60,22 @@ public class UsuariosController {
         abrirFormulario(oSelecionado);
     }
 
-    private void abrirFormulario(Usuario pUsuario) {
+    private void abrirFormulario(Usuario usuario) {
         try {
             javafx.fxml.FXMLLoader oLoader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/FormUsuario.fxml"));
             javafx.scene.Parent oRaiz = oLoader.load();
             
-            if (pUsuario != null) {
+            if (usuario != null) {
                 FormUsuarioController oController = oLoader.getController();
-                oController.preencherParaEdicao(pUsuario);
+                oController.preencherParaEdicao(usuario);
             }
             
             javafx.stage.Stage oPalcoModal = new javafx.stage.Stage();
-            oPalcoModal.setTitle(pUsuario == null ? "Novo Usuário" : "Editar Usuário");
+            if (usuario == null) {
+                oPalcoModal.setTitle("Novo Usuário");
+            } else {
+                oPalcoModal.setTitle("Editar Usuário");
+            }
             oPalcoModal.setScene(new javafx.scene.Scene(oRaiz));
             
             oPalcoModal.initModality(javafx.stage.Modality.APPLICATION_MODAL);

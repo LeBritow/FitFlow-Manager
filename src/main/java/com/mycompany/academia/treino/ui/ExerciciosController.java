@@ -5,6 +5,7 @@ import com.mycompany.academia.core.config.GifSearchService;
 import com.mycompany.academia.core.util.TableUtils;
 import com.mycompany.academia.treino.dao.ExercicioDAO;
 import com.mycompany.academia.treino.model.Exercicio;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
@@ -49,14 +50,18 @@ public class ExerciciosController {
         TableUtils.autoFitColumns(tabelaExercicios);
     }
 
-    private void mostrarDetalhesExercicio(Exercicio pExercicio) {
-        if (pExercicio != null) {
-            lblNomeExercicio.setText(pExercicio.getNome() + " (" + pExercicio.getGrupoMuscular() + ")");
-            lblDescricao.setText(pExercicio.getDescricao() != null ? pExercicio.getDescricao() : "Sem descrição técnica.");
+    private void mostrarDetalhesExercicio(Exercicio exercicio) {
+        if (exercicio != null) {
+            lblNomeExercicio.setText(exercicio.getNome() + " (" + exercicio.getGrupoMuscular() + ")");
+            if (exercicio.getDescricao() != null) {
+                lblDescricao.setText(exercicio.getDescricao());
+            } else {
+                lblDescricao.setText("Sem descrição técnica.");
+            }
 
-            if (pExercicio.getUrlMidia() != null && !pExercicio.getUrlMidia().isEmpty()) {
+            if (exercicio.getUrlMidia() != null && !exercicio.getUrlMidia().isEmpty()) {
                 try {
-                    Image imagemGif = new Image(pExercicio.getUrlMidia(), true);
+                    Image imagemGif = new Image(exercicio.getUrlMidia(), true);
                     imgPreview.setImage(imagemGif);
                 } catch (Exception ex) {
                     imgPreview.setImage(null);
@@ -102,9 +107,12 @@ public class ExerciciosController {
     @FXML
     void clicouBuscarGifsMassa(ActionEvent event) {
         List<Exercicio> oTodos = dao.listarTodos();
-        List<Exercicio> oSemGif = oTodos.stream()
-                .filter(e -> e.getUrlMidia() == null || e.getUrlMidia().isEmpty())
-                .toList();
+        List<Exercicio> oSemGif = new ArrayList<>();
+        for (Exercicio e : oTodos) {
+            if (e.getUrlMidia() == null || e.getUrlMidia().isEmpty()) {
+                oSemGif.add(e);
+            }
+        }
 
         if (oSemGif.isEmpty()) {
             mostrarAlertaInfo("Todos os exercícios já possuem GIF.");
@@ -120,12 +128,12 @@ public class ExerciciosController {
             AtomicInteger falha = new AtomicInteger(0);
 
             for (int i = 0; i < total; i++) {
-                Exercicio e = oSemGif.get(i);
-                String url = gifService.buscarMelhorGif(e.getNome(), e.getGrupoMuscular());
+                Exercicio oE = oSemGif.get(i);
+                String url = gifService.buscarMelhorGif(oE.getNome(), oE.getGrupoMuscular());
 
                 if (url != null) {
-                    e.setUrlMidia(url);
-                    dao.inserir(e);
+                    oE.setUrlMidia(url);
+                    dao.inserir(oE);
                     sucesso.incrementAndGet();
                 } else {
                     falha.incrementAndGet();
@@ -151,18 +159,22 @@ public class ExerciciosController {
         }).start();
     }
 
-    private void abrirFormulario(Exercicio pExercicio) {
+    private void abrirFormulario(Exercicio exercicio) {
         try {
             javafx.fxml.FXMLLoader oLoader = new javafx.fxml.FXMLLoader(getClass().getResource("/fxml/FormExercicio.fxml"));
             javafx.scene.Parent oRaiz = oLoader.load();
 
-            if (pExercicio != null) {
+            if (exercicio != null) {
                 FormExercicioController oContr = oLoader.getController();
-                oContr.preencherParaEdicao(pExercicio);
+                oContr.preencherParaEdicao(exercicio);
             }
 
             javafx.stage.Stage oPalcoModal = new javafx.stage.Stage();
-            oPalcoModal.setTitle(pExercicio == null ? "Novo Exercício" : "Editar Exercício");
+            if (exercicio == null) {
+                oPalcoModal.setTitle("Novo Exercício");
+            } else {
+                oPalcoModal.setTitle("Editar Exercício");
+            }
             oPalcoModal.setScene(new javafx.scene.Scene(oRaiz));
             oPalcoModal.initModality(javafx.stage.Modality.APPLICATION_MODAL);
             oPalcoModal.showAndWait();
